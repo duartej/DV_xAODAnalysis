@@ -15,7 +15,9 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TFile.h>
-#include <vector>
+
+#include<vector>
+#include<string>
 
 class DVEventLoop : public EL::Algorithm
 {

@@ -4,8 +4,10 @@
 #include <DVAnalysis/DVEventLoop.h>
 
 /// analysis algs that might be run
-#include "DVAnalysis/DVBasicPlots.h"
-#include "DVAnalysis/TrkBasicPlots.h"
+//#include "DVAnalysis/DVBasicPlots.h"
+//#include "DVAnalysis/TrkBasicPlots.h"
+// The analysis builder encapsulates this information
+#include "DVAnalysis/DVAnaBuilder.h"
 
 
 #include "xAODRootAccess/TStore.h"
@@ -16,7 +18,7 @@
 // this is needed to distribute the algorithm to the workers
 ClassImp(DVEventLoop)
 
-DVEventLoop :: DVEventLoop ()
+DVEventLoop::DVEventLoop ()
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -27,21 +29,43 @@ DVEventLoop :: DVEventLoop ()
   m_analysisAlgs = new std::vector<DVBase*>;
 }
 
-EL::StatusCode
-DVEventLoop :: addAnalysisAlgs () { 
-
-  /// add analysis code
-  DVBasicPlots* dvPlots=new DVBasicPlots();
-  m_analysisAlgs->push_back(dvPlots);
-
-  TrkBasicPlots* trkPlots=new TrkBasicPlots();
-  m_analysisAlgs->push_back(trkPlots);
-
-  
-  return EL::StatusCode::SUCCESS;
+DVEventLoop::~DVEventLoop()
+{
+    for(auto & analysis: this->m_analysisAlgs)
+    {
+        if( analysis != 0 )
+        {
+            delete analysis;
+            analysis = 0;
+        }
+    }
+    if( this->m_analysisAlgs != 0 )
+    {
+        delete this->m_analysisAlgs;
+        this->m_analysisAlgs = 0;
+    }
 }
 
-
+EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg_names) 
+{ 
+    /* DVBasicPlots* dvPlots=new DVBasicPlots();
+    m_analysisAlgs->push_back(dvPlots);
+    TrkBasicPlots* trkPlots=new TrkBasicPlots();
+    m_analysisAlgs->push_back(trkPlots); */
+    
+    // add analysis codes
+    for(auto & alg: alg_names)
+    {
+        DVBase * dvAna = DVAnaBuilder::Build(alg);
+        if( ! dvAna )
+        {
+            return EL::StatusCode::FAILURE;
+        }
+        this->m_analysisAlgs->push_back(dvAna);
+    }
+    
+    return EL::StatusCode::SUCCESS;
+}
 
 EL::StatusCode DVEventLoop :: setupJob (EL::Job& job)
 {
