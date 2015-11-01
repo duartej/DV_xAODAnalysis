@@ -1,0 +1,68 @@
+
+#####################################################
+### DV_xAODAnalysis for Run 2 DV analysis ##########
+## contact nick.barlow@cern.ch with any questions.
+####################################################
+
+Simple framework setup to read AxAOD files produced by the RPVDispVrt package,
+based on RootCore/EventLoop.
+
+##############################################################
+##First time setup
+
+## start from a fresh shell, and do
+setupATLAS
+## ( or 
+export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
+## if you don't have the setupATLAS alias defined).
+
+## check out the package from SVN 
+svn co svn+ssh://svn.cern.ch/reps/atlasphys-susy/Physics/SUSY/Analyses/DVAnalysisUtils/DV_xAODAnalysis DV_xAODAnalysis
+
+## setup RootCore
+
+cd DV_xAODAnalysis
+rcSetup Base,2.3.28
+rc find_packages
+
+## build
+
+rc compile
+
+### run
+# The job requires a file called inputfiles.txt 
+# which contains a list of input AxAOD files, one per line.
+# so make this, e.g. ls [some_directory] > inputfiles.txt
+
+runDVAna
+
+## the output should be a file histograms.root with some histograms in.
+
+####################################################################
+
+#### Setup for each new session.
+
+## from a fresh shell, cd to the DV_xAODAnalysis directory and do
+
+rcSetup
+
+## you need to do 
+
+rc compile
+
+## every time you change the code.
+
+#####################################################################
+
+
+####  the idea behind the code is that there are several 
+####  analysis "algorithms", each of which have their own 
+####  histograms and do their own event loop,
+####  and one or more of them can be run at a time, controlled by 
+####  adding (or not adding) them to the vector m_analysisAlgs
+####  in DVEventLoop.cxx::addAnalysisAlgs().
+####  If you want to make changes, take a look at the existing "algs" 
+####  and see if you can just add some histograms to one of them, or, 
+####  write a new module inheriting from DVBase - just need to 
+####  remember to also add it to LinkDef.h
