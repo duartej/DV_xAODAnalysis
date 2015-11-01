@@ -18,7 +18,11 @@
 // this is needed to distribute the algorithm to the workers
 ClassImp(DVEventLoop)
 
-DVEventLoop::DVEventLoop ()
+DVEventLoop::DVEventLoop():
+    m_event(0),
+    m_eventCounter(0),
+    m_analysisAlgs(0),//new std::vector<DVBase*>),
+    m_outputFile(0)
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -31,7 +35,7 @@ DVEventLoop::DVEventLoop ()
 
 DVEventLoop::~DVEventLoop()
 {
-    for(auto & analysis: this->m_analysisAlgs)
+    for(auto & analysis: *(this->m_analysisAlgs))
     {
         if( analysis != 0 )
         {
@@ -46,6 +50,7 @@ DVEventLoop::~DVEventLoop()
     }
 }
 
+
 EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg_names) 
 { 
     /* DVBasicPlots* dvPlots=new DVBasicPlots();
@@ -54,7 +59,30 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
     m_analysisAlgs->push_back(trkPlots); */
     
     // add analysis codes
+    /*for(auto & alg: alg_names)
+    {
+        DVBase * dvAna = DVAnaBuilder::Build(alg);
+        if( ! dvAna )
+        {
+            return EL::StatusCode::FAILURE;
+        }
+        this->m_analysisAlgs->push_back(dvAna);
+    }*/
     for(auto & alg: alg_names)
+    {
+        this->m_algNames.push_back(alg);
+    }
+    
+    return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode DVEventLoop::addAnalysisAlgs() 
+{ 
+    /* DVBasicPlots* dvPlots=new DVBasicPlots();
+    m_analysisAlgs->push_back(dvPlots);
+    TrkBasicPlots* trkPlots=new TrkBasicPlots();
+    m_analysisAlgs->push_back(trkPlots); */
+    for(auto & alg: this->m_algNames)
     {
         DVBase * dvAna = DVAnaBuilder::Build(alg);
         if( ! dvAna )
@@ -64,7 +92,11 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
         this->m_analysisAlgs->push_back(dvAna);
     }
     
-    return EL::StatusCode::SUCCESS;
+    //- Obsolete
+    /*std::cout << "This function is DEPRECATED, use the signature "
+        << "'addAnalysisAlgs(vector<string>)'" << std::endl;*/
+
+    return EL::StatusCode::FAILURE;
 }
 
 EL::StatusCode DVEventLoop :: setupJob (EL::Job& job)
@@ -124,7 +156,7 @@ EL::StatusCode DVEventLoop :: fileExecute ()
 
 
 
-EL::StatusCode DVEventLoop :: changeInput (bool firstFile)
+EL::StatusCode DVEventLoop :: changeInput (bool /*firstFile*/)
 {
   ///  std::cout<<" in DVEventLoop::changeInput"<<std::endl;
   // Here you do everything you need to do when we change input files,
@@ -244,7 +276,7 @@ EL::StatusCode DVEventLoop :: histFinalize ()
     TList* hists = m_analysisAlgs->at(i)->getHists();
     TObject* h(0);
     TIter next(hists);
-    while (h=next()) {
+    while( (h=next()) ) {
       //      std::cout<<" Writing histogram "<<h->GetName()<<std::endl;
       
       h->Write();

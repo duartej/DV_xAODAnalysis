@@ -25,7 +25,7 @@
 
 
 // this is needed to distribute the algorithm to the workers
-ClassImp(DVAnaBuilder)
+//ClassImp(DVAnaBuilder)
 
 // The known list of analysis, include your DVBase here...
 const std::vector<std::string> DVAnaBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};

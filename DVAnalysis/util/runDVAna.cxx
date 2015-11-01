@@ -38,6 +38,8 @@ int main( int argc, char* argv[] ) {
 
   
   DVEventLoop* alg = new DVEventLoop();
+  const std::vector<std::string> analyses{"TrkBasicPlots","DVBasicPlots"}; 
+  alg->addAnalysisAlgs( analyses );
   job.algsAdd( alg );
 
 

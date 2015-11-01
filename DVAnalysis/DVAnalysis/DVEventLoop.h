@@ -39,6 +39,10 @@ public:
 
   // this is a standard constructor
   DVEventLoop ();
+  // and destructor
+  ~DVEventLoop();
+
+  EL::StatusCode addAnalysisAlgs(const std::vector<std::string> & ana_names);
 
   // these are the functions inherited from Algorithm
   virtual EL::StatusCode setupJob (EL::Job& job);
@@ -56,6 +60,9 @@ public:
   xAOD::TEvent *m_event;          //!
   unsigned int  m_eventCounter;   //!
  
+
+  std::vector<std::string> m_algNames;
+
   std::vector<DVBase*>* m_analysisAlgs;
   
 

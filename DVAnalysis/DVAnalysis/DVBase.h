@@ -10,6 +10,7 @@
 
 class DVBase {
  public:
+  virtual ~DVBase() { };
   virtual void init() {bookHists();};
   virtual void bookHists() = 0;
   virtual TList* getHists() = 0;

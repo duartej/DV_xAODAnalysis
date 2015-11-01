@@ -35,13 +35,13 @@ class DVBase;
 class DVAnaBuilder
 {
 public:
-    static DVBase * Build(const std::vector<string> & dvnames);
+    static DVBase * Build(const std::string & dvnames);
 
 private:
     const static std::vector<std::string> _validNames;
   
     // this is needed to distribute the algorithm to the workers
-    ClassDef(DVAnaBuilder, 1);
+    //ClassDef(DVAnaBuilder, 1);
 };
 
 #endif
