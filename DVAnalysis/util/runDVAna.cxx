@@ -1,4 +1,5 @@
 
+#include<iostream>
 
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
@@ -6,15 +7,35 @@
 #include "EventLoop/Job.h"
 #include "EventLoop/DirectDriver.h"
 
+#include "DVAnalysis/PyParser.h"
+
 
 #include "DVAnalysis/DVEventLoop.h"
 
-int main( int argc, char* argv[] ) {
+void display_usage()
+{
+  std::cout << "\033[37musage:\033[m runDVAna config.py [OPTIONS]" << std::endl;
+  std::cout << std::endl;
+}
 
-  
+int main( int argc, char* argv[] ) 
+{
+  if(argc < 2)
+  {
+      display_usage();
+      return -1;
+  }
+
+  // Getting the configuration
+  PyParser parser(argv[1]);
+
   // Take the submit directory from the input if provided:
   std::string submitDir = "submitDir";
-  if( argc > 1 ) submitDir = argv[ 1 ];
+  //if( argc > 1 ) submitDir = argv[ 1 ];
+  if( parser.Check("submitDir") )
+  {
+      submitDir = parser.Get<std::string>("submitDir");
+  }
 
   // Set up the job for xAOD access:
   xAOD::Init().ignore();
@@ -35,15 +56,11 @@ int main( int argc, char* argv[] ) {
   job.sampleHandler( sh );
 
   // Add our analysis to the job:
-
-  
   DVEventLoop* alg = new DVEventLoop();
-  const std::vector<std::string> analyses{"TrkBasicPlots","DVBasicPlots"}; 
+  std::vector<std::string> analyses = 
+      parser.Get<std::vector<std::string> >("analyses"); 
   alg->addAnalysisAlgs( analyses );
   job.algsAdd( alg );
-
-
-  
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;
