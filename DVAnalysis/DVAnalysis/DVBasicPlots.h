@@ -1,12 +1,12 @@
 #ifndef DVBasicPlots_h
 #define DVBasicPlots_h
 
-#include "DVAnalysis/DVAnaBase.h"
+#include "DVAnalysis/DVAlgBase.h"
 #include <TProfile.h>
 #include <TProfile2D.h>
 
 
-class DVBasicPlots : public DVAnaBase {
+class DVBasicPlots : public DVAlgBase {
  public:
   DVBasicPlots();
   virtual ~DVBasicPlots(){};

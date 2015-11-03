@@ -9,7 +9,6 @@
 
 #include "DVAnalysis/PyParser.h"
 
-
 #include "DVAnalysis/DVEventLoop.h"
 
 void display_usage()

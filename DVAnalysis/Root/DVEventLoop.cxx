@@ -21,7 +21,7 @@ ClassImp(DVEventLoop)
 DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
-    m_analysisAlgs(0),//new std::vector<DVAnaBase*>),
+    m_analysisAlgs(0),//new std::vector<DVAlgBase*>),
     m_outputFile(0)
 {
   // Here you put any code for the base initialization of variables,
@@ -30,7 +30,7 @@ DVEventLoop::DVEventLoop():
   // called on both the submission and the worker node.  Most of your
   // initialization code will go into histInitialize() and
   // initialize(). 
-  m_analysisAlgs = new std::vector<DVAnaBase*>;
+  m_analysisAlgs = new std::vector<DVAlgBase*>;
 }
 
 DVEventLoop::~DVEventLoop()
@@ -61,7 +61,7 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
     // add analysis codes
     /*for(auto & alg: alg_names)
     {
-        DVAnaBase * dvAna = DVAnaBuilder::Build(alg);
+        DVAlgBase * dvAna = DVAnaBuilder::Build(alg);
         if( ! dvAna )
         {
             return EL::StatusCode::FAILURE;
@@ -84,7 +84,7 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
     m_analysisAlgs->push_back(trkPlots); */
     for(auto & alg: this->m_algNames)
     {
-        DVAnaBase * dvAna = DVAnaBuilder::Build(alg);
+        DVAlgBase * dvAna = DVAnaBuilder::Build(alg);
         if( ! dvAna )
         {
             return EL::StatusCode::FAILURE;
