@@ -3,6 +3,7 @@
 
 // EDM includes: - if move to header file will not compile?
 #include "xAODEventInfo/EventInfo.h"
+#include "xAODTracking/VertexContainer.h"
 
 #include <iostream>
 #include <TMath.h>
@@ -115,7 +116,7 @@ void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent)
 {
     // Event info
     const xAOD::EventInfo * eventInfo = 0;
-    if( ! (thisEvent->retrieve( eventInfo ).isSuccess()) )
+    if( ! (thisEvent->retrieve( eventInfo,"EventInfo" ).isSuccess()) )
     {
         Error("execute()","Failed to retrieved EventInfo. Exiting...");
         return;

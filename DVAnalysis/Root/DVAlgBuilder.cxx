@@ -19,6 +19,7 @@
 #include "DVAnalysis/DVBasicPlots.h"
 #include "DVAnalysis/TrkBasicPlots.h"
 #include "DVAnalysis/LowMassDVEff.h"
+#include "DVAnalysis/DVPlusElectronBasic.h"
 
 // system libraries
 #include<iostream>
@@ -28,7 +29,8 @@
 //ClassImp(DVAlgBuilder)
 
 // The known list of analysis, include your DVAlgBase here...
-const std::vector<std::string> DVAlgBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
+// FIXME:: TO BE DEPRECTED, not needed anymore
+const std::vector<std::string> DVAlgBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff","DVPlusElectronBasic"};
 
 DVAlgBase * DVAlgBuilder::Build(const std::string & dv_analysis)
 {
@@ -46,6 +48,10 @@ DVAlgBase * DVAlgBuilder::Build(const std::string & dv_analysis)
     else if( dv_analysis == "LowMassDVEff" ) 
     {
         p = new LowMassDVEff();
+    }
+    else if( dv_analysis == "DVPlusElectronBasic" ) 
+    {
+        p = new DVPlusElectronBasic();
     }
     else
     {
