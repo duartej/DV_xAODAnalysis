@@ -54,8 +54,12 @@ int main( int argc, char* argv[] )
   EL::Job job;
   job.sampleHandler( sh );
 
-  // Add our analysis to the job:
   DVEventLoop* alg = new DVEventLoop();
+  // Add the available cuts algorithms
+  std::vector<std::string> cuts = 
+      parser.Get<std::vector<std::string> >("cut_algs"); 
+  alg->addCutAlgs( cuts );
+  // Add our analysis to the job:
   std::vector<std::string> analyses = 
       parser.Get<std::vector<std::string> >("analyses"); 
   alg->addAnalysisAlgs( analyses );

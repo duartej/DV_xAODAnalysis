@@ -3,11 +3,11 @@
 #include <EventLoop/Worker.h>
 #include <DVAnalysis/DVEventLoop.h>
 
-/// analysis algs that might be run
-//#include "DVAnalysis/DVBasicPlots.h"
-//#include "DVAnalysis/TrkBasicPlots.h"
-// The analysis builder encapsulates this information
-#include "DVAnalysis/DVAnaBuilder.h"
+// Builder for the analysis should be run
+#include "DVAnalysis/DVAlgBuilder.h"
+// Cut-container, to initialize the cut-algorithm
+// which can be used
+#include "DVAnalysis/DVCutsComposite.h"
 
 
 #include "xAODRootAccess/TStore.h"
@@ -50,24 +50,18 @@ DVEventLoop::~DVEventLoop()
     }
 }
 
+EL::StatusCode DVEventLoop::addCutAlgs(const std::vector<std::string> & cut_names) 
+{ 
+    for(auto & cut: cut_names)
+    {
+        this->m_cutNames.push_back(cut);
+    }
+    
+    return EL::StatusCode::SUCCESS;
+}
 
 EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg_names) 
 { 
-    /* DVBasicPlots* dvPlots=new DVBasicPlots();
-    m_analysisAlgs->push_back(dvPlots);
-    TrkBasicPlots* trkPlots=new TrkBasicPlots();
-    m_analysisAlgs->push_back(trkPlots); */
-    
-    // add analysis codes
-    /*for(auto & alg: alg_names)
-    {
-        DVAlgBase * dvAna = DVAnaBuilder::Build(alg);
-        if( ! dvAna )
-        {
-            return EL::StatusCode::FAILURE;
-        }
-        this->m_analysisAlgs->push_back(dvAna);
-    }*/
     for(auto & alg: alg_names)
     {
         this->m_algNames.push_back(alg);
@@ -78,25 +72,32 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
 
 EL::StatusCode DVEventLoop::addAnalysisAlgs() 
 { 
-    /* DVBasicPlots* dvPlots=new DVBasicPlots();
-    m_analysisAlgs->push_back(dvPlots);
-    TrkBasicPlots* trkPlots=new TrkBasicPlots();
-    m_analysisAlgs->push_back(trkPlots); */
+    //Create the cut-composite object
+    if(m_cutNames.size() < 1)
+    {
+        std::cout << "DVEventLoop WARNING: not cut algorithm was declared!" 
+            << std::endl;
+    }
+    DVCutsComposite * cut_container = new DVCutsComposite();
+    for(auto & cut: this->m_cutNames)
+    {
+        cut_container->add(cut);
+    }
+    // and be included as the first algorithm
+    this->m_analysisAlgs->push_back(cut_container);
+    
+    // The 'regular' analysis algorithms
     for(auto & alg: this->m_algNames)
     {
-        DVAlgBase * dvAna = DVAnaBuilder::Build(alg);
+        DVAlgBase * dvAna = DVAlgBuilder::Build(alg);
         if( ! dvAna )
         {
             return EL::StatusCode::FAILURE;
         }
         this->m_analysisAlgs->push_back(dvAna);
     }
-    
-    //- Obsolete
-    /*std::cout << "This function is DEPRECATED, use the signature "
-        << "'addAnalysisAlgs(vector<string>)'" << std::endl;*/
 
-    return EL::StatusCode::FAILURE;
+    return EL::StatusCode::SUCCESS;
 }
 
 EL::StatusCode DVEventLoop :: setupJob (EL::Job& job)
@@ -140,7 +141,6 @@ EL::StatusCode DVEventLoop :: histInitialize ()
     m_analysisAlgs->at(i)->bookHists();
   }
   
-
   return EL::StatusCode::SUCCESS;
 }
 
@@ -274,6 +274,11 @@ EL::StatusCode DVEventLoop :: histFinalize ()
   
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
     TList* hists = m_analysisAlgs->at(i)->getHists();
+    if( hists == 0)
+    {
+        // the cut case, do not returning anything
+        continue;
+    }
     TObject* h(0);
     TIter next(hists);
     while( (h=next()) ) {

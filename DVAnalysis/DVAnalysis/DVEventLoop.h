@@ -42,6 +42,9 @@ public:
   // and destructor
   ~DVEventLoop();
 
+  //! entry point of the available cut algorithms 
+  EL::StatusCode addCutAlgs(const std::vector<std::string> & cut_algs);
+  //! entry point for the analysis algorithms to be executed
   EL::StatusCode addAnalysisAlgs(const std::vector<std::string> & ana_names);
 
   // these are the functions inherited from Algorithm
@@ -61,6 +64,7 @@ public:
   unsigned int  m_eventCounter;   //!
  
 
+  std::vector<std::string> m_cutNames;
   std::vector<std::string> m_algNames;
 
   std::vector<DVAlgBase*>* m_analysisAlgs;
