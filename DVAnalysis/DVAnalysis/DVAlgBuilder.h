@@ -5,10 +5,10 @@
 // 
 /**\class DVAnaBuilder DVAnaBuilder.h DV_xAODAnalysis/DVAnalysis/Root/DVAnaBuilder.cxx
  Description: Builder to create DVAlgBase 
-              (MTAtom concrete classes).
- Implementation: The Builder is called by the DVEventLoop class (addAnalysisAlgs method)
-              acts as a client. The class calls the instances of DVAlgBase
-              selected by the user. Return a generic DVAlgBase.     
+ Implementation: The Builder is called by the DVEventLoop class (through the 
+      DVEventLoop::addAnalysisAlgs(vector<string>) method), which acts as a client. 
+      The class calls the instances of DVAlgBase selected by the user. Returns a 
+      generic DVAlgBase.     
 */
 //
 // Original Author: Jordi Duarte Campderros  
