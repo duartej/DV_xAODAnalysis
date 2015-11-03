@@ -44,6 +44,9 @@ class DVCutsComposite : public DVAlgBase, public DVCutsBase
         virtual void bookHists() { };
         //! nothing to do ?
         virtual TList* getHists() { return 0; };
+        //! Override init to initialize all the cut
+        virtual void Init(const char * goodrunlist, const char* goodlistfile);
+        //! Set the current event in order to access data
         virtual void execute(xAOD::TEvent* evt) { setEvent(evt); };
         //! nothing to do ?
         virtual void finalize() { };

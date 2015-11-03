@@ -37,6 +37,19 @@ DVCutsComposite::~DVCutsComposite()
     }
 }
 
+void DVCutsComposite::Init(const char * goodrunlist,const char * goodlistfile)
+{
+    for(auto & name_alg: m_cutAlgs)
+    {
+        // Probably not needed.... FIXME
+        if( name_alg.second == 0)
+        {
+            continue;
+        }
+        name_alg.second->Init(goodrunlist,goodlistfile);
+    }
+}
+
 void DVCutsComposite::add(const std::string & cutname)
 {
     DVCutsBase * p = 0;

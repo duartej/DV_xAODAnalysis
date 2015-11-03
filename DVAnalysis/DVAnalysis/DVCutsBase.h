@@ -38,15 +38,23 @@ namespace Root
     class TGoodRunsList;
 }
 
+namespace xAOD
+{
+    class TEvent;
+}
+
 class TH3F;
 
 class DVCutsBase
 {
     public:
         DVCutsBase();
-        virtual ~DVCutsBase() { };  
+        virtual ~DVCutsBase();  
         //! Initialization: material map, Good run list
         virtual void Init(const char * goodrunlist,const char * goodlistfile);
+        //! Generic cuts        
+        virtual bool PassesMaterialVeto(const xAOD::TEvent * const evt, const int & i);
+        
         //! Allowing composition of cuts
         virtual void add(const std::string & cutname) = 0;
 

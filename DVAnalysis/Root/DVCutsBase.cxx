@@ -16,6 +16,23 @@ DVCutsBase::DVCutsBase():
 {
 }
 
+DVCutsBase::~DVCutsBase()
+{
+    if( m_GRL != 0 )
+    {
+        delete m_GRL;
+        m_GRL = 0;
+    }
+    if( m_materialMap != 0 )
+    {
+        delete m_materialMap;
+        m_materialMap = 0;
+    }
+}
+
+
+
+
 void DVCutsBase::Init(const char * materialfile,const char * goodlistfile)
 {
     /// get the material map
@@ -64,6 +81,25 @@ bool DVCutsBase::getMaterialMap(const char *filename)
     mapfile->Close();
     return true;
 }
+
+bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & i) ////Float_t zDV, Float_t rDV) {
+{
+    //// TEMPORARY ///
+    return true;
+
+  /*if (m_materialMap==0) std::cout<<"NULL MATERIAL MAP!!"<<std::endl;
+
+  float rDV = pow((*m_dispVtx)[i].x()*(*m_dispVtx)[i].x()+(*m_dispVtx)[i].y()*(*m_dispVtx)[i].y(),0.5);
+  float zDV = (*m_dispVtx)[i].z();
+  float phiDV=TMath::ATan2((*m_dispVtx)[i].y(),(*m_dispVtx)[i].x());
+  if (phiDV < 0) phiDV = 2*TMath::Pi() + phiDV;
+  
+  if (m_materialMap->GetBinContent(m_materialMap->FindBin(rDV,phiDV,zDV)) > 0)
+    return kFALSE;
+ 
+  return kTRUE;*/
+}
+//
 
 //Bool_t DVCutsBase::PassesFiducialCuts(int i) {
 //
