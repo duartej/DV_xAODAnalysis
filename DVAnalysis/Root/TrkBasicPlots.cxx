@@ -100,12 +100,7 @@ TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
     }
     m_trkD0_all->Fill((*recoTrk_itr)->d0());
     m_trkZ0_all->Fill((*recoTrk_itr)->z0());
-    
-
-
-	    
   }
-  
 }
 
 void 

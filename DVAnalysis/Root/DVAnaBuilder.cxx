@@ -12,7 +12,7 @@
 
 
 #include "DVAnalysis/DVAnaBuilder.h"
-#include "DVAnalysis/DVBase.h"
+#include "DVAnalysis/DVAnaBase.h"
 
 // analysis algs that might be run, 
 // Insert here the include of any new developed analysis 
@@ -27,12 +27,12 @@
 // this is needed to distribute the algorithm to the workers
 //ClassImp(DVAnaBuilder)
 
-// The known list of analysis, include your DVBase here...
+// The known list of analysis, include your DVAnaBase here...
 const std::vector<std::string> DVAnaBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
 
-DVBase * DVAnaBuilder::Build(const std::string & dv_analysis)
+DVAnaBase * DVAnaBuilder::Build(const std::string & dv_analysis)
 {
-    DVBase * p = 0;
+    DVAnaBase * p = 0;
     
     // Algorithm cases
     if( dv_analysis == "TrkBasicPlots" )
@@ -50,7 +50,7 @@ DVBase * DVAnaBuilder::Build(const std::string & dv_analysis)
     else
     {
         std::cout << "DVAnaBuilder ERROR: the '" << dv_analysis << "' algorithm is not defined." 
-            << " If it is a valid algorithm (inheriting from DVBase), then this class (DVAnaBuilder)" 
+            << " If it is a valid algorithm (inheriting from DVAnaBase), then this class (DVAnaBuilder)" 
             << " should be extended to include it. YOu should:" << std::endl;
          std::cout << "\t* include the header of your new algorithm" << std::endl;
          std::cout << "\t* include the name of the new algorithm into the DVAnaBuilder::_validNames data-member" << std::endl;

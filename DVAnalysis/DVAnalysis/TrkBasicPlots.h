@@ -1,12 +1,12 @@
 #ifndef TrkBasicPlots_h
 #define TrkBasicPlots_h
 
-#include "DVAnalysis/DVBase.h"
+#include "DVAnalysis/DVAnaBase.h"
 #include <TProfile.h>
 #include <TProfile2D.h>
 
 
-class TrkBasicPlots : public DVBase {
+class TrkBasicPlots : public DVAnaBase {
  public:
   TrkBasicPlots();
   virtual ~TrkBasicPlots(){};

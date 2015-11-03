@@ -4,11 +4,11 @@
 // Class:      PyParser
 // 
 /**\class PyParser PyParser.h DV_xAODAnalysis/DVAnalysis/Root/PyParser.cxx
- Description: Builder to create DVBase 
+ Description: Builder to create DVAnaBase 
               (MTAtom concrete classes).
  Implementation: The Builder is called by the DVEventLoop class (addAnalysisAlgs method)
-              acts as a client. The class calls the instances of DVBase
-              selected by the user. Return a generic DVBase.     
+              acts as a client. The class calls the instances of DVAnaBase
+              selected by the user. Return a generic DVAnaBase.     
 */
 //
 // Original Author: Jordi Duarte Campderros  

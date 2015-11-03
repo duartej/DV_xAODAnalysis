@@ -22,10 +22,7 @@
 #include "DVAnalysis/PyParser.h"
 
 
-// this is needed to distribute the algorithm to the workers
-//ClassImp(PyParser)
-
-// The known list of analysis, include your DVBase here...
+// The known list of analysis, include your DVAnaBase here...
 //const std::vector<std::string> PyParser::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
 
 PyParser::PyParser(const std::string & inputfile):

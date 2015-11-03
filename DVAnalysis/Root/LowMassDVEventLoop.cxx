@@ -39,7 +39,7 @@ LowMassDVEventLoop :: LowMassDVEventLoop ()
   // called on both the submission and the worker node.  Most of your
   // initialization code will go into histInitialize() and
   // initialize(). 
-  m_analysisAlgs = new std::vector<DVBase*>;
+  m_analysisAlgs = new std::vector<DVAnaBase*>;
 }
 
 EL::StatusCode

@@ -1,7 +1,7 @@
 #ifndef LowMassDVEff_h
 #define LowMassDVEff_h
 
-#include "DVAnalysis/DVBase.h"
+#include "DVAnalysis/DVAnaBase.h"
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <TGraphAsymmErrors.h>
@@ -9,7 +9,7 @@
 
 #include <string>
 
-class LowMassDVEff : public DVBase {
+class LowMassDVEff : public DVAnaBase {
  public:
   LowMassDVEff();
   virtual ~LowMassDVEff(){};

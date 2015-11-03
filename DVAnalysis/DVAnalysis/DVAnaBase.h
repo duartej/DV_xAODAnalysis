@@ -1,5 +1,5 @@
-#ifndef DVBase_h
-#define DVBase_h
+#ifndef DVAnaBase_h
+#define DVAnaBase_h
 
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -8,9 +8,9 @@
 #include "TH2F.h"
 #include <vector>
 
-class DVBase {
+class DVAnaBase {
  public:
-  virtual ~DVBase() { };
+  virtual ~DVAnaBase() { };
   virtual void init() {bookHists();};
   virtual void bookHists() = 0;
   virtual TList* getHists() = 0;
