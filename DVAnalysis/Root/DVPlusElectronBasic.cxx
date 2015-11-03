@@ -143,39 +143,48 @@ void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent)
         return;
     }
 
-    m_nPV->Fill(primVtx->size());
-    /*if (m_primVtx->n() == 1) return;
-  float firstX=(*m_primVtx)[0].x();
-  float firstY=(*m_primVtx)[0].y();
-  float maxDist=0.;
+    m_nPV->Fill(primVtx->size()-1);
+    if(primVtx->size() == 1)
+    {
+        return;
+    }
+    // Primary vertex ordered somehow - FIXME
+    float firstX=(*primVtx)[0]->x();
+    float firstY=(*primVtx)[0]->y();
+    float maxDist=0.;
 
-  float zPVWeight=1.0;
-  float pileupWeight=1.0;
+    float zPVWeight=1.0;
+    float pileupWeight=1.0;
 
-  if (isMC) 
-  {
-        zPVWeight = m_utils->GetZPVWeight((*m_primVtx)[0].z());
+    /*if(isMC) 
+    {
+        zPVWeight = m_utils->GetZPVWeight((*primVtx)[0].z());
         m_zpvWeights->Fill(zPVWeight);
-    pileupWeight=m_utils->GetPileupWeight();
-    m_pileupWeights->Fill(pileupWeight);
-  }
-  m_PVx->Fill((*m_primVtx)[0].x());
-  m_PVy->Fill((*m_primVtx)[0].y());
-  m_PVxy->Fill((*m_primVtx)[0].x(),(*m_primVtx)[0].y());
-  m_PVz->Fill((*m_primVtx)[0].z());
-  m_PVz_zWeighted->Fill((*m_primVtx)[0].z(),zPVWeight);
+        pileupWeight=m_utils->GetPileupWeight();
+        m_pileupWeights->Fill(pileupWeight);
+    }*/
+    m_PVx->Fill((*primVtx)[0]->x());
+    m_PVy->Fill((*primVtx)[0]->y());
+    m_PVxy->Fill((*primVtx)[0]->x(),(*primVtx)[0]->y());
+    m_PVz->Fill((*primVtx)[0]->z());
+    m_PVz_zWeighted->Fill((*primVtx)[0]->z(),zPVWeight);
 
-  for (int i=0; i < m_primVtx->n()-1; ++i) {
-    float dist = TMath::Sqrt(((firstX-(*m_primVtx)[i].x())*(firstX-(*m_primVtx)[i].x()))
-                             +((firstY-(*m_primVtx)[i].y())*(firstY-(*m_primVtx)[i].y())));
-    if (dist > maxDist) maxDist = dist;
-  }
-  m_PVrSpread->Fill(maxDist);
+    for(unsigned int i=0; i < primVtx->size()-1; ++i) 
+    {
+        // Distance between the first PV and the rest
+        float dist = TMath::Sqrt(((firstX-(*primVtx)[i]->x())*(firstX-(*primVtx)[i]->x()))
+                +((firstY-(*primVtx)[i]->y())*(firstY-(*primVtx)[i]->y())));
+        if(dist > maxDist) 
+        {
+            maxDist = dist;
+        }
+    }
+    m_PVrSpread->Fill(maxDist);
+  
+    m_averageIntPerXing->Fill(eventInfo->averageInteractionsPerCrossing());
+    m_actualIntPerXing->Fill(eventInfo->actualInteractionsPerCrossing());
 
-  m_averageIntPerXing->Fill(m_eventInfo->averageIntPerXing());
-  m_actualIntPerXing->Fill(m_eventInfo->actualIntPerXing());
-
-  bool hasGoodElectron=false;
+    /*bool hasGoodElectron=false;
   std::vector<int> goodElectronIndices;
   for (int i=0; i< m_elec->n(); ++i) {
     

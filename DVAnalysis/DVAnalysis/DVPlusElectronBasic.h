@@ -1,18 +1,15 @@
 // -*- C++ -*-
 //
 // Package:    DV_xAODAnalysis/DVAnalysis
-// Class:      DVAlgBuilder
+// Class:      DVPlusElectronBasic
 // 
-/**\class DVAlgBuilder DVAlgBuilder.h DV_xAODAnalysis/DVAnalysis/Root/DVAlgBuilder.cxx
- Description: Builder to create DVPlusElectronBasic 
- Implementation: The Builder is called by the DVEventLoop class (through the 
-      DVEventLoop::addAnalysisAlgs(vector<string>) method), which acts as a client. 
-      The class calls the instances of DVPlusElectronBasic selected by the user. Returns a 
-      generic DVPlusElectronBasic.     
-*/
+/**\class DVPlusElectronBasic DVPlusElectronBasic.h DV_xAODAnalysis/DVAnalysis/Root/DVPlusElectronBasic.cxx
+ Description: ....
+ Implementation: ....
+ */
 //
 // Original Author: Jordi Duarte Campderros  
-//         Created:  Sun Nov 01 13:59:11 CET 2015
+//         Created:  Sun Nov 03 22:13:32 CET 2015
 // 
 // jordi.duarte.campderros@cern.ch
 //

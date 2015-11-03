@@ -68,7 +68,6 @@ public:
   std::vector<std::string> m_algNames;
 
   std::vector<DVAlgBase*>* m_analysisAlgs;
-  
 
   TFile* m_outputFile; //!
 
