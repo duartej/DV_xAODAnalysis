@@ -8,7 +8,8 @@
 #include "TH2F.h"
 #include <vector>
 
-class DVAlgBase {
+class DVAlgBase 
+{
     public:
         virtual ~DVAlgBase() { };
         virtual void init() {bookHists();};
@@ -20,8 +21,8 @@ class DVAlgBase {
         virtual void finalize() =0;        
         virtual void setEvent(xAOD::TEvent *event) { m_event=event; };
     protected:
-        xAOD::TEvent  *m_event;          //!
-        unsigned int  m_eventCounter;   //!
+        xAOD::TEvent * m_event;          //!
+        unsigned int   m_eventCounter;   //!
         //////  std::vector<TH1*> m_histList;   //!
 };
 #endif

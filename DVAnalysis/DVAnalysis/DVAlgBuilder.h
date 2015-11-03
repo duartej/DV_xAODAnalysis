@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    DV_xAODAnalysis/DVAnalysis
-// Class:      DVAnaBuilder
+// Class:      DVAlgBuilder
 // 
-/**\class DVAnaBuilder DVAnaBuilder.h DV_xAODAnalysis/DVAnalysis/Root/DVAnaBuilder.cxx
+/**\class DVAlgBuilder DVAlgBuilder.h DV_xAODAnalysis/DVAnalysis/Root/DVAlgBuilder.cxx
  Description: Builder to create DVAlgBase 
  Implementation: The Builder is called by the DVEventLoop class (through the 
       DVEventLoop::addAnalysisAlgs(vector<string>) method), which acts as a client. 
@@ -23,15 +23,15 @@
 #endif
 
 
-#ifndef DVAna_DVAnaBuilder_H
-#define DVAna_DVAnaBuilder_H
+#ifndef DVAna_DVAlgBuilder_H
+#define DVAna_DVAlgBuilder_H
 
 #include<vector>
 #include<string>
 
 class DVAlgBase;
 
-class DVAnaBuilder
+class DVAlgBuilder
 {
     public:
         static DVAlgBase * Build(const std::string & dvnames);

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    DV_xAODDVAnalysis/DVAnalysis
-// Class:      DVAnaBuilder
+// Class:      DVAlgBuilder
 // 
 //
 // Original Author: Jordi Duarte Campderros  
@@ -11,7 +11,7 @@
 //
 
 
-#include "DVAnalysis/DVAnaBuilder.h"
+#include "DVAnalysis/DVAlgBuilder.h"
 #include "DVAnalysis/DVAlgBase.h"
 
 // analysis algs that might be run, 
@@ -25,12 +25,12 @@
 
 
 // this is needed to distribute the algorithm to the workers
-//ClassImp(DVAnaBuilder)
+//ClassImp(DVAlgBuilder)
 
 // The known list of analysis, include your DVAlgBase here...
-const std::vector<std::string> DVAnaBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
+const std::vector<std::string> DVAlgBuilder::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
 
-DVAlgBase * DVAnaBuilder::Build(const std::string & dv_analysis)
+DVAlgBase * DVAlgBuilder::Build(const std::string & dv_analysis)
 {
     DVAlgBase * p = 0;
     
@@ -49,12 +49,12 @@ DVAlgBase * DVAnaBuilder::Build(const std::string & dv_analysis)
     }
     else
     {
-        std::cout << "DVAnaBuilder ERROR: the '" << dv_analysis << "' algorithm is not defined." 
-            << " If it is a valid algorithm (inheriting from DVAlgBase), then this class (DVAnaBuilder)" 
+        std::cout << "DVAlgBuilder ERROR: the '" << dv_analysis << "' algorithm is not defined." 
+            << " If it is a valid algorithm (inheriting from DVAlgBase), then this class (DVAlgBuilder)" 
             << " should be extended to include it. YOu should:" << std::endl;
          std::cout << "\t* include the header of your new algorithm" << std::endl;
-         std::cout << "\t* include the name of the new algorithm into the DVAnaBuilder::_validNames data-member" << std::endl;
-         std::cout << "\t* include a new case inside the DVAnaBuilder::Build method" << std::endl;
+         std::cout << "\t* include the name of the new algorithm into the DVAlgBuilder::_validNames data-member" << std::endl;
+         std::cout << "\t* include a new case inside the DVAlgBuilder::Build method" << std::endl;
     }
 
     return p;
