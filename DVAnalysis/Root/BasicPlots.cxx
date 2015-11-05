@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include "DVAnalysis/DVBasicPlots.h"
+#include "DVAnalysis/BasicPlots.h"
 
 
 // EDM includes: - if move to header file will not compile?
@@ -15,13 +15,12 @@
 #include "xAODRootAccess/TStore.h"
 #include "xAODCore/ShallowCopy.h"
 
-DVBasicPlots::DVBasicPlots() 
+DV::BasicPlots::BasicPlots() 
 {
-  std::cout<<"in DVBasicPlots constructor"<<std::endl;
   m_histList = new TList();
   
 }
-void DVBasicPlots::bookHists() 
+void DV::BasicPlots::bookHists() 
 {
   m_DVxy = new TH2F("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
   m_histList->Add(m_DVxy);
@@ -35,14 +34,14 @@ void DVBasicPlots::bookHists()
 }
 
 TList* 
-DVBasicPlots::getHists() 
+DV::BasicPlots::getHists() 
 {
   return m_histList;
 }
 
 
 void 
-DVBasicPlots::execute(xAOD::TEvent* thisEvent) 
+DV::BasicPlots::execute(xAOD::TEvent* thisEvent) 
 {
    // get DV container of interest
   const xAOD::VertexContainer* recoVertices = 0;
@@ -62,10 +61,6 @@ DVBasicPlots::execute(xAOD::TEvent* thisEvent)
     m_DVmass->Fill(mass/1000.);
 
     long int nTrk = (*dv_itr)->auxdataConst< std::vector<long int> >("trackIndices").size();
-    //std::cout << "================================" << std::endl;
-    //for (const auto& index : (*dv_itr)->auxdataConst< std::vector<long int> >("trackIndices")){
-    //  std::cout << index << std::endl;
-    //}
     h_nTrkAssocVertAll->Fill(nTrk);
     
     h_DVmassVSnTrkAll->Fill(nTrk, mass/1000.);
@@ -73,7 +68,7 @@ DVBasicPlots::execute(xAOD::TEvent* thisEvent)
 }
 
 void 
-DVBasicPlots::finalize() 
+DV::BasicPlots::finalize() 
 {
   
 }

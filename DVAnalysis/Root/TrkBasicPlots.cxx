@@ -14,13 +14,12 @@
 
 #include <bitset>
 
-TrkBasicPlots::TrkBasicPlots() 
+DV::TrkBasicPlots::TrkBasicPlots() 
 {
-  std::cout<<"in TrkBasicPlots constructor"<<std::endl;
   m_histList = new TList();
   
 }
-void TrkBasicPlots::bookHists() 
+void DV::TrkBasicPlots::bookHists() 
 {
 
   m_nSCTHitsOnTrack = new TH1F("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);
@@ -52,14 +51,14 @@ void TrkBasicPlots::bookHists()
 }
 
 TList* 
-TrkBasicPlots::getHists() 
+DV::TrkBasicPlots::getHists() 
 {
   return m_histList;
 }
 
 
 void 
-TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
+DV::TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
   
   // get track container of interest
   const xAOD::TrackParticleContainer* recoTracks = 0;
@@ -104,7 +103,7 @@ TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
 }
 
 void 
-TrkBasicPlots::finalize() 
+DV::TrkBasicPlots::finalize() 
 {
   
 }

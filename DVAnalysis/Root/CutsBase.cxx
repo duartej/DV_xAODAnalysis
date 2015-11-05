@@ -1,4 +1,4 @@
-#include "DVAnalysis/DVCutsBase.h"
+#include "DVAnalysis/CutsBase.h"
 
 #include "GoodRunsLists/TGoodRunsListReader.h"
 #include "GoodRunsLists/TGoodRunsList.h"
@@ -10,13 +10,13 @@
 #include<iostream>
 
 
-DVCutsBase::DVCutsBase():
+DV::CutsBase::CutsBase():
     m_GRL(0),
     m_materialMap(0)
 {
 }
 
-DVCutsBase::~DVCutsBase()
+DV::CutsBase::~CutsBase()
 {
     if( m_GRL != 0 )
     {
@@ -33,12 +33,12 @@ DVCutsBase::~DVCutsBase()
 
 
 
-void DVCutsBase::Init(const char * materialfile,const char * goodlistfile)
+void DV::CutsBase::Init(const char * materialfile,const char * goodlistfile)
 {
     /// get the material map
     if( ! getMaterialMap(materialfile) )
     {
-        std::cout<<"DVCutsBase WARNING: not using material map" << std::endl;
+        std::cout<<"DV::CutsBase WARNING: not using material map" << std::endl;
     }
   
     if(goodlistfile == NULL) 
@@ -52,7 +52,7 @@ void DVCutsBase::Init(const char * materialfile,const char * goodlistfile)
     ///data12_8TeV.periodAllYear_DetStatus-v58-pro14-01_DQDefects-00-00-33_PHYS_StandardGRL_All_Good.xml";
     //  std::string sname = "data11_7TeV.periodAllYear_goodRPC.xml";
     ///data11_7TeV.periodAllYear_DetStatus-v36-pro09-03_CoolRunQuery-00-04-08_Muon.xml";
-    std::cout << "DVCutsBase INFO: Good Run List XML to load '" << goodlistfile << std::endl;
+    std::cout << "DV::CutsBase INFO: Good Run List XML to load '" << goodlistfile << std::endl;
     grl_R->SetXMLFile(goodlistfile);
     grl_R->Interpret();
     m_GRL = new Root::TGoodRunsList(grl_R->GetMergedGoodRunsList());
@@ -61,7 +61,7 @@ void DVCutsBase::Init(const char * materialfile,const char * goodlistfile)
     grl_R = 0;
 }
 
-bool DVCutsBase::getMaterialMap(const char *filename) 
+bool DV::CutsBase::getMaterialMap(const char *filename) 
 {
     if( filename == NULL )
     {
@@ -72,7 +72,7 @@ bool DVCutsBase::getMaterialMap(const char *filename)
     m_materialMap = (TH3F*)(mapfile->Get("map"));
     if(m_materialMap == NULL)
     {
-        std::cout<<"DVCutsBase WARNING: PROBLEM GETTING MATERIAL MAP from"
+        std::cout<<"DV::CutsBase WARNING: PROBLEM GETTING MATERIAL MAP from"
             << " '" << filename << "'" << std::endl;
         mapfile->Close();
         return false;
@@ -82,7 +82,7 @@ bool DVCutsBase::getMaterialMap(const char *filename)
     return true;
 }
 
-bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & i) ////Float_t zDV, Float_t rDV) {
+bool DV::CutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & i) ////Float_t zDV, Float_t rDV) {
 {
     //// TEMPORARY ///
     return true;
@@ -101,7 +101,7 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 }
 //
 
-//Bool_t DVCutsBase::PassesFiducialCuts(int i) {
+//Bool_t DV::CutsBase::PassesFiducialCuts(int i) {
 //
 //  Float_t xDV = (*m_dispVtx)[i].x();
 //  Float_t yDV = (*m_dispVtx)[i].y();
@@ -115,13 +115,13 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 //  return true;
 //}
 //
-//Bool_t DVCutsBase::PassesChisqCut(int i) {
+//Bool_t DV::CutsBase::PassesChisqCut(int i) {
 //  float chisqPerDOF = (*m_dispVtx)[i].chi2() / (*m_dispVtx)[i].ndof();
 //  if (chisqPerDOF > 5.0) return false;
 //  return true;
 //}
 //
-//Bool_t DVCutsBase::PassesRDVDistCut(int i) {
+//Bool_t DV::CutsBase::PassesRDVDistCut(int i) {
 //  Float_t xDV = (*m_dispVtx)[i].x();
 //  Float_t yDV = (*m_dispVtx)[i].y();
 //  for (int j=0; j< m_primVtx->n()-1; ++j) {
@@ -138,7 +138,7 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 //
 //
 //
-//Bool_t DVCutsBase::PassesGRL() {
+//Bool_t DV::CutsBase::PassesGRL() {
 //  
 //  if ((! m_eventInfo->isSimulation()) && (!m_useGRL)) {
 //    std::cout<<"Job is not configured to use GRL!"<<std::endl;
@@ -151,7 +151,7 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 ////For Jets + MET
 ////LAr noise burst, tile corrupted events, incomplete events and 
 ////https://twiki.cern.ch/twiki/bin/viewauth/Atlas/DataPreparationCheckListForPhysicsAnalysis
-//Bool_t DVCutsBase::PassesEventCleaning() {
+//Bool_t DV::CutsBase::PassesEventCleaning() {
 //  if (m_eventInfo->larError()==2) return false;
 //  if (m_eventInfo->tileError()==2) return false;
 //  if ((m_eventInfo->coreFlags()&0x40000) != 0) return false;
@@ -159,7 +159,7 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 //  return true;
 //}
 //
-//Bool_t DVCutsBase::PassesPVCuts() {
+//Bool_t DV::CutsBase::PassesPVCuts() {
 //
 //  if (! PassesNPVCut()) return false;
 //  if (! PassesZPVCut()) return false;
@@ -167,21 +167,21 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 //  return true;
 //}
 //
-//Bool_t DVCutsBase::PassesNPVCut() {
+//Bool_t DV::CutsBase::PassesNPVCut() {
 //  return (m_primVtx->n() > 1);
 //}
 //
-//Bool_t DVCutsBase::PassesZPVCut() {
+//Bool_t DV::CutsBase::PassesZPVCut() {
 //  return (fabs((*m_primVtx)[0].z()) < 200.);
 //}
 //
-//Bool_t DVCutsBase::PassesPVnTrkCut() {
+//Bool_t DV::CutsBase::PassesPVnTrkCut() {
 //  return ((*m_primVtx)[0].nTracks() > 5);
 //}
 //
 //
 //
-//Bool_t DVCutsBase::PassesMaterialVeto(int i) { ////Float_t zDV, Float_t rDV) {
+//Bool_t DV::CutsBase::PassesMaterialVeto(int i) { ////Float_t zDV, Float_t rDV) {
 //
 //  //// TEMPORARY ////
 //  //  return kTRUE;
@@ -199,7 +199,7 @@ bool DVCutsBase::PassesMaterialVeto(const xAOD::TEvent * const evt, const int & 
 //  return kTRUE;
 //}
 //
-//int DVCutsBase::GetRegion(int i) {
+//int DV::CutsBase::GetRegion(int i) {
 //  float rDV = pow((*m_dispVtx)[i].x()*(*m_dispVtx)[i].x()+(*m_dispVtx)[i].y()*(*m_dispVtx)[i].y(),0.5);
 //  Bool_t nonMaterial = PassesMaterialVeto(i);
 //  int rIndex = -1;

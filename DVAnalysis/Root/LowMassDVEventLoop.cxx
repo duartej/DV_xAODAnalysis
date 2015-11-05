@@ -4,7 +4,7 @@
 #include <DVAnalysis/LowMassDVEventLoop.h>
 
 /// analysis algs that might be run
-#include "DVAnalysis/DVBasicPlots.h"
+#include "DVAnalysis/BasicPlots.h"
 #include "DVAnalysis/TrkBasicPlots.h"
 #include "DVAnalysis/LowMassDVEff.h"
 
@@ -39,17 +39,17 @@ LowMassDVEventLoop :: LowMassDVEventLoop ()
   // called on both the submission and the worker node.  Most of your
   // initialization code will go into histInitialize() and
   // initialize(). 
-  m_analysisAlgs = new std::vector<DVAlgBase*>;
+  m_analysisAlgs = new std::vector<DV::AlgBase*>;
 }
 
 EL::StatusCode
 LowMassDVEventLoop :: addAnalysisAlgs () { 
 
   /// add analysis code
-  DVBasicPlots* dvPlots=new DVBasicPlots();
+  DV::BasicPlots* dvPlots=new DV::BasicPlots();
   m_analysisAlgs->push_back(dvPlots);
 
-  TrkBasicPlots* trkPlots=new TrkBasicPlots();
+  DV::TrkBasicPlots* trkPlots=new DV::TrkBasicPlots();
   m_analysisAlgs->push_back(trkPlots);
   
   LowMassDVEff* vertEff = new LowMassDVEff();

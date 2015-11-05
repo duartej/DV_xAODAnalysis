@@ -22,8 +22,8 @@
 #include "DVAnalysis/PyParser.h"
 
 
-// The known list of analysis, include your DVAlgBase here...
-//const std::vector<std::string> PyParser::_validNames{"TrkBasicPlots","DVBasicPlots","LowMassDVEff"};
+// The known list of analysis, include your DV::AlgBase here...
+//const std::vector<std::string> PyParser::_validNames{"TrkBasicPlots","BasicPlots","LowMassDVEff"};
 
 PyParser::PyParser(const std::string & inputfile):
     _filename(inputfile)

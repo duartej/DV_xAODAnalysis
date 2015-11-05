@@ -4,10 +4,10 @@
 #include <DVAnalysis/DVEventLoop.h>
 
 // Builder for the analysis should be run
-#include "DVAnalysis/DVAlgBuilder.h"
+#include "DVAnalysis/AlgBuilder.h"
 // Cut-container, to initialize the cut-algorithm
 // which can be used
-#include "DVAnalysis/DVCutsComposite.h"
+#include "DVAnalysis/CutsComposite.h"
 
 
 #include "xAODRootAccess/TStore.h"
@@ -21,7 +21,7 @@ ClassImp(DVEventLoop)
 DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
-    m_analysisAlgs(0),//new std::vector<DVAlgBase*>),
+    m_analysisAlgs(0),//new std::vector<DV::AlgBase*>),
     m_outputFile(0)
 {
   // Here you put any code for the base initialization of variables,
@@ -30,7 +30,7 @@ DVEventLoop::DVEventLoop():
   // called on both the submission and the worker node.  Most of your
   // initialization code will go into histInitialize() and
   // initialize(). 
-  m_analysisAlgs = new std::vector<DVAlgBase*>;
+  m_analysisAlgs = new std::vector<DV::AlgBase*>;
 }
 
 DVEventLoop::~DVEventLoop()
@@ -78,7 +78,7 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
         std::cout << "DVEventLoop WARNING: not cut algorithm was declared!" 
             << std::endl;
     }
-    DVCutsComposite * cut_container = new DVCutsComposite();
+    DV::CutsComposite * cut_container = new DV::CutsComposite();
     for(auto & cut: this->m_cutNames)
     {
         cut_container->add(cut);
@@ -89,7 +89,7 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
     // The 'regular' analysis algorithms
     for(auto & alg: this->m_algNames)
     {
-        DVAlgBase * dvAna = DVAlgBuilder::Build(alg);
+        DV::AlgBase * dvAna = DV::AlgBuilder::Build(alg);
         if( ! dvAna )
         {
             return EL::StatusCode::FAILURE;

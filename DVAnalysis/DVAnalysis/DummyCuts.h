@@ -25,16 +25,17 @@
 #endif
 
 
-#ifndef DVDummyCuts_H
-#define DVDummyCuts_H
+#ifndef DV_DUMMYCUTS_H
+#define DV_DUMMYCUTS_H
 
-#include "DVAnalysis/DVCutsBase.h"
+#include "DVAnalysis/CutsBase.h"
 
-class DVDummyCuts : public DVCutsBase
+namespace DV
 {
-    public:
-        virtual void add(const std::string & /*cutname*/) { /*do nothing*/ };
-
-};
-
+    class DummyCuts : public CutsBase
+    {
+        public:
+            virtual void add(const std::string & /*cutname*/) { /*do nothing*/ };
+    };
+}
 #endif

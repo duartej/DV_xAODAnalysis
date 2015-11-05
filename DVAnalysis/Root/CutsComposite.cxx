@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    DV_xAODDVAnalysis/DVAnalysis
-// Class:      DVCutsComposite
+// Class:      DV::CutsComposite
 // 
 //
 // Original Author: Jordi Duarte Campderros  
@@ -11,20 +11,20 @@
 //
 
 
-#include "DVAnalysis/DVCutsComposite.h"
+#include "DVAnalysis/CutsComposite.h"
 
 // Insert here the include of any cut algorithm you want to use
-#include "DVAnalysis/DVDummyCuts.h"
+#include "DVAnalysis/DummyCuts.h"
 
 // system libraries
 #include<iostream>
 #include<stdexcept>
 
 
-// The known list of analysis, include your DVAlgBase here... not needed?
-const std::vector<std::string> DVCutsComposite::_validNames{"DVDummyCuts"};
+// The known list of analysis, include your DV::AlgBase here... not needed?
+const std::vector<std::string> DV::CutsComposite::_validNames{"DummyCuts"};
 
-DVCutsComposite::~DVCutsComposite()
+DV::CutsComposite::~CutsComposite()
 {
     //de-alloc the created Cuts-algs in the add method
     for(auto & name_alg: m_cutAlgs)
@@ -37,7 +37,7 @@ DVCutsComposite::~DVCutsComposite()
     }
 }
 
-void DVCutsComposite::Init(const char * goodrunlist,const char * goodlistfile)
+void DV::CutsComposite::Init(const char * goodrunlist,const char * goodlistfile)
 {
     for(auto & name_alg: m_cutAlgs)
     {
@@ -50,23 +50,23 @@ void DVCutsComposite::Init(const char * goodrunlist,const char * goodlistfile)
     }
 }
 
-void DVCutsComposite::add(const std::string & cutname)
+void DV::CutsComposite::add(const std::string & cutname)
 {
-    DVCutsBase * p = 0;
+    DV::CutsBase * p = 0;
     
     // Algorithm cases
-    if( cutname == "DVDummyCuts" )
+    if( cutname == "DummyCuts" )
     {
-        p = new DVDummyCuts();
+        p = new DummyCuts();
     }
     else
     {
-        std::string message("DVCutsComposite ERROR: the '"+cutname+"' cut algorithm is not defined."\
-                " If it is a valid cut (inheriting from DVCutsBase), then this class (DVCutsComposite)"\
+        std::string message("DV::CutsComposite ERROR: the '"+cutname+"' cut algorithm is not defined."\
+                " If it is a valid cut (inheriting from DV::CutsBase), then this class (DV::CutsComposite)"\
                 " should be extended to include it. You should:\n"\
                 "\t* include the header of your new algorithm\n"\
-                "\t* include the name of the new algorithm into the DVCutsComposite::_validNames data-member"\
-                "\t* include a new case inside the DVCutsComposite::add method");
+                "\t* include the name of the new algorithm into the DV::CutsComposite::_validNames data-member\n"\
+                "\t* include a new case inside the DV::CutsComposite::add method");
          throw std::runtime_error(message);
     }
 

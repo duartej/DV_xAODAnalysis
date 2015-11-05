@@ -17,12 +17,12 @@
 #ifndef DVPlusElectronBasic_h
 #define DVPlusElectronBasic_h
 
-#include "DVAnalysis/DVAlgBase.h"
+#include "DVAnalysis/AlgBase.h"
 
 class TH1F;
 class TH2F;
 
-class DVPlusElectronBasic : public DVAlgBase
+class DVPlusElectronBasic : public DV::AlgBase
 {
     public:
         DVPlusElectronBasic();

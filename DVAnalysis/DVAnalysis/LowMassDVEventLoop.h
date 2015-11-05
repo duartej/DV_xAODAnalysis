@@ -12,7 +12,7 @@
 
 #include "GoodRunsLists/GoodRunsListSelectionTool.h"
 #include <EventLoop/Algorithm.h>
-#include "DVAnalysis/DVAlgBase.h"
+#include "DVAnalysis/AlgBase.h"
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TFile.h>
@@ -56,7 +56,7 @@ public:
   xAOD::TEvent *m_event;          //!
   unsigned int  m_eventCounter;   //!
  
-  std::vector<DVAlgBase*>* m_analysisAlgs;
+  std::vector<DV::AlgBase*>* m_analysisAlgs;
   
 
   TFile* m_outputFile; //!

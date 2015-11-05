@@ -1,5 +1,5 @@
 #include "DVAnalysis/DVEventLoop.h"
-#include "DVAnalysis/DVBasicPlots.h"
+#include "DVAnalysis/BasicPlots.h"
 #include "DVAnalysis/TrkBasicPlots.h"
 #include "DVAnalysis/LowMassDVEventLoop.h"
 #include "DVAnalysis/LowMassDVEff.h"
@@ -13,8 +13,8 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class DVEventLoop+;
-#pragma link C++ class DVBasicPlots+;
-#pragma link C++ class TrkBasicPlots+;
+#pragma link C++ class DV::BasicPlots+;
+#pragma link C++ class DV::TrkBasicPlots+;
 #pragma link C++ class LowMassDVEventLoop+;
 #pragma link C++ class LowMassDVEff+;
 
