@@ -93,6 +93,8 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
             const DV::CutsBase * cutobject = cut_container->add(cut);
             dvAna->attachCut(cut,cutobject);
         }
+        // and personalize the cuts in the concrete alg
+        dvAna->assignCuts();
         this->m_analysisAlgs->push_back(dvAna);
     }
     // Let's insert the cut container as the first algorithm

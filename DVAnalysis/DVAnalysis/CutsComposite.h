@@ -52,6 +52,9 @@ namespace DV
             virtual void execute(xAOD::TEvent* evt) { setEvent(evt); };
             //! nothing to do ?
             virtual void finalize() { };
+
+            //! pure virtual from AlgBase, no sense here
+            virtual void assignCuts(){;};
     
             //! specific to the composite.
             //! add the cut to the container and return it

@@ -27,14 +27,18 @@ namespace DV
             virtual void execute(xAOD::TEvent*)=0;        
             virtual void finalize() =0;        
             virtual void setEvent(xAOD::TEvent *event) { m_event=event; };
+
             //! Return the concrete Cut classes needed by the algorithm
             virtual std::vector<std::string> getCutNames() { return m_cutnames; };
             //! Return the concrete tool classes needed by the algorithm
             virtual std::vector<std::string> getToolNames() { return m_toolnames; };
             //! Get access to the needed cut classes
             virtual void attachCut(const std::string & cutname,const CutsBase * cutObject) { m_cutsMap[cutname] = cutObject; };
-
+            //! Concrete implementation of the cuts.. explain that more
+            virtual void assignCuts() = 0;
+        
         protected:
+            virtual void checkCutAvailability(const std::string & cut, const std::string & algname);
             xAOD::TEvent * m_event;          //!
             unsigned int   m_eventCounter;   //!
             //////  std::vector<TH1*> m_histList;   //!

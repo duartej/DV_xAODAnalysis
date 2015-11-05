@@ -276,3 +276,9 @@ void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent)
 void DVPlusElectronBasic::finalize()
 {
 }
+
+void DVPlusElectronBasic::assignCuts()
+{
+    checkCutAvailability("DummyCuts","DVPlusElectronBasic");
+    m_cuts = static_cast<const DV::DummyCuts*>(this->m_cutsMap["DummyCuts"]);
+}

@@ -38,6 +38,9 @@ class DVPlusElectronBasic : public DV::AlgBase
         virtual TList* getHists();
         virtual void execute(xAOD::TEvent*);        
         virtual void finalize();
+        
+        //! The cuts which are used in this class
+        virtual void assignCuts();
 
     private:
         TList* m_histList;
@@ -77,7 +80,7 @@ class DVPlusElectronBasic : public DV::AlgBase
         TH1F* m_zpvWeights;
         TH1F* m_elecWeights;
         
-        DV::DummyCuts * m_cuts;
+        const DV::DummyCuts * m_cuts;
         //DVPlusElectronCuts* m_cuts;
 };
 #endif

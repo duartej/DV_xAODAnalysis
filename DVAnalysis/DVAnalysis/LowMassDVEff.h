@@ -18,6 +18,8 @@ class LowMassDVEff : public DV::AlgBase {
   virtual TList* getHists();
   virtual void execute(xAOD::TEvent*);
   virtual void finalize();
+
+  virtual void assignCuts() { ; };
  private:
   TList* m_histList;
 
