@@ -20,10 +20,6 @@
 #include<iostream>
 #include<stdexcept>
 
-
-// The known list of analysis, include your DV::AlgBase here... not needed?
-const std::vector<std::string> DV::CutsComposite::_validNames{"DummyCuts"};
-
 DV::CutsComposite::~CutsComposite()
 {
     //de-alloc the created Cuts-algs in the add method
@@ -50,14 +46,20 @@ void DV::CutsComposite::Init(const char * goodrunlist,const char * goodlistfile)
     }
 }
 
-void DV::CutsComposite::add(const std::string & cutname)
+const DV::CutsBase * DV::CutsComposite::add(const std::string & cutname)
 {
+    // It is already instantiated?
+    if( m_cutAlgs.find(cutname) == m_cutAlgs.end() )
+    {
+        return m_cutAlgs[cutname];
+    }
+
     DV::CutsBase * p = 0;
     
     // Algorithm cases
     if( cutname == "DummyCuts" )
     {
-        p = new DummyCuts();
+        p = new DV::DummyCuts();
     }
     else
     {
@@ -71,5 +73,7 @@ void DV::CutsComposite::add(const std::string & cutname)
     }
 
     m_cutAlgs[cutname] = p;
+
+    return m_cutAlgs[cutname];
 }
 

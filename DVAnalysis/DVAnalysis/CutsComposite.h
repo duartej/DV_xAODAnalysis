@@ -53,12 +53,11 @@ namespace DV
             //! nothing to do ?
             virtual void finalize() { };
     
-            //! specific to the composite
-            void add(const std::string & cutname);
-    
+            //! specific to the composite.
+            //! add the cut to the container and return it
+            const CutsBase * add(const std::string & cutname);
+
         private:
-            //! list of valid cut algorithms names
-            const static std::vector<std::string> _validNames;
             //! list of cuts
             std::map<std::string,CutsBase *> m_cutAlgs;
     };

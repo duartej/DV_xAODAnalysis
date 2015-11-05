@@ -56,9 +56,9 @@ int main( int argc, char* argv[] )
 
   DVEventLoop* alg = new DVEventLoop();
   // Add the available cuts algorithms
-  std::vector<std::string> cuts = 
-      parser.Get<std::vector<std::string> >("cut_algs"); 
-  alg->addCutAlgs( cuts );
+  //std::vector<std::string> cuts = 
+  //    parser.Get<std::vector<std::string> >("cut_algs"); 
+  //alg->addCutAlgs( cuts );
   // Add our analysis to the job:
   std::vector<std::string> analyses = 
       parser.Get<std::vector<std::string> >("analyses"); 

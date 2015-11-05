@@ -19,6 +19,11 @@
 
 #include "DVAnalysis/AlgBase.h"
 
+namespace DV
+{
+    class DummyCuts;
+}
+
 class TH1F;
 class TH2F;
 
@@ -72,6 +77,7 @@ class DVPlusElectronBasic : public DV::AlgBase
         TH1F* m_zpvWeights;
         TH1F* m_elecWeights;
         
+        DV::DummyCuts * m_cuts;
         //DVPlusElectronCuts* m_cuts;
 };
 #endif

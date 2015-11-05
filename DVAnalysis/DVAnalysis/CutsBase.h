@@ -58,7 +58,7 @@ namespace DV
             virtual bool PassesMaterialVeto(const xAOD::TEvent * const evt, const int & i);
             
             //! Allowing composition of cuts
-            virtual void add(const std::string & cutname) = 0;
+            virtual const CutsBase * add(const std::string & cutname) = 0;
     
         private:
             //! obtain the material map

@@ -39,6 +39,8 @@ DVEventLoop::~DVEventLoop()
     {
         if( analysis != 0 )
         {
+            // FIXME:: What happens with the destruction of 
+            // the analysis? Problems with the TList of histograms...
             delete analysis;
             analysis = 0;
         }
@@ -72,19 +74,9 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
 
 EL::StatusCode DVEventLoop::addAnalysisAlgs() 
 { 
-    //Create the cut-composite object
-    if(m_cutNames.size() < 1)
-    {
-        std::cout << "DVEventLoop WARNING: not cut algorithm was declared!" 
-            << std::endl;
-    }
+    // Create the cut-composite object to be populated
+    // by the analyses needs
     DV::CutsComposite * cut_container = new DV::CutsComposite();
-    for(auto & cut: this->m_cutNames)
-    {
-        cut_container->add(cut);
-    }
-    // and be included as the first algorithm
-    this->m_analysisAlgs->push_back(cut_container);
     
     // The 'regular' analysis algorithms
     for(auto & alg: this->m_algNames)
@@ -94,8 +86,17 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
         {
             return EL::StatusCode::FAILURE;
         }
+        // Get the list of cut classes needed by the algorithm
+        // and add them to the cut container
+        for(auto & cut: dvAna->getCutNames())
+        {
+            const DV::CutsBase * cutobject = cut_container->add(cut);
+            dvAna->attachCut(cut,cutobject);
+        }
         this->m_analysisAlgs->push_back(dvAna);
     }
+    // Let's insert the cut container as the first algorithm
+    this->m_analysisAlgs->insert(this->m_analysisAlgs->begin(),cut_container);
 
     return EL::StatusCode::SUCCESS;
 }

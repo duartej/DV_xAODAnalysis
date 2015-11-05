@@ -1,9 +1,12 @@
 #include "DVAnalysis/DVPlusElectronBasic.h"
 
+#include "DVAnalysis/DummyCuts.h"
+
 
 // EDM includes: - if move to header file will not compile?
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
+
 
 #include <iostream>
 #include <TMath.h>
@@ -16,15 +19,17 @@ DVPlusElectronBasic::DVPlusElectronBasic()
 {
     m_isBlind=false;
     m_histList = new TList();
+    // Needed cuts ?
+    m_cutnames.push_back("DummyCuts");
 }
 
 DVPlusElectronBasic::~DVPlusElectronBasic() 
 {
-    if(m_histList != 0)
-    {
-        delete m_histList;
-        m_histList = 0;
-    }
+    //if(m_histList != 0)
+    //{
+        //delete m_histList;
+        //m_histList = 0;
+    //}
 }
 
 
@@ -148,7 +153,7 @@ void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent)
     {
         return;
     }
-    // Primary vertex ordered somehow - FIXME
+    // Primary vertex ordered? - FIXME:: check it !!
     float firstX=(*primVtx)[0]->x();
     float firstY=(*primVtx)[0]->y();
     float maxDist=0.;

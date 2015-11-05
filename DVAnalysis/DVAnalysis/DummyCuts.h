@@ -35,7 +35,7 @@ namespace DV
     class DummyCuts : public CutsBase
     {
         public:
-            virtual void add(const std::string & /*cutname*/) { /*do nothing*/ };
+            virtual const CutsBase * add(const std::string & /*cutname*/) { /*do nothing*/ };
     };
 }
 #endif
