@@ -2,6 +2,7 @@
 #include <vector>
 #include "DVAnalysis/BasicPlots.h"
 
+#include "DVAnalysis/PlotsManager.h"
 
 // EDM includes: - if move to header file will not compile?
 #include "xAODEventInfo/EventInfo.h"
@@ -20,7 +21,7 @@ DV::BasicPlots::BasicPlots()
   m_histList = new TList();
   
 }
-void DV::BasicPlots::bookHists() 
+void DV::BasicPlots::bookHists(DV::PlotsManager * plotmanager) 
 {
   m_DVxy = new TH2F("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
   m_histList->Add(m_DVxy);

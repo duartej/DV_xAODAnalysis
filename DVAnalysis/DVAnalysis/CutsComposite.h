@@ -38,12 +38,14 @@ class TList;
 
 namespace DV
 {
+    class PlotsManager;
+
     class CutsComposite : public AlgBase, public CutsBase
     {
         public:
             ~CutsComposite();
             //! nothing to do ?
-            virtual void bookHists() { };
+            virtual void bookHists(PlotsManager *) { };
             //! nothing to do ?
             virtual TList* getHists() { return 0; };
             //! Override init to initialize all the cut

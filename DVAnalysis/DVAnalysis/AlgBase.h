@@ -13,15 +13,16 @@
 
 namespace DV 
 {
+    class PlotsManager;
     class CutsBase;
 
     class AlgBase 
     {
         public:
             virtual ~AlgBase() { };
-            virtual void init() {bookHists();};
+            //virtual void init() {bookHists();};
             //! book histograms at DVEventLoop::histInitialize
-            virtual void bookHists() = 0;
+            virtual void bookHists(PlotsManager * pm) = 0;
             //! to be called byt the DVEventLoop::histFinalize
             virtual TList* getHists() = 0;
             virtual void execute(xAOD::TEvent*)=0;        

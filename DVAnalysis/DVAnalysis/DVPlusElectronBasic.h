@@ -22,6 +22,7 @@
 namespace DV
 {
     class DummyCuts;
+    class PlotsManager;
 }
 
 class TH1F;
@@ -33,7 +34,7 @@ class DVPlusElectronBasic : public DV::AlgBase
         DVPlusElectronBasic();
         virtual ~DVPlusElectronBasic();
         //! book histograms at DVEventLoop::histInitialize
-        virtual void bookHists();
+        virtual void bookHists(DV::PlotsManager * plotmanager);
         //! to be called byt the DVEventLoop::histFinalize
         virtual TList* getHists();
         virtual void execute(xAOD::TEvent*);        

@@ -7,13 +7,14 @@
 
 namespace DV
 {
+    class PlotsManager;
 
     class TrkBasicPlots : public DV::AlgBase {
      public:
       TrkBasicPlots();
       virtual ~TrkBasicPlots(){};
     
-      virtual void bookHists();
+      virtual void bookHists(PlotsManager * pm);
       virtual TList* getHists();
       virtual void execute(xAOD::TEvent*);
       virtual void finalize();

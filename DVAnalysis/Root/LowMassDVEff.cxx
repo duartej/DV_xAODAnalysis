@@ -1,5 +1,6 @@
 #include <iostream>
 #include "DVAnalysis/LowMassDVEff.h"
+#include "DVAnalysis/PlotsManager.h"
 
 // EDM includes: - if move to header file will not compile?
 #include "xAODEventInfo/EventInfo.h"
@@ -30,7 +31,7 @@ LowMassDVEff::LowMassDVEff()
   m_configFile = (PathResolverFindCalibFile(m_configFile)).c_str();
   readConfig();
 }
-void LowMassDVEff::bookHists() 
+void LowMassDVEff::bookHists(DV::PlotsManager * pm) 
 {
   int nbinsR = 60; double minR = 0.; double maxR = 300.;
   h_recoVertPosR = new TH1D("h_recoVertPosR","Reconstructed Vertex Position in R;R [mm]", nbinsR,minR,maxR);

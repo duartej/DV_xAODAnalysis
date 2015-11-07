@@ -1,5 +1,6 @@
 #include <iostream>
 #include "DVAnalysis/TrkBasicPlots.h"
+#include "DVAnalysis/PlotsManager.h"
 
 
 // EDM includes: - if move to header file will not compile?
@@ -19,7 +20,7 @@ DV::TrkBasicPlots::TrkBasicPlots()
   m_histList = new TList();
   
 }
-void DV::TrkBasicPlots::bookHists() 
+void DV::TrkBasicPlots::bookHists(DV::PlotsManager * pm)
 {
 
   m_nSCTHitsOnTrack = new TH1F("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);

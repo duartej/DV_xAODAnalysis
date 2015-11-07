@@ -8,6 +8,8 @@
 // Cut-container, to initialize the cut-algorithm
 // which can be used
 #include "DVAnalysis/CutsComposite.h"
+// Plot Manager
+#include "DVAnalysis/PlotsManager.h"
 
 
 #include "xAODRootAccess/TStore.h"
@@ -22,6 +24,7 @@ DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
     m_analysisAlgs(0),//new std::vector<DV::AlgBase*>),
+    m_plotmanager(0),
     m_outputFile(0)
 {
   // Here you put any code for the base initialization of variables,
@@ -31,6 +34,7 @@ DVEventLoop::DVEventLoop():
   // initialization code will go into histInitialize() and
   // initialize(). 
   m_analysisAlgs = new std::vector<DV::AlgBase*>;
+  m_plotmanager  = new DV::PlotsManager;
 }
 
 DVEventLoop::~DVEventLoop()
@@ -139,9 +143,10 @@ EL::StatusCode DVEventLoop :: histInitialize ()
   
   std::cout<<"Will run "<<m_analysisAlgs->size()<<" analysis algs"<<std::endl;
 
+  // Plot Manager::: Probably manage also the outfile... FIXME
   m_outputFile= new TFile("histograms.root","RECREATE");
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
-    m_analysisAlgs->at(i)->bookHists();
+    m_analysisAlgs->at(i)->bookHists(m_plotmanager);
   }
   
   return EL::StatusCode::SUCCESS;
@@ -273,15 +278,15 @@ EL::StatusCode DVEventLoop :: histFinalize ()
   //m_allHistograms
 
   m_outputFile->cd();
-
   
-  for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
+  /*for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
     TList* hists = m_analysisAlgs->at(i)->getHists();
     if( hists == 0)
     {
         // the cut case, do not returning anything
         continue;
-    }
+    }*/
+    TList * hists = m_plotmanager->getHists();
     TObject* h(0);
     TIter next(hists);
     while( (h=next()) ) {
@@ -290,7 +295,7 @@ EL::StatusCode DVEventLoop :: histFinalize ()
       h->Write();
     }
     
-  }
+  //}
   
   m_outputFile->Close();
   

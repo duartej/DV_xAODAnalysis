@@ -3,6 +3,8 @@
 #include <EventLoop/Worker.h>
 #include <DVAnalysis/LowMassDVEventLoop.h>
 
+#include "DVAnalysis/PlotsManager.h"
+
 /// analysis algs that might be run
 #include "DVAnalysis/BasicPlots.h"
 #include "DVAnalysis/TrkBasicPlots.h"
@@ -99,7 +101,7 @@ EL::StatusCode LowMassDVEventLoop :: histInitialize ()
 
   m_outputFile= new TFile("histograms.root","RECREATE");
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
-    m_analysisAlgs->at(i)->bookHists();
+    m_analysisAlgs->at(i)->bookHists(new DV::PlotsManager()); // FIXME!!!
   }
   
 

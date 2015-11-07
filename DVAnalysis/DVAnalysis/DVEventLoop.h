@@ -19,6 +19,11 @@
 #include<vector>
 #include<string>
 
+namespace DV
+{
+    class PlotsManager;
+}
+
 class DVEventLoop : public EL::Algorithm
 {
   // put your configuration variables here as public variables.
@@ -68,6 +73,8 @@ public:
   std::vector<std::string> m_algNames;
 
   std::vector<DV::AlgBase*>* m_analysisAlgs;
+
+  DV::PlotsManager * m_plotmanager;
 
   TFile* m_outputFile; //!
 

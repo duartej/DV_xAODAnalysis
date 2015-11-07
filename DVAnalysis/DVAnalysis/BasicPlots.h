@@ -7,13 +7,14 @@
 
 namespace DV
 {
+    class PlotsManager;
 
     class BasicPlots : public AlgBase {
      public:
       BasicPlots();
       virtual ~BasicPlots(){};
     
-      virtual void bookHists();
+      virtual void bookHists(PlotsManager * pm);
       virtual TList* getHists();
       virtual void execute(xAOD::TEvent*);
       virtual void finalize();

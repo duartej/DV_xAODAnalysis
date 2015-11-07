@@ -8,13 +8,17 @@
 #include <TMath.h>
 
 #include <string>
+namespace DV
+{
+    class PlotsManager;
+}
 
 class LowMassDVEff : public DV::AlgBase {
  public:
   LowMassDVEff();
   virtual ~LowMassDVEff(){};
 
-  virtual void bookHists();
+  virtual void bookHists(DV::PlotsManager * pm);
   virtual TList* getHists();
   virtual void execute(xAOD::TEvent*);
   virtual void finalize();
