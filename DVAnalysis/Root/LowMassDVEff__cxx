@@ -25,7 +25,7 @@
 LowMassDVEff::LowMassDVEff() 
 {
   std::cout<<"in LowMassDVEff constructor"<<std::endl;
-  m_histList = new TList();
+  //m_histList = new TList();
   
   m_configFile = "DVAnalysis/LowMassDV.conf";
   m_configFile = (PathResolverFindCalibFile(m_configFile)).c_str();
@@ -34,51 +34,36 @@ LowMassDVEff::LowMassDVEff()
 void LowMassDVEff::bookHists(DV::PlotsManager * pm) 
 {
   int nbinsR = 60; double minR = 0.; double maxR = 300.;
-  h_recoVertPosR = new TH1D("h_recoVertPosR","Reconstructed Vertex Position in R;R [mm]", nbinsR,minR,maxR);
-  m_histList->Add(h_recoVertPosR);
-  h_truthVertPosR = new TH1D("h_truthVertPosR","Truth Vertex Position in R;R [mm]", nbinsR,minR,maxR);
-  m_histList->Add(h_truthVertPosR);
-  h_diffVertPosR = new TH1D("h_diffVertPosR",";truthVertR - recoVertR [mm]", 200,-10,10);
-  m_histList->Add(h_diffVertPosR);
-  h_diffVertPosZ = new TH1D("h_diffVertPosZ",";truthVertZ - recoVertZ [mm]", 300,-15,15);
-  m_histList->Add(h_diffVertPosZ);
-  h_diffVertPos3D = new TH1D("h_diffVertPos3D",";distance between truthVert & recoVert [mm]", 300,0,30);
-  m_histList->Add(h_diffVertPos3D);
-  h_recoMatchedVertMass = new TH1D("h_recoMatchedVertMass","; m [GeV]",100,0.,20.);
-  m_histList->Add(h_recoMatchedVertMass);
+  h_recoVertPosR  = pm->bookTH1F("h_recoVertPosR","Reconstructed Vertex Position in R;R [mm]", nbinsR,minR,maxR);
+  h_truthVertPosR = pm->bookTH1F("h_truthVertPosR","Truth Vertex Position in R;R [mm]", nbinsR,minR,maxR);
+  h_diffVertPosR  = pm->bookTH1F("h_diffVertPosR",";truthVertR - recoVertR [mm]", 200,-10,10);
+  h_diffVertPosZ  = pm->bookTH1F("h_diffVertPosZ",";truthVertZ - recoVertZ [mm]", 300,-15,15);
+  h_diffVertPos3D = pm->bookTH1F("h_diffVertPos3D",";distance between truthVert & recoVert [mm]", 300,0,30);
+  h_recoMatchedVertMass = pm->bookTH1F("h_recoMatchedVertMass","; m [GeV]",100,0.,20.);
 
-  h_nChargedParticlesFromLLP = new TH1D("h_nChargedParticlesFromLLP","; nChargedParticlesFromLLP",50,0.,50.);
-  m_histList->Add(h_nChargedParticlesFromLLP);
-  h_nChargedParticlesFromLLP1GeVCut = new TH1D("h_nChargedParticlesFromLLP1GeVCut","; nChargedParticlesFromLLP",50,0.,50.);
-  m_histList->Add(h_nChargedParticlesFromLLP1GeVCut);
-  h_nChargedParticlesFromLLP1GeVCutVSradius = new TH2D("h_nChargedParticlesFromLLP1GeVCutVSradius","; R [mm];nChargedParticlesFromLLP",nbinsR,minR,maxR,50,0.,50.);
-  m_histList->Add(h_nChargedParticlesFromLLP1GeVCutVSradius);
-  h_PtFromLLP = new TH1D("h_PtFromLLP","; Pt [GeV]",100,0.,100.);
-  m_histList->Add(h_PtFromLLP);
-  h_nSumChargedParticlesVSradius = new TH1D("h_nSumChargedParticlesVSradius","; R [mm]",nbinsR,minR,maxR);
-  m_histList->Add(h_nSumChargedParticlesVSradius);
+  h_nChargedParticlesFromLLP = pm->bookTH1F("h_nChargedParticlesFromLLP","; nChargedParticlesFromLLP",50,0.,50.);
+  h_nChargedParticlesFromLLP1GeVCut = pm->bookTH1F("h_nChargedParticlesFromLLP1GeVCut","; nChargedParticlesFromLLP",50,0.,50.);
+  h_nChargedParticlesFromLLP1GeVCutVSradius = pm->bookTH2F("h_nChargedParticlesFromLLP1GeVCutVSradius",
+          "; R [mm];nChargedParticlesFromLLP",nbinsR,minR,maxR,50,0.,50.);
+  h_PtFromLLP = pm->bookTH1F("h_PtFromLLP","; Pt [GeV]",100,0.,100.);
+  h_nSumChargedParticlesVSradius = pm->bookTH1F("h_nSumChargedParticlesVSradius","; R [mm]",nbinsR,minR,maxR);
   
-  h_nTrkAssocVertMatched = new TH1D("h_nTrkAssocVertMatched","; nTrk",50,0.,50.);
-  m_histList->Add(h_nTrkAssocVertMatched);
-  h_PtAssocVertMatched = new TH1D("h_PtAssocVertMatched","; Pt [GeV]",100,0.,100.);
-  m_histList->Add(h_PtAssocVertMatched);
-  h_nSumTrkVSradius = new TH1D("h_nSumTrkVSradius","; R [mm]",nbinsR,minR,maxR);
-  m_histList->Add(h_nSumTrkVSradius);
+  h_nTrkAssocVertMatched = pm->bookTH1F("h_nTrkAssocVertMatched","; nTrk",50,0.,50.);
+  h_PtAssocVertMatched = pm->bookTH1F("h_PtAssocVertMatched","; Pt [GeV]",100,0.,100.);
+  h_nSumTrkVSradius = pm->bookTH1F("h_nSumTrkVSradius","; R [mm]",nbinsR,minR,maxR);
   
-  h_nTrkMatchedVSradius = new TH2D("h_nTrkMatchedVSradius","; R [mm]; nTrk",nbinsR,minR,maxR,50,0,50);
-  m_histList->Add(h_nTrkMatchedVSradius);
-  h_DVmassVSnTrkMatched = new TH2D("h_DVmassVSnTrkMatched","; nTrk; m_{DV} [GeV]",50,0,50,100,0,100);
-  m_histList->Add(h_DVmassVSnTrkMatched);
+  h_nTrkMatchedVSradius = pm->bookTH2F("h_nTrkMatchedVSradius","; R [mm]; nTrk",nbinsR,minR,maxR,50,0,50);
+  h_DVmassVSnTrkMatched = pm->bookTH2F("h_DVmassVSnTrkMatched","; nTrk; m_{DV} [GeV]",50,0,50,100,0,100);
   //g_vertEffR = nullptr;
   //m_histList->Add(g_vertEffR);
 
 }
 
-TList* 
+/*TList* 
 LowMassDVEff::getHists() 
 {
   return m_histList;
-}
+}*/
 
 
 void 
