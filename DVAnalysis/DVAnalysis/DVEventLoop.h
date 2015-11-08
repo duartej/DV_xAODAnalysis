@@ -31,8 +31,6 @@ class DVEventLoop : public EL::Algorithm
 public:
   // float cutValue;
 
-
-
   // variables that don't get filled at submission time should be
   // protected from being send from the submission node to the worker
   // node (done by the //!)
@@ -47,6 +45,8 @@ public:
   // and destructor
   ~DVEventLoop();
 
+  //! set the maximum number of events to be processed
+  void setEvtsMax(const int & evtmax){ m_evtsMax = evtmax; };
   //! name of the output file
   void setOutputFilename(const std::string & name) { m_outputFilename = name; };
   //! entry point of the available cut algorithms 
@@ -69,6 +69,7 @@ public:
 
   xAOD::TEvent *m_event;          //!
   unsigned int  m_eventCounter;   //!
+  int m_evtsMax;                  //!
  
 
   std::vector<std::string> m_cutNames;
@@ -79,9 +80,9 @@ public:
   DV::PlotsManager * m_plotmanager;
 
   std::string m_outputFilename;
-  //TFile* m_outputFile; //!
 
   // this is needed to distribute the algorithm to the workers
+  // 0: you dont want to use I/O for this class, right? FIXME
   ClassDef(DVEventLoop, 1);
 };
 

@@ -23,6 +23,7 @@ ClassImp(DVEventLoop)
 DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
+    m_evtsMax(-1),
     m_analysisAlgs(0),//new std::vector<DV::AlgBase*>),
     m_plotmanager(0),
     m_outputFilename("histograms.root")
