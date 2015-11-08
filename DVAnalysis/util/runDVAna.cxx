@@ -1,5 +1,8 @@
 
-#include<iostream>
+#include "DVAnalysis/DVEventLoop.h"
+#include "DVAnalysis/PyParser.h"
+
+#include "Rtypes.h"
 
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
@@ -7,9 +10,7 @@
 #include "EventLoop/Job.h"
 #include "EventLoop/DirectDriver.h"
 
-#include "DVAnalysis/PyParser.h"
-
-#include "DVAnalysis/DVEventLoop.h"
+#include<iostream>
 
 void display_usage()
 {
@@ -29,7 +30,7 @@ int main( int argc, char* argv[] )
   // Getting the configuration 
   PyParser parser(argv[1]);
 
-  Info("DVEventLoop",std::string("Extracting configuration from "+std::string(argv[1])).c_str());
+  Info("DVEventLoop","Extracting configuration from '%s'",argv[1]);
   // Take the submit directory from the input if provided:
   std::string submitDir = "submitDir";
   //if( argc > 1 ) submitDir = argv[ 1 ];
@@ -42,12 +43,18 @@ int main( int argc, char* argv[] )
   if( parser.Check("outputFilename") )
   {
       outputFilename = parser.Get<std::string>("outputFilename");
+      Info("DVEventLoop",std::string("Output file: '"+outputFilename+"'").c_str());
   }
   // Number of events to be processed
   int evtsMax = -1;
   if( parser.Check("evtsMax") )
   {
       evtsMax = parser.Get<int>("evtsMax");
+  }
+  int skipEvts = -1;
+  if( parser.Check("skipEvts") )
+  {
+      skipEvts = parser.Get<int>("skipEvts");
   }
   // End of configuration 
   // *********************************************************
@@ -70,21 +77,28 @@ int main( int argc, char* argv[] )
   // Create an EventLoop job:
   EL::Job job;
   job.sampleHandler( sh );
+  // some configurations...
+  if( evtsMax > 0 )
+  {
+      job.options()->setDouble(EL::Job::optMaxEvents,evtsMax);
+  }
+  if( skipEvts > 0 )
+  {
+      job.options()->setDouble(EL::Job::optSkipEvents,skipEvts);
+  }
 
   DVEventLoop* alg = new DVEventLoop();
-  // Configuring job ---
+  // some configurations to the looper ---
   alg->setOutputFilename(outputFilename);
+  
   // Add our analysis to the job:
   std::vector<std::string> analyses = 
       parser.Get<std::vector<std::string> >("analyses"); 
   alg->addAnalysisAlgs( analyses );
-  
   job.algsAdd( alg );
 
   // Run the job using the local/direct driver:
   EL::DirectDriver driver;
-
-  
   driver.submit( job, submitDir );
 
   return 0;

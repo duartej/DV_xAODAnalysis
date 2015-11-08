@@ -7,6 +7,7 @@
 // EDM includes: - if move to header file will not compile?
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 
 
 #include <iostream>
@@ -19,18 +20,12 @@
 DVPlusElectronBasic::DVPlusElectronBasic() 
 {
     m_isBlind=false;
-    //m_histList = new TList();
     // Needed cuts ?
     m_cutnames.push_back("DummyCuts");
 }
 
 DVPlusElectronBasic::~DVPlusElectronBasic() 
 {
-    //if(m_histList != 0)
-    //{
-        //delete m_histList;
-        //m_histList = 0;
-    //}
 }
 
 
@@ -80,44 +75,7 @@ void DVPlusElectronBasic::bookHists(DV::PlotsManager * plotmanager)
     m_DVnTrkVsMassLog->GetYaxis()->Set(49,limits);
     m_DVnTrkVsMassLogAllCuts->GetYaxis()->Set(49,limits);
     
-    //m_histList->Add(m_nPV);
-    //m_histList->Add(m_PVx);
-    //m_histList->Add(m_PVxy);
-    //m_histList->Add(m_PVy);
-    //m_histList->Add(m_PVz);
-    //m_histList->Add(m_PVz_zWeighted);
-    //m_histList->Add(m_PVrSpread);
-    //m_histList->Add(m_DVmass);
-    //m_histList->Add(m_DVmassPtCorr);
-    //m_histList->Add(m_DVmassBig);
-    //m_histList->Add(m_DVmassBigPtCorr);
-    //m_histList->Add(m_DVnTrk);
-    //m_histList->Add(m_DVnTrkVsMass);
-    //m_histList->Add(m_DVnTrkVsMassLog);
-    //m_histList->Add(m_DVnTrkVsMassLogAllCuts);
-    //m_histList->Add(m_DVnTrkVsMassLogAllCutsExceptEl);
-    //m_histList->Add(m_DVnTrkVsMassLogAllCutsExceptElMatch);
-    //m_histList->Add(m_DVnTrkVsMassLogAllCutsUpToNtrk);
-    //m_histList->Add(m_DVrz);    
-    //m_histList->Add(m_DVxy);  
-    //m_histList->Add(m_DVxy_KsGamVeto);  
-    //m_histList->Add(m_DVrphi);  
-    //m_histList->Add(m_DVrphi_KsGamVeto);  
-    //m_histList->Add(m_DVr);  
-    //m_histList->Add(m_DVz);
-    //m_histList->Add(m_averageIntPerXing);
-    //m_histList->Add(m_actualIntPerXing);
-    //m_histList->Add(m_DVr_GE3Trk);
-    //m_histList->Add(m_DVnTrk_KsGamVeto);
-    //m_histList->Add(m_pileupWeights);
-    //m_histList->Add(m_zpvWeights);
-    //m_histList->Add(m_elecWeights);
 }
-
-/*TList* DVPlusElectronBasic::getHists() 
-{
-    return m_histList;
-}*/
 
 
 void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent) 
@@ -192,9 +150,21 @@ void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent)
     m_averageIntPerXing->Fill(eventInfo->averageInteractionsPerCrossing());
     m_actualIntPerXing->Fill(eventInfo->actualInteractionsPerCrossing());
 
-    /*bool hasGoodElectron=false;
-  std::vector<int> goodElectronIndices;
-  for (int i=0; i< m_elec->n(); ++i) {
+    bool hasGoodElectron=false;
+    // Retrieve electrons
+    const xAOD::ElectronContainer * electrons = 0;
+    if( ! (thisEvent->retrieve(electrons,"Electrons" ).isSuccess()) )
+    {
+        Error("execute()","Failed to retrieved electron container. Exiting...");
+        return;
+    }
+    if( electrons == 0 )
+    {
+        Error("execute()","electrons is a NULL pointer. Exiting...");
+        return;
+    }
+    /*std::vector<int> goodElectronIndices;
+    for (int i=0; i< m_elec->n(); ++i) {
     
     if (m_cuts->PassesElectronCuts(i)) {
       hasGoodElectron=true;
