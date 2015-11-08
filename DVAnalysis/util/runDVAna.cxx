@@ -90,6 +90,7 @@ int main( int argc, char* argv[] )
   DVEventLoop* alg = new DVEventLoop();
   // some configurations to the looper ---
   alg->setOutputFilename(outputFilename);
+  alg->setEvtsMax(evtsMax);
   
   // Add our analysis to the job:
   std::vector<std::string> analyses = 

@@ -195,9 +195,16 @@ EL::StatusCode DVEventLoop :: initialize ()
   
   m_event = wk()->xaodEvent();
   m_eventCounter=0;
+
+  // just coherence
+  if(m_evtsMax < 0)
+  {
+      m_evtsMax = m_event->getEntries();
+  }
   
   // as a check, let's see the number of events in our xAOD
-  Info("initialize()", "Number of events = %lli", m_event->getEntries() ); // print long long int
+  Info("initialize()", "Number of available events = %lli", m_event->getEntries() ); // print long long int
+  Info("initialize()", "Number of events to be processed= %i", m_evtsMax ); // print long long int
   
   
   return EL::StatusCode::SUCCESS;
@@ -212,9 +219,11 @@ EL::StatusCode DVEventLoop :: execute () {
   // code will go.
   
 
-  // print every 100 events, so we know where we are:
-  // if( (m_eventCounter % 1000) ==0 ) 
-  Info("execute()", "Event number = %i", m_eventCounter );
+  // print every 5% of processed events, so we know where we are:
+  if( (m_eventCounter % int(float(m_evtsMax)*0.05) ) == 0 )
+  {
+      Info("execute()", "Event number = %i", m_eventCounter );
+  }
   m_eventCounter++;
 
   //----------------------------
