@@ -18,7 +18,7 @@
 // Insert here the include of any new developed analysis 
 #include "DVAnalysis/BasicPlots.h"
 #include "DVAnalysis/TrkBasicPlots.h"
-#include "DVAnalysis/LowMassDVEff.h"
+//#include "DVAnalysis/LowMassDVEff.h"
 #include "DVAnalysis/DVPlusElectronBasic.h"
 
 // system libraries
@@ -45,10 +45,10 @@ DV::AlgBase * DV::AlgBuilder::Build(const std::string & dv_analysis)
     {
         p = new BasicPlots();
     }
-    else if( dv_analysis == "LowMassDVEff" ) 
+    /*else if( dv_analysis == "LowMassDVEff" ) 
     {
         p = new LowMassDVEff();
-    }
+    }*/
     else if( dv_analysis == "DVPlusElectronBasic" ) 
     {
         p = new DVPlusElectronBasic();

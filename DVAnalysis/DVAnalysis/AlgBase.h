@@ -24,7 +24,7 @@ namespace DV
             //! book histograms at DVEventLoop::histInitialize
             virtual void bookHists(PlotsManager * pm) = 0;
             //! to be called byt the DVEventLoop::histFinalize
-            virtual TList* getHists() = 0;
+            //virtual TList* getHists() = 0;
             virtual void execute(xAOD::TEvent*)=0;        
             virtual void finalize() =0;        
             virtual void setEvent(xAOD::TEvent *event) { m_event=event; };

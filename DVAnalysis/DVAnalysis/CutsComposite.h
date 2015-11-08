@@ -47,7 +47,7 @@ namespace DV
             //! nothing to do ?
             virtual void bookHists(PlotsManager *) { };
             //! nothing to do ?
-            virtual TList* getHists() { return 0; };
+            //virtual TList* getHists() { return 0; };
             //! Override init to initialize all the cut
             virtual void Init(const char * goodrunlist, const char* goodlistfile);
             //! Set the current event in order to access data

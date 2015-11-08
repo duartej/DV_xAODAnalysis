@@ -114,10 +114,10 @@ void DVPlusElectronBasic::bookHists(DV::PlotsManager * plotmanager)
     //m_histList->Add(m_elecWeights);
 }
 
-TList* DVPlusElectronBasic::getHists() 
+/*TList* DVPlusElectronBasic::getHists() 
 {
     return m_histList;
-}
+}*/
 
 
 void DVPlusElectronBasic::execute(xAOD::TEvent * thisEvent) 

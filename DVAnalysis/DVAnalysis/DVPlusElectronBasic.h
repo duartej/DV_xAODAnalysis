@@ -36,7 +36,7 @@ class DVPlusElectronBasic : public DV::AlgBase
         //! book histograms at DVEventLoop::histInitialize
         virtual void bookHists(DV::PlotsManager * plotmanager);
         //! to be called byt the DVEventLoop::histFinalize
-        virtual TList* getHists();
+        //virtual TList* getHists();
         virtual void execute(xAOD::TEvent*);        
         virtual void finalize();
         
@@ -44,7 +44,7 @@ class DVPlusElectronBasic : public DV::AlgBase
         virtual void assignCuts();
 
     private:
-        TList* m_histList;
+        //TList* m_histList;
         bool m_isBlind;
       
         TH1F* m_nPV;

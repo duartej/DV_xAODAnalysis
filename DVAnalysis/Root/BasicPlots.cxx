@@ -18,27 +18,24 @@
 
 DV::BasicPlots::BasicPlots() 
 {
-  m_histList = new TList();
-  
+  //m_histList = new TList();
 }
 void DV::BasicPlots::bookHists(DV::PlotsManager * plotmanager) 
 {
-  m_DVxy = new TH2F("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
-  m_histList->Add(m_DVxy);
-  m_DVmass = new TH1F("DVmass","; m [GeV]",100,0.,20.);
-  m_histList->Add(m_DVmass);
+  plotmanager->setCurrentModule("BasicPlots");
+
+  m_DVxy   = plotmanager->bookTH2F("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
+  m_DVmass = plotmanager->bookTH1F("DVmass","; m [GeV]",100,0.,20.);
   
-  h_nTrkAssocVertAll = new TH1D("h_nTrkAssocVertAll","; nTrk",48,2,50);
-  m_histList->Add(h_nTrkAssocVertAll);
-  h_DVmassVSnTrkAll = new TH2D("h_DVmassVSnTrkAll","; nTrk; m_{DV} [GeV]",48,2,50,100,0,100);
-  m_histList->Add(h_DVmassVSnTrkAll);
+  h_nTrkAssocVertAll = plotmanager->bookTH1F("h_nTrkAssocVertAll","; nTrk",48,2,50);
+  h_DVmassVSnTrkAll  = plotmanager->bookTH2F("h_DVmassVSnTrkAll","; nTrk; m_{DV} [GeV]",48,2,50,100,0,100);
 }
 
-TList* 
+/*TList* 
 DV::BasicPlots::getHists() 
 {
   return m_histList;
-}
+}*/
 
 
 void 

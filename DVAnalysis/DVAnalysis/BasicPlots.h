@@ -15,18 +15,18 @@ namespace DV
       virtual ~BasicPlots(){};
     
       virtual void bookHists(PlotsManager * pm);
-      virtual TList* getHists();
+      //virtual TList* getHists();
       virtual void execute(xAOD::TEvent*);
       virtual void finalize();
 
       virtual void assignCuts(){ ; };
      private:
-      TList* m_histList;
+      //TList* m_histList;
     
       TH2F* m_DVxy; //!
       TH1F* m_DVmass; //!
-      TH1D* h_nTrkAssocVertAll; //!
-      TH2D* h_DVmassVSnTrkAll; //!
+      TH1F* h_nTrkAssocVertAll; //!
+      TH2F* h_DVmassVSnTrkAll; //!
     
       ClassDef(BasicPlots, 1);
     };

@@ -15,13 +15,13 @@ namespace DV
       virtual ~TrkBasicPlots(){};
     
       virtual void bookHists(PlotsManager * pm);
-      virtual TList* getHists();
+      //virtual TList* getHists();
       virtual void execute(xAOD::TEvent*);
       virtual void finalize();
 
       virtual void assignCuts(){;};
      private:
-      TList* m_histList;
+      //TList* m_histList;
     
       TH1F* m_nSCTHitsOnTrack; //!
       TH2F* m_nPixVsSCTHitsOnTrack; //!

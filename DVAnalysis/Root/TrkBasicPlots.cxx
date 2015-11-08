@@ -17,45 +17,29 @@
 
 DV::TrkBasicPlots::TrkBasicPlots() 
 {
-  m_histList = new TList();
+  //m_histList = new TList();
   
 }
 void DV::TrkBasicPlots::bookHists(DV::PlotsManager * pm)
 {
+  pm->setCurrentModule("TrkBasicPlots");
 
-  m_nSCTHitsOnTrack = new TH1F("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);
-  m_histList->Add(m_nSCTHitsOnTrack);
-  
-  m_nPixVsSCTHitsOnTrack = new TH2F("nPixVsSCTHitsOnTrack", "; Number of Pixel hits; Number of SCT hits", 10,-0.5,9.5,20,-0.5,19.5);
-  m_histList->Add(m_nPixVsSCTHitsOnTrack);
-
-  m_trkD0_all = new TH1F("trkD0_all","; Track d_{0} [mm]; ",100,-300,300.);
-  m_histList->Add(m_trkD0_all);
-  
-  m_trkZ0_all = new TH1F("trkZ0_all","; Track z_{0} [mm]; ",500,-1500,1500.);
-  m_histList->Add(m_trkZ0_all);
-  
-  m_trkD0_SiSeeded = new TH1F("trkD0_SiSeeded","; Track d_{0} [mm]; ",100,-300,300.);
-  m_histList->Add(m_trkD0_SiSeeded);
-
-  m_trkD0_TRTSeeded = new TH1F("trkD0_TRTSeeded","; Track d_{0} [mm]; ",100,-300,300.);
-  m_histList->Add(m_trkD0_TRTSeeded);
-
-  m_trkD0_TRTStandalone = new TH1F("trkD0_TRTStandalone","; Track d_{0} [mm]; ",100,-300,300.);
-  m_histList->Add(m_trkD0_TRTStandalone);
-
-  m_trkD0_LargeD0 = new TH1F("trkD0_LargeD0","; Track d_{0} [mm]; ",100,-300,300.);
-  m_histList->Add(m_trkD0_LargeD0);
-
-  m_trkZ0_LargeD0 = new TH1F("trkZ0_LargeD0","; Track z_{0} [mm]; ",500,-1500,1500.);
-  m_histList->Add(m_trkZ0_LargeD0);
+  m_nSCTHitsOnTrack = pm->bookTH1F("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);  
+  m_nPixVsSCTHitsOnTrack = pm->bookTH2F("nPixVsSCTHitsOnTrack", "; Number of Pixel hits; Number of SCT hits", 10,-0.5,9.5,20,-0.5,19.5);
+  m_trkD0_all = pm->bookTH1F("trkD0_all","; Track d_{0} [mm]; ",100,-300,300.);  
+  m_trkZ0_all = pm->bookTH1F("trkZ0_all","; Track z_{0} [mm]; ",500,-1500,1500.);  
+  m_trkD0_SiSeeded = pm->bookTH1F("trkD0_SiSeeded","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_TRTSeeded = pm->bookTH1F("trkD0_TRTSeeded","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_TRTStandalone = pm->bookTH1F("trkD0_TRTStandalone","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_LargeD0 = pm->bookTH1F("trkD0_LargeD0","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkZ0_LargeD0 = pm->bookTH1F("trkZ0_LargeD0","; Track z_{0} [mm]; ",500,-1500,1500.);
 }
 
-TList* 
+/*TList* 
 DV::TrkBasicPlots::getHists() 
 {
   return m_histList;
-}
+}*/
 
 
 void 
