@@ -48,6 +48,9 @@ namespace DV
             PlotsManager();
             virtual ~PlotsManager(){};
 
+            //! Initialize the output file
+            void bookFile(const std::string & name,const std::string & mode);            
+
             //! wrappers to the ROOT Functions
             template <class THist1Dim,typename TYPE>
                 THist1Dim * bookTH1(const char * name, const char * title,
@@ -57,18 +60,22 @@ namespace DV
                 THist2Dim * bookTH2(const char * name, const char * title,
                     const int & xbin, const TYPE & xmin, const TYPE & xmax,
                     const int & ybin, const TYPE & ymin, const TYPE & ymax );
- 
+            
+            //! keep track of the module which is going to use the plot manager
+            //! to book its histos
             void setCurrentModule(const std::string & name) { m_currentModule = name; };
-
-            TList * getHists() { return m_histList; };
+            //! Get the booked histograms in a TList
+            //TList * getHists() { return m_histList; };
+            //! Store the histograms
+            bool saveResults();
         private:
             std::string m_currentModule;
             //std::unordered_set<std::string> m_histNames;
             TList * m_histList;
-            //TFile * m_outputfile;
+            TFile * m_outputfile; //!
             
             // this is needed to distribute the algorithm to the workers
-            ClassDef(PlotsManager, 1);
+            ClassDef(PlotsManager, 0);
     };
 }
 

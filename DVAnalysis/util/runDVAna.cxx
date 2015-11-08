@@ -25,9 +25,11 @@ int main( int argc, char* argv[] )
       return -1;
   }
 
-  // Getting the configuration
+  // *********************************************************
+  // Getting the configuration 
   PyParser parser(argv[1]);
 
+  Info("DVEventLoop",std::string("Extracting configuration from "+std::string(argv[1])).c_str());
   // Take the submit directory from the input if provided:
   std::string submitDir = "submitDir";
   //if( argc > 1 ) submitDir = argv[ 1 ];
@@ -35,6 +37,21 @@ int main( int argc, char* argv[] )
   {
       submitDir = parser.Get<std::string>("submitDir");
   }
+  // Name of the output file
+  std::string outputFilename("histograms.root");
+  if( parser.Check("outputFilename") )
+  {
+      outputFilename = parser.Get<std::string>("outputFilename");
+  }
+  // Number of events to be processed
+  int evtsMax = -1;
+  if( parser.Check("evtsMax") )
+  {
+      evtsMax = parser.Get<int>("evtsMax");
+  }
+  // End of configuration 
+  // *********************************************************
+
 
   // Set up the job for xAOD access:
   xAOD::Init().ignore();
@@ -55,14 +72,13 @@ int main( int argc, char* argv[] )
   job.sampleHandler( sh );
 
   DVEventLoop* alg = new DVEventLoop();
-  // Add the available cuts algorithms
-  //std::vector<std::string> cuts = 
-  //    parser.Get<std::vector<std::string> >("cut_algs"); 
-  //alg->addCutAlgs( cuts );
+  // Configuring job ---
+  alg->setOutputFilename(outputFilename);
   // Add our analysis to the job:
   std::vector<std::string> analyses = 
       parser.Get<std::vector<std::string> >("analyses"); 
   alg->addAnalysisAlgs( analyses );
+  
   job.algsAdd( alg );
 
   // Run the job using the local/direct driver:

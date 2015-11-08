@@ -25,7 +25,7 @@ DVEventLoop::DVEventLoop():
     m_eventCounter(0),
     m_analysisAlgs(0),//new std::vector<DV::AlgBase*>),
     m_plotmanager(0),
-    m_outputFile(0)
+    m_outputFilename("histograms.root")
 {
   // Here you put any code for the base initialization of variables,
   // e.g. initialize all pointers to 0.  Note that you should only put
@@ -53,6 +53,12 @@ DVEventLoop::~DVEventLoop()
     {
         delete this->m_analysisAlgs;
         this->m_analysisAlgs = 0;
+    }
+
+    if( m_plotmanager != 0 )
+    {
+        delete m_plotmanager;
+        m_plotmanager = 0;
     }
 }
 
@@ -117,8 +123,6 @@ EL::StatusCode DVEventLoop :: setupJob (EL::Job& job)
   // activated/deactivated when you add/remove the algorithm from your
   // job, which may or may not be of value to you.
   
-  std::cout<<" in DVEventLoop::setupJob"<<std::endl;
-  
   job.useXAOD ();
   // avoid having to manually remove "submitDir" each time
   job.options()->setDouble (EL::Job::optRemoveSubmitDir, 1);
@@ -143,8 +147,9 @@ EL::StatusCode DVEventLoop :: histInitialize ()
   
   std::cout<<"Will run "<<m_analysisAlgs->size()<<" analysis algs"<<std::endl;
 
-  // Plot Manager::: Probably manage also the outfile... FIXME
-  m_outputFile= new TFile("histograms.root","RECREATE");
+  // Initialize outputfile 
+  m_plotmanager->bookFile(m_outputFilename,"RECREATE");
+  //m_outputFile= new TFile("histograms.root","RECREATE");
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
     m_analysisAlgs->at(i)->bookHists(m_plotmanager);
   }
@@ -275,29 +280,11 @@ EL::StatusCode DVEventLoop :: histFinalize ()
   // that it gets called on all worker nodes regardless of whether
   // they processed input events.
   
-  //m_allHistograms
-
-  m_outputFile->cd();
-  
-  /*for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
-    TList* hists = m_analysisAlgs->at(i)->getHists();
-    if( hists == 0)
-    {
-        // the cut case, do not returning anything
-        continue;
-    }*/
-    TList * hists = m_plotmanager->getHists();
-    TObject* h(0);
-    TIter next(hists);
-    while( (h=next()) ) {
-      //      std::cout<<" Writing histogram "<<h->GetName()<<std::endl;
-      
-      h->Write();
-    }
-    
-  //}
-  
-  m_outputFile->Close();
+  // storing histograms
+  if( ! m_plotmanager->saveResults() )
+  {
+      return EL::StatusCode::FAILURE;
+  }
   
   return EL::StatusCode::SUCCESS;
 }

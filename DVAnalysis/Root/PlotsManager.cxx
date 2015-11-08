@@ -10,6 +10,7 @@
 #include "TH2D.h"
 #include "TList.h"
 #include "TFile.h"
+#include "TObject.h"
 
 #include<stdexcept>
 
@@ -27,6 +28,12 @@ DV::PlotsManager::PlotsManager():
     // la TList delete ? ojo, probablement la own of the THF es 
     // del fichero
 }*/
+
+void DV::PlotsManager::bookFile(const std::string & outfilename, const std::string & mode)
+{
+    m_outputfile = TFile::Open(outfilename.c_str(),mode.c_str());
+    // FIXME: Check if it is oK!!
+}
 
 template <class THist1Dim,typename TYPE>
 THist1Dim * DV::PlotsManager::bookTH1(const char * name, const char * title,
@@ -81,4 +88,26 @@ template TH2F * DV::PlotsManager::bookTH2<TH2F,float>(const char * name, const c
 template TH2D * DV::PlotsManager::bookTH2<TH2D,double>(const char * name, const char * title,
         const int & xbin, const double & xmin, const double & xmax,
         const int & ybin, const double & ymin, const double & ymax);
+
+bool DV::PlotsManager::saveResults()
+{
+    m_outputfile->cd();
+    
+    //TList * hists = this->getHists();
+    TObject* h(0);
+
+    TIter next(m_histList);
+    while( (h=next()) ) 
+    {
+        h->Write();
+    }
+  
+    m_outputfile->Close();
+
+    // freeing memory
+    delete m_outputfile;
+    m_outputfile = 0;
+
+    return true;
+}
 

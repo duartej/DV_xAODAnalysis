@@ -47,6 +47,8 @@ public:
   // and destructor
   ~DVEventLoop();
 
+  //! name of the output file
+  void setOutputFilename(const std::string & name) { m_outputFilename = name; };
   //! entry point of the available cut algorithms 
   EL::StatusCode addCutAlgs(const std::vector<std::string> & cut_algs);
   //! entry point for the analysis algorithms to be executed
@@ -76,7 +78,8 @@ public:
 
   DV::PlotsManager * m_plotmanager;
 
-  TFile* m_outputFile; //!
+  std::string m_outputFilename;
+  //TFile* m_outputFile; //!
 
   // this is needed to distribute the algorithm to the workers
   ClassDef(DVEventLoop, 1);
