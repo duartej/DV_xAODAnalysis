@@ -25,8 +25,8 @@ namespace DV
     
       TH2F* m_DVxy; //!
       TH1F* m_DVmass; //!
-      TH1F* h_nTrkAssocVertAll; //!
-      TH2F* h_DVmassVSnTrkAll; //!
+      TH1D* h_nTrkAssocVertAll; //!
+      TH2D* h_DVmassVSnTrkAll; //!
     
       ClassDef(BasicPlots, 1);
     };

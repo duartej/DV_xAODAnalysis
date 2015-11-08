@@ -27,12 +27,15 @@
 #include<string>
 #include<unordered_set> 
 
-#include "TH1F.h"
-#include "TH2F.h"
+// Get the ClassDef macros
+#include "Rtypes.h"
 
+//#include "TH1F.h"
+//#include "TH2F.h"
 
 //class TH1F;
 //class TH2F;
+// forward declarations
 class TList;
 class TFile;
 
@@ -46,11 +49,14 @@ namespace DV
             virtual ~PlotsManager(){};
 
             //! wrappers to the ROOT Functions
-            TH1F * bookTH1F(const char * name, const char * title,
-                    const int & xbin, const float & xmin, const float & xmax );
-            TH2F * bookTH2F(const char * name, const char * title,
-                    const int & xbin, const float & xmin, const float & xmax,
-                    const int & ybin, const float & ymin, const float & ymax );
+            template <class THist1Dim,typename TYPE>
+                THist1Dim * bookTH1(const char * name, const char * title,
+                    const int & xbin, const TYPE & xmin, const TYPE & xmax );
+            
+            template <class THist2Dim,typename TYPE> 
+                THist2Dim * bookTH2(const char * name, const char * title,
+                    const int & xbin, const TYPE & xmin, const TYPE & xmax,
+                    const int & ybin, const TYPE & ymin, const TYPE & ymax );
  
             void setCurrentModule(const std::string & name) { m_currentModule = name; };
 

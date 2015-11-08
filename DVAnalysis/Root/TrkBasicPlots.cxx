@@ -24,15 +24,15 @@ void DV::TrkBasicPlots::bookHists(DV::PlotsManager * pm)
 {
   pm->setCurrentModule("TrkBasicPlots");
 
-  m_nSCTHitsOnTrack = pm->bookTH1F("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);  
-  m_nPixVsSCTHitsOnTrack = pm->bookTH2F("nPixVsSCTHitsOnTrack", "; Number of Pixel hits; Number of SCT hits", 10,-0.5,9.5,20,-0.5,19.5);
-  m_trkD0_all = pm->bookTH1F("trkD0_all","; Track d_{0} [mm]; ",100,-300,300.);  
-  m_trkZ0_all = pm->bookTH1F("trkZ0_all","; Track z_{0} [mm]; ",500,-1500,1500.);  
-  m_trkD0_SiSeeded = pm->bookTH1F("trkD0_SiSeeded","; Track d_{0} [mm]; ",100,-300,300.);
-  m_trkD0_TRTSeeded = pm->bookTH1F("trkD0_TRTSeeded","; Track d_{0} [mm]; ",100,-300,300.);
-  m_trkD0_TRTStandalone = pm->bookTH1F("trkD0_TRTStandalone","; Track d_{0} [mm]; ",100,-300,300.);
-  m_trkD0_LargeD0 = pm->bookTH1F("trkD0_LargeD0","; Track d_{0} [mm]; ",100,-300,300.);
-  m_trkZ0_LargeD0 = pm->bookTH1F("trkZ0_LargeD0","; Track z_{0} [mm]; ",500,-1500,1500.);
+  m_nSCTHitsOnTrack = pm->bookTH1<TH1F,float>("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);  
+  m_nPixVsSCTHitsOnTrack = pm->bookTH2<TH2F,float>("nPixVsSCTHitsOnTrack", "; Number of Pixel hits; Number of SCT hits", 10,-0.5,9.5,20,-0.5,19.5);
+  m_trkD0_all = pm->bookTH1<TH1F,float>("trkD0_all","; Track d_{0} [mm]; ",100,-300,300.);  
+  m_trkZ0_all = pm->bookTH1<TH1F,float>("trkZ0_all","; Track z_{0} [mm]; ",500,-1500,1500.);  
+  m_trkD0_SiSeeded = pm->bookTH1<TH1F,float>("trkD0_SiSeeded","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_TRTSeeded = pm->bookTH1<TH1F,float>("trkD0_TRTSeeded","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_TRTStandalone = pm->bookTH1<TH1F,float>("trkD0_TRTStandalone","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkD0_LargeD0 = pm->bookTH1<TH1F,float>("trkD0_LargeD0","; Track d_{0} [mm]; ",100,-300,300.);
+  m_trkZ0_LargeD0 = pm->bookTH1<TH1F,float>("trkZ0_LargeD0","; Track z_{0} [mm]; ",500,-1500,1500.);
 }
 
 /*TList* 

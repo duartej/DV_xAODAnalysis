@@ -2,8 +2,12 @@
 
 #include "DVAnalysis/PlotsManager.h"
 
+#include "TH1I.h"
 #include "TH1F.h"
+#include "TH1D.h"
+#include "TH2I.h"
 #include "TH2F.h"
+#include "TH2D.h"
 #include "TList.h"
 #include "TFile.h"
 
@@ -24,9 +28,9 @@ DV::PlotsManager::PlotsManager():
     // del fichero
 }*/
 
-
-TH1F * DV::PlotsManager::bookTH1F(const char * name, const char * title,
-                    const int & xbin, const float & xmin, const float & xmax )
+template <class THist1Dim,typename TYPE>
+THist1Dim * DV::PlotsManager::bookTH1(const char * name, const char * title,
+                    const int & xbin, const TYPE & xmin, const TYPE & xmax )
 {
     const std::string hname(std::string(name)+"_"+m_currentModule);
     if( m_histList->FindObject(hname.c_str()) != 0 )
@@ -36,14 +40,15 @@ TH1F * DV::PlotsManager::bookTH1F(const char * name, const char * title,
         throw std::runtime_error(message);//"Invalid histogram name");
     }
 
-    m_histList->Add( new TH1F(hname.c_str(),title,xbin,xmin,xmax) );
+    m_histList->Add( new THist1Dim(hname.c_str(),title,xbin,xmin,xmax) );
 
-    return static_cast<TH1F*>(m_histList->Last());
+    return static_cast<THist1Dim*>(m_histList->Last());
 }
 
-TH2F * DV::PlotsManager::bookTH2F(const char * name, const char * title,
-                    const int & xbin, const float & xmin, const float & xmax,
-                    const int & ybin, const float & ymin, const float & ymax )
+template <class THist2Dim,typename TYPE>
+THist2Dim * DV::PlotsManager::bookTH2(const char * name, const char * title,
+                    const int & xbin, const TYPE & xmin, const TYPE & xmax,
+                    const int & ybin, const TYPE & ymin, const TYPE & ymax )
 {
     const std::string hname(std::string(name)+"_"+m_currentModule);
     // FIXME:: Not needed unordered_set, exist a TList::Find(const char *name) function
@@ -54,9 +59,26 @@ TH2F * DV::PlotsManager::bookTH2F(const char * name, const char * title,
         throw std::runtime_error(message);//"Invalid histogram name");
     }
 
-    m_histList->Add( new TH2F(hname.c_str(),title,xbin,xmin,xmax,ybin,ymin,ymax) );
+    m_histList->Add( new THist2Dim(hname.c_str(),title,xbin,xmin,xmax,ybin,ymin,ymax) );
 
-    return static_cast<TH2F*>(m_histList->Last());
+    return static_cast<THist2Dim*>(m_histList->Last());
 }
 
+// Declarations of used and valid specializations
+template TH1I * DV::PlotsManager::bookTH1<TH1I,int>(const char * name, const char * title,
+        const int & xbin, const int & xmin, const int & xmax);
+template TH1F * DV::PlotsManager::bookTH1<TH1F,float>(const char * name, const char * title,
+        const int & xbin, const float & xmin, const float & xmax);
+template TH1D * DV::PlotsManager::bookTH1<TH1D,double>(const char * name, const char * title,
+        const int & xbin, const double & xmin, const double & xmax);
+
+template TH2I * DV::PlotsManager::bookTH2<TH2I,int>(const char * name, const char * title,
+        const int & xbin, const int & xmin, const int & xmax,
+        const int & ybin, const int & ymin, const int & ymax);
+template TH2F * DV::PlotsManager::bookTH2<TH2F,float>(const char * name, const char * title,
+        const int & xbin, const float & xmin, const float & xmax,
+        const int & ybin, const float & ymin, const float & ymax);
+template TH2D * DV::PlotsManager::bookTH2<TH2D,double>(const char * name, const char * title,
+        const int & xbin, const double & xmin, const double & xmax,
+        const int & ybin, const double & ymin, const double & ymax);
 
