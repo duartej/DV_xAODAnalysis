@@ -5,6 +5,7 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 
+
 namespace DV
 {
     class PlotsManager;
@@ -23,6 +24,7 @@ namespace DV
      private:
       //TList* m_histList;
     
+      TH1I* m_nTracks; //!
       TH1F* m_nSCTHitsOnTrack; //!
       TH2F* m_nPixVsSCTHitsOnTrack; //!
       TH1F* m_trkD0_all; //!

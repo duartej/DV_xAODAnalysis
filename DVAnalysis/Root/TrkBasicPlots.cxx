@@ -24,6 +24,7 @@ void DV::TrkBasicPlots::bookHists(DV::PlotsManager * pm)
 {
   pm->setCurrentModule("TrkBasicPlots");
 
+  m_nTracks = pm->bookTH1<TH1I,int>("nTracks", "; Number of tracks",2501,0,2500);  
   m_nSCTHitsOnTrack = pm->bookTH1<TH1F,float>("nSCTHitsOnTrack", "; Number of SCT hits", 20,-0.5,19.5);  
   m_nPixVsSCTHitsOnTrack = pm->bookTH2<TH2F,float>("nPixVsSCTHitsOnTrack", "; Number of Pixel hits; Number of SCT hits", 10,-0.5,9.5,20,-0.5,19.5);
   m_trkD0_all = pm->bookTH1<TH1F,float>("trkD0_all","; Track d_{0} [mm]; ",100,-300,300.);  
@@ -52,6 +53,8 @@ DV::TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
     return;//// EL::StatusCode::FAILURE;
   }
   
+  // number of reco. tracks
+  m_nTracks->Fill(recoTracks->size());
   // loop over the tracks in the container
   for( xAOD::TrackParticleContainer::const_iterator recoTrk_itr = recoTracks->begin();
           recoTrk_itr != recoTracks->end(); recoTrk_itr++) {
@@ -74,11 +77,14 @@ DV::TrkBasicPlots::execute(xAOD::TEvent* thisEvent)  {
     
     if (patternReco.test(0)) {  /// Si-seeded
       m_trkD0_SiSeeded->Fill((*recoTrk_itr)->d0());
-    } else if (patternReco.test(4)) { ///TRT-seeded (i.e. back-tracking)
+    } 
+    if (patternReco.test(4)) { ///TRT-seeded (i.e. back-tracking)
       m_trkD0_TRTSeeded->Fill((*recoTrk_itr)->d0());
-    } else if (patternReco.test(20)) { /// TRT Standalone
+    } 
+    if (patternReco.test(20)) { /// TRT Standalone
       m_trkD0_TRTStandalone->Fill((*recoTrk_itr)->d0());
-    } else if (patternReco.test(49)) { /// Large d0
+    } 
+    if (patternReco.test(49)) { /// Large d0
       m_trkD0_LargeD0->Fill((*recoTrk_itr)->d0());
       m_trkZ0_LargeD0->Fill((*recoTrk_itr)->z0());
     }
