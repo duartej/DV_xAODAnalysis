@@ -1,0 +1,32 @@
+## automatically generated CMT requirements file
+package DVTools
+author  Jordi Duarte-Campderros <jorge.duarte.campderros@cern.ch>
+
+public
+## for athena policies: this has to be the first use statement
+use AtlasPolicy 	AtlasPolicy-*
+## for gaudi tools, services and objects
+use AtlasROOT       AtlasROOT-*         External
+use AsgTools        AsgTools-*          Control/AthToolSupport
+
+## put here your package dependencies...
+
+##
+private
+#use AthenaBaseComps AthenaBaseComps-*   Control
+use GaudiInterface  GaudiInterface-*    External
+# FUCK!! otherwise do not compile... it should be automatized somehow..
+macro_append cppflags -DASGTOOL_ATHENA
+end_private
+
+branches src src/components doc python share
+
+## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
+library DVTools ../Root/PlotsManagerTool.cxx *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+
+
+

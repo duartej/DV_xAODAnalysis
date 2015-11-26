@@ -4,4 +4,9 @@
 RootCore*
 .*
 rcSetup*
+*x86*
+setup.*
+cleanup.*
+Makefile
+genConf
 xAODTracking

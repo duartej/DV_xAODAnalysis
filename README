@@ -1,3 +1,15 @@
+#####################################################
+### Trying to establish dual-use package      #######
+#####################################################
+0. AthAnalysisBase-2.3.36-x86_64-slc6-gcc48-opt
+   asetup 2.3.26,AthAnalysisBase,here
+1. decoupling the EventLoop Core components
+2. split the package into several pkg:
+   * DVEventLoopCore: DV-EventLoop framework and core classes
+   * DVTools: tools (dual-use AsgTools) for the DV-analysis
+   * DVAnalyses: proper analysis and algorithms (dual-use)
+   * DVCuts: tools (algorithms?) specifics to be used as cuts
+
 
 #####################################################
 ### DV_xAODAnalysis for Run 2 DV analysis ##########
