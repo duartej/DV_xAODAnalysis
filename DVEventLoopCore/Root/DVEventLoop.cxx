@@ -124,8 +124,6 @@ EL::StatusCode DVEventLoop :: setupJob (EL::Job& job)
   job.options()->setDouble (EL::Job::optRemoveSubmitDir, 1);
   // let's initialize the algorithm to use the xAODRootAccess package
   xAOD::Init( "DVEventLoop" ).ignore(); // call before opening first file
-  
-
 
   return EL::StatusCode::SUCCESS;
 }
@@ -141,12 +139,18 @@ EL::StatusCode DVEventLoop :: histInitialize ()
 
   addAnalysisAlgs();
   
-  std::cout<<"Will run "<<m_analysisAlgs->size()<<" analysis algs"<<std::endl;
+  Info("histInitialize()","Scheduled %lu analysis algs:", m_analysisAlgs->size());
+  std::string algList(" [");
+  for(auto & algName : m_algNames)
+  {
+      algList += std::string(" "+algName);
+  }
+  algList += " ]";
+  Info("histInitialize()","%s", algList.c_str());
 
   // Initialize plot tool
   m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");
   m_plotmanager->bookFile(m_outputFilename,"RECREATE");
-  //m_outputFile= new TFile("histograms.root","RECREATE");
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
     m_analysisAlgs->at(i)->bookHists(m_plotmanager);
   }
