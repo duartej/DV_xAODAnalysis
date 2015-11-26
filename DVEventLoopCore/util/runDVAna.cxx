@@ -6,11 +6,14 @@
 
 #include "xAODRootAccess/Init.h"
 #include "SampleHandler/SampleHandler.h"
+//#include "SampleHandler/ScanDir.h"
 #include "SampleHandler/ToolsDiscovery.h"
 #include "EventLoop/Job.h"
 #include "EventLoop/DirectDriver.h"
 
 #include<iostream>
+#include<fstream>
+#include<cstdio>
 
 void display_usage()
 {
@@ -30,7 +33,7 @@ int main( int argc, char* argv[] )
   // Getting the configuration 
   PyParser parser(argv[1]);
 
-  Info("DVEventLoop","Extracting configuration from '%s'",argv[1]);
+  Info("runDVana","Extracting configuration from '%s'",argv[1]);
   // Take the submit directory from the input if provided:
   std::string submitDir = "submitDir";
   //if( argc > 1 ) submitDir = argv[ 1 ];
@@ -38,6 +41,13 @@ int main( int argc, char* argv[] )
   {
       submitDir = parser.Get<std::string>("submitDir");
   }
+  // Get the input datasample(s)
+  std::vector<std::string> filesinput;
+  if( parser.Check("filesinput") )
+  {
+      filesinput = parser.Get<std::vector<std::string> >("filesinput");
+  }
+
   // Name of the output file
   std::string outputFilename("histograms.root");
   if( parser.Check("outputFilename") )
@@ -65,8 +75,21 @@ int main( int argc, char* argv[] )
 
   // Construct the samples to run on:
   SH::SampleHandler sh;
-  ////  SH::scanDir( sh, "/r03/atlas/nbarlow/xAOD/TestInDetDxAOD");
-  SH::readFileList (sh, "sample", "inputfiles.txt");
+  /* Will work with patterns and directoris
+  for(auto & infile: filesinput)
+  {
+      SH::ScanDir().scan(sh,infile.c_str());
+  }
+  SH::ScanDir().sampleName("provisional_until_dict_in_Python"); */
+  //Create tmp file
+  const std::string tmpfilename("inputfile.txt");
+  std::ofstream tmpfile(tmpfilename);
+  for(auto & infile: filesinput)
+  {
+      tmpfile << infile << std::endl;
+  }
+  SH::readFileList(sh, "sample_name_provisional", tmpfilename);
+  std::remove(tmpfilename.c_str());
   // Set the name of the input TTree. It's always "CollectionTree"
   // for xAOD files.
   sh.setMetaString( "nc_tree", "CollectionTree" );
