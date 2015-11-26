@@ -7,7 +7,6 @@
 #elif defined(ASGTOOL_STANDALONE)
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-using namespace EL;
 #else
 #  error "What environment are we in?!?"
 #endif // Include headers depending environment
@@ -48,9 +47,9 @@ namespace DV
             virtual StatusCode finalize() { return StatusCode::SUCCESS; };        */
 #elif defined(ASGTOOL_STANDALONE)
             //! to be called byt the DVEventLoop::histFinalize
-            virtual StatusCode execute(xAOD::TEvent*)=0;        
-            virtual StatusCode finalize() =0;        
-            virtual StatusCode setEvent(xAOD::TEvent *event) { m_event=event; };
+            virtual void execute(xAOD::TEvent*)=0;        
+            virtual void finalize() =0;        
+            virtual void setEvent(xAOD::TEvent *event) { m_event=event; };
 #endif // ASGTOOL_STANDALONE
 
             //! Return the concrete Cut classes needed by the algorithm
