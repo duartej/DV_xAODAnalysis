@@ -35,7 +35,7 @@ DVEventLoop::DVEventLoop():
   // initialization code will go into histInitialize() and
   // initialize(). 
   m_analysisAlgs = new std::vector<DV::AlgBase*>;
-  m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");
+  //m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");
 }
 
 DVEventLoop::~DVEventLoop()
@@ -56,11 +56,6 @@ DVEventLoop::~DVEventLoop()
         this->m_analysisAlgs = 0;
     }
 
-    if( m_plotmanager != 0 )
-    {
-        delete m_plotmanager;
-        m_plotmanager = 0;
-    }
 }
 
 EL::StatusCode DVEventLoop::addCutAlgs(const std::vector<std::string> & cut_names) 
@@ -148,7 +143,8 @@ EL::StatusCode DVEventLoop :: histInitialize ()
   
   std::cout<<"Will run "<<m_analysisAlgs->size()<<" analysis algs"<<std::endl;
 
-  // Initialize outputfile 
+  // Initialize plot tool
+  m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");
   m_plotmanager->bookFile(m_outputFilename,"RECREATE");
   //m_outputFile= new TFile("histograms.root","RECREATE");
   for (unsigned int i=0; i< m_analysisAlgs->size(); ++i) {
@@ -294,6 +290,12 @@ EL::StatusCode DVEventLoop :: histFinalize ()
   if( ! m_plotmanager->saveResults() )
   {
       return EL::StatusCode::FAILURE;
+  }
+  // And free memory, nothing left to be done ...
+  if( m_plotmanager != 0 )
+  {
+      delete m_plotmanager;
+      m_plotmanager = 0;
   }
   
   return EL::StatusCode::SUCCESS;

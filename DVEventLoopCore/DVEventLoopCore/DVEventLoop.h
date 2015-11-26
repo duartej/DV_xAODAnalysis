@@ -73,7 +73,7 @@ public:
 
   std::vector<DV::AlgBase*>* m_analysisAlgs;
 
-  DV::PlotsManagerTool * m_plotmanager;
+  DV::PlotsManagerTool * m_plotmanager; //!
 
   std::string m_outputFilename;
 

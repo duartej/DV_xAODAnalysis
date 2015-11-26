@@ -1,7 +1,7 @@
 #include "DVEventLoopCore/DVEventLoop.h"
 //#include "DVAnalysis/BasicPlots.h"
 //#include "DVAnalysis/TrkBasicPlots.h"
-//#include "DVAnalysis/PlotsManager.h"
+//#include "DVAnalysis/PlotsManagerTool.h"
 //#include "DVAnalysis/LowMassDVEventLoop.h"
 //#include "DVAnalysis/LowMassDVEff.h"
 #include <vector>
@@ -16,7 +16,7 @@
 #pragma link C++ class DVEventLoop+;
 //#pragma link C++ class DV::BasicPlots+;
 //#pragma link C++ class DV::TrkBasicPlots+;
-//#pragma link C++ class DV::PlotsManager+;
+//#pragma link C++ class DV::PlotsManagerTool+;
 //#pragma link C++ class LowMassDVEventLoop+;
 //#pragma link C++ class LowMassDVEff+;
 
