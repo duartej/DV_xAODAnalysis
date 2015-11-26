@@ -7,7 +7,6 @@ public
 use AtlasPolicy 	        AtlasPolicy-*
 ## for gaudi tools, services and objects
 use AtlasROOT               AtlasROOT-*             External
-use AsgTools                AsgTools-*              Control/AthToolSupport
 use AthAnalysisBaseComps    AthAnalysisBaseComps-*  Control
 
 ## put here your package dependencies...
@@ -16,6 +15,8 @@ use AthAnalysisBaseComps    AthAnalysisBaseComps-*  Control
 private
 #use AthenaBaseComps AthenaBaseComps-*   Control
 use GaudiInterface  GaudiInterface-*    External
+#use xAODTracking    xAODTracking-*      Event/xAOD
+#use DVTools         DVTools-*           DV_xAODAnalysis
 # Added the pre-processor flag by hand, otherwise do not compile...
 # It should be automatized somehow..
 macro_append cppflags -DASGTOOL_ATHENA
@@ -24,7 +25,7 @@ end_private
 branches src src/components doc python share
 
 ## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
-library DVAnalyses ../Root/AlgBase.cxx *.cxx components/*.cxx
+library DVAnalyses ../Root/AlgBase.cxx components/*.cxx *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"

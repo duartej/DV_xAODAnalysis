@@ -33,7 +33,8 @@ namespace DV
         public:
 #ifdef ASGTOOL_ATHENA
             // Constructor in Athena
-            AlgBase(const std::string& name, ISvcLocator* pSvcLocator);
+            AlgBase(const std::string& name, ISvcLocator* pSvcLocator) : 
+                AthAnalysisAlgorithm(name,pSvcLocator) { ; };
 #endif
             virtual ~AlgBase() { };
             
@@ -42,9 +43,6 @@ namespace DV
 #ifdef ASGTOOL_ATHENA
             // Allow to inheriting from Athena... not sure. To be overwritten
             // by the concrete
-/*            virtual StatusCode initialize() { return StatusCode::SUCCESS; };
-            virtual StatusCode execute() { return StatusCode::SUCCESS; };        
-            virtual StatusCode finalize() { return StatusCode::SUCCESS; };        */
 #elif defined(ASGTOOL_STANDALONE)
             //! to be called byt the DVEventLoop::histFinalize
             virtual void execute(xAOD::TEvent*)=0;        
