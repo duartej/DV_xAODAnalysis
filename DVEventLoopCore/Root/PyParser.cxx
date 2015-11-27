@@ -15,6 +15,7 @@
 #include<iostream>
 #include<iomanip>
 #include<string>
+#include<map>
 #include<stdexcept>
 
 #include "boost/variant.hpp"
@@ -31,9 +32,13 @@ PyParser::PyParser(const std::string & inputfile):
     // Initialize interpreter (to be closed at the destructor
     // as we used some of the PyObject along the life of this parser
     Py_Initialize();
+
+    // Strip the .py suffix if any
+    int afterdot = inputfile.find_last_of("."); 
+    std::string file_as_module_name = _filename.substr(0, afterdot);
     
     // retrieve the configuration file (python module) 
-    PyObject * cfg_module = PyImport_ImportModule(inputfile.c_str());
+    PyObject * cfg_module = PyImport_ImportModule(file_as_module_name.c_str());
     if(cfg_module == NULL)
     {
         std::string message("\033[1;31mrunDVAna ERROR\033[1;m not found config file '"+inputfile+"'");
@@ -80,7 +85,8 @@ T PyParser::Get(const std::string & key)
 
     PyObject * _o = _configMap[key];
 
-    boost::variant<int,float,std::string,std::vector<std::string> > configdata;
+    boost::variant<int,float,std::string,std::vector<std::string>,
+        std::map<std::string,std::vector<std::string> > > configdata;
     // Checking the type
     if( PyInt_Check(_o) )
     {
@@ -109,6 +115,36 @@ T PyParser::Get(const std::string & key)
         }
         configdata = values;
     }
+    else if( PyDict_Check(_o) )
+    {
+        // By the moment only accepted key and values of strings
+        // Probably it is easy to call here a helper function
+        // to deal with the initialization of the vector using
+        // a boost::variant or just using anytype = boost::variant<...>
+        std::map<std::string,std::vector<std::string> > keyvalues;
+        PyObject *_dictkey   = 0;
+        PyObject *_dictvalue = 0;
+        Py_ssize_t pos  = 0;
+        while(PyDict_Next(_o, &pos, &_dictkey, &_dictvalue)) 
+        {
+            if( ! PyList_Check( _dictvalue ) )
+            {   
+                std::string message("\033[1;31mrunDVAna ERROR\033[1;m"\
+                       " Not Implemented type for values in the dictionary");
+                throw std::runtime_error(message);
+            }
+            std::vector<std::string> _dictvalueslist;
+            for(Py_ssize_t i = 0; i < PyList_Size(_dictvalue); ++i)
+            {
+                PyObject * _objstr = PyList_GetItem(_dictvalue,i);
+                std::string strcontent(PyString_AsString(_objstr));
+                _dictvalueslist.push_back(strcontent);
+            }
+            std::string key_str_content(PyString_AsString(_dictkey));
+            keyvalues[key_str_content] = _dictvalueslist;
+        }
+        configdata = keyvalues;
+    }
     else
     {
         std::string message("\033[1;31mrunDVAna ERROR\033[1;m Not Implemented type for "\
@@ -123,6 +159,8 @@ template int PyParser::Get<int>(const std::string &);
 template float PyParser::Get<float>(const std::string &);
 template std::string PyParser::Get<std::string>(const std::string &);
 template std::vector<std::string> PyParser::Get<std::vector<std::string> >(const std::string &);
+template std::map<std::string,std::vector<std::string> > PyParser::Get<std::map<std::string,
+         std::vector<std::string> > >(const std::string &);
 
 void PyParser::Dump()
 {
