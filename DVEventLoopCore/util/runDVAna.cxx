@@ -11,13 +11,29 @@
 #include "EventLoop/Job.h"
 #include "EventLoop/DirectDriver.h"
 
+#include<map>
 #include<iostream>
 #include<fstream>
 #include<cstdio>
 
 void display_usage()
 {
-  std::cout << "\033[37musage:\033[m runDVAna config.py [OPTIONS]" << std::endl;
+  std::cout << "\033[37musage:\033[m runDVAna CONFIGFILE [OPTIONS]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Performs an standalone analysis using the DV_xAODAnalysis"
+      << " framework.\nThe mandatory CONFIGFILE argument is a standard python file"
+      << " used to\nconfigure the analysis job. Valid configurables are: " << std::endl;
+  std::cout << " * analyses      : the name of the analysis to be scheduled" 
+      << " [list(str)]" << std::endl;
+  std::cout << " * filesinput    : the list of the files, being the key "
+     << " the sample name [dict(str:list(str))]" << std::endl;
+  std::cout << " * outputFilename: the name of the output filename [str]" << std::endl;
+  std::cout << " * evtMax        : number of events to be processed [int]" << std::endl;
+  std::cout << " * skipEvts      : number of events to be skipped before "
+      << "start processing [int]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "OPTIONS:" << std::endl;
+  std::cout << "    -h  show this help and exit " << std::endl;
   std::cout << std::endl;
 }
 
@@ -28,10 +44,25 @@ int main( int argc, char* argv[] )
       display_usage();
       return -1;
   }
+  
+  std::string config_file;
+  // Parsing options
+  for(int i = 1; i < argc; ++i)
+  {
+      if( strcmp(argv[i],"-h") == 0 )
+      {
+          display_usage();
+          return 0;
+      }
+      else
+      {
+          config_file = argv[i];
+      }
+  }
 
   // *********************************************************
   // Getting the configuration 
-  PyParser parser(argv[1]);
+  PyParser parser(config_file);
 
   Info("runDVana","Extracting configuration from '%s'",argv[1]);
   // Take the submit directory from the input if provided:
@@ -42,10 +73,11 @@ int main( int argc, char* argv[] )
       submitDir = parser.Get<std::string>("submitDir");
   }
   // Get the input datasample(s)
-  std::vector<std::string> filesinput;
+  std::map<std::string,std::vector<std::string> > filesinput;
   if( parser.Check("filesinput") )
   {
-      filesinput = parser.Get<std::vector<std::string> >("filesinput");
+      filesinput = parser.Get<std::map<std::string,
+                 std::vector<std::string> > >("filesinput");
   }
 
   // Name of the output file
@@ -53,7 +85,7 @@ int main( int argc, char* argv[] )
   if( parser.Check("outputFilename") )
   {
       outputFilename = parser.Get<std::string>("outputFilename");
-      Info("DVEventLoop",std::string("Output file: '"+outputFilename+"'").c_str());
+      Info("runDVAna",std::string("Output file: '"+outputFilename+"'").c_str());
   }
   // Number of events to be processed
   int evtsMax = -1;
@@ -84,14 +116,18 @@ int main( int argc, char* argv[] )
   //Create tmp file
   const std::string tmpfilename("inputfile.txt");
   std::ofstream tmpfile(tmpfilename);
-  for(auto & infile: filesinput)
+  for(auto & sample_filelist: filesinput)
   {
-      tmpfile << infile << std::endl;
+      for(auto & infile: sample_filelist.second)
+      {
+          tmpfile << infile << std::endl;
+      }
+      SH::readFileList(sh, sample_filelist.first, tmpfilename);
   }
-  SH::readFileList(sh, "sample_name_provisional", tmpfilename);
   std::remove(tmpfilename.c_str());
   // Set the name of the input TTree. It's always "CollectionTree"
-  // for xAOD files.
+  // for xAOD files. 
+  // XXX: Generic as input option?
   sh.setMetaString( "nc_tree", "CollectionTree" );
 
   // Print what we found:
