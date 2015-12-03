@@ -2,16 +2,16 @@
 //
 // Package:    DV_xAODAnalysis/DVCuts
 // Class:      DVCuts
-// 
+//
 /**\class dvCuts DVCuts.h DV_xAODAnalysis/DVCuts/Root/DVCuts.cxx
- Description: 
- Implementation: 
+ Description:
+ Implementation:
  */
 //
-// Original Author: Dominik Krauss 
-//         modified (for DV_xAODAnalysis dual-use) by Jordi Duarte-Campderros  
+// Original Author: Dominik Krauss
+//         modified (for DV_xAODAnalysis dual-use) by Jordi Duarte-Campderros
 //         Modified: Tue Dec 01 19:06:10 CET 2015
-// 
+//
 // jordi.duarte.campderros@cern.ch
 //
 //
@@ -25,56 +25,53 @@
 // Local
 #include "DVCuts/IDVCuts.h"
 
-// Root
-#include "TLorentzVector.h"
-
 // xAOD, ...
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
-//system 
+//system
 #include<string>
-#include<vector>
 
 // forward decl.
+class TFile;
 class TH3C;
 
 namespace DV
 {
-
   class DVCuts : public asg::AsgTool, virtual public DV::IDVCuts
   {
       // Creates a proper constructor for Athena
       ASG_TOOL_CLASS( DVCuts, DV::IDVCuts )
-  
+
       public:
           // constructor for standalone usage
           DVCuts(const std::string& type);
-    
+
           StatusCode initialize() override;
-     
-          bool GetMaterialMap(const std::string& path) override;
-          
-          // single dv cuts
-          bool PassFiducialCuts(const xAOD::Vertex& dv) const override;      
-          bool PassTrackd0(const xAOD::Vertex& dv, const Amg::Vector3D& pv) const override;
-          bool PassDVDist(const xAOD::Vertex& dv, const std::vector<Amg::Vector3D>& pvs) const override;
+
+          bool PassFiducialCuts(const xAOD::Vertex& dv) const override;
+          bool PassChisqCut(const xAOD::Vertex& dv) const override;
+          bool PassDistCut(const xAOD::Vertex& dv, const xAOD::VertexContainer& pvc) const override;
           bool PassMaterialVeto(const xAOD::Vertex& dv) const override;
-          bool PassCentralEtaVeto(const xAOD::Vertex& dv) const override;
-          bool PassChargeRequirement(const xAOD::Vertex& dv) const override;
           bool PassMassCut(const xAOD::Vertex& dv) const override;
-          
-          // all cuts combined
-          bool PassVertexCuts(const xAOD::Vertex& dv, const std::vector<Amg::Vector3D>& pvs) const override;
-          
+
+          bool PassVertexCuts(const xAOD::Vertex& dv, const xAOD::VertexContainer& pvc) const override;
+
       private:
           //! fiducial cut for d0
           float m_d0Max;
           //! fiducial cut for z0
           float m_z0Max;
+          //! cut on fit quality
+          float m_chisqDoF;
+          //! cut on distance in transverse plane
+          float m_minDist;
+          //! minimal DV mass
+          float m_minDVMass;
 
-          //asg::ToolHandle<DDL::IParticleCuts> m_pc;
-          // accessor for vertex momentum
-          SG::AuxElement::ConstAccessor<TLorentzVector> m_acc_vp4;
+          // accessor for vertex mass
+          SG::AuxElement::ConstAccessor<double> m_accMass;
+
+          std::string m_mapFile;
           TH3C* m_materialMap;
   };
 }
