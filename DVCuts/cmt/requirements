@@ -1,35 +1,26 @@
 ## automatically generated CMT requirements file
 package DVCuts
-author  Jordi Duarte-Campderros <jorge.duarte.campderros@cern.ch>
+author Jordi Duarte-Campderros <jorge.duarte.campderros@cern.ch>
 
-## for athena policies: this has to be the first use statement
-use AtlasPolicy 	AtlasPolicy-*
+public
+use AtlasPolicy AtlasPolicy-*
+use AtlasROOT AtlasROOT-* External
+use AsgTools AsgTools-* Control/AthToolSupport
+use GaudiInterface  GaudiInterface-* External
+use GoodRunsLists GoodRunsLists-* DataQuality
+use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
+use xAODEventInfo xAODEventInfo-* Event/xAOD
+use xAODTracking xAODTracking-* Event/xAOD
 
-## for gaudi tools, services and objects
-#use GaudiInterface 	GaudiInterface-* 	External
-use AtlasROOT       AtlasROOT-*         External
-use AsgTools        AsgTools-*          Control/AthToolSupport
-use xAODTracking    xAODTracking-*      Event/xAOD
-
-## put here your package dependencies...
-
-##
 private
-#use AthenaBaseComps AthenaBaseComps-*   Control
-use GaudiInterface  GaudiInterface-*    External
-#use xAODTracking    xAODTracking-*      Event/xAOD
-# otherwise do not compile... it should be automatized somehow..
+# it should be automatized somehow..
 macro_append cppflags -DASGTOOL_ATHENA
 end_private
 
-branches src src/components doc python share
+branches src src/components doc python share Root DVCuts
 
 ## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
-library DVCuts ../Root/DVCuts.cxx *.cxx components/*.cxx 
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
 apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_python_modules files="*.py"
-
-
-
+apply_pattern declare_python_modules files="*.py
