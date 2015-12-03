@@ -5,12 +5,15 @@
 // Local include(s):
 #include "DVCuts/DVCuts.h"
 #include "DVCuts/EventCuts.h"
+#include "DVCuts/DiLepDVCuts.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( DV, DVCuts )
 DECLARE_NAMESPACE_TOOL_FACTORY( DV, EventCuts )
+DECLARE_NAMESPACE_TOOL_FACTORY( DV, DiLepDVCuts )
 
 DECLARE_FACTORY_ENTRIES( DVCuts )
 {
     DECLARE_NAMESPACE_TOOL( DV, DVCuts )
     DECLARE_NAMESPACE_TOOL( DV, EventCuts )
+    DECLARE_NAMESPACE_TOOL( DV, DiLepDVCuts )
 }
