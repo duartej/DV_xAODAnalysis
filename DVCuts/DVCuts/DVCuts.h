@@ -62,11 +62,11 @@ namespace DV
           //! fiducial cut for z0
           float m_z0Max;
           //! cut on fit quality
-          float m_chisqDoF;
+          float m_chisqDof;
           //! cut on distance in transverse plane
-          float m_minDist;
+          float m_distMin;
           //! minimal DV mass
-          float m_minDVMass;
+          float m_DVMassMin;
 
           // accessor for vertex mass
           SG::AuxElement::ConstAccessor<double> m_accMass;

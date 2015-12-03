@@ -14,8 +14,9 @@ DV::DVCuts::DVCuts(const std::string & name) :
 {
     declareProperty("d0Max", m_d0Max = 300.0, "Fiducial cut for d0 [mm]");
     declareProperty("z0Max", m_z0Max = 300.0, "Fiducial cut for z0, absolute value [z0]");
-    declareProperty("minDist", m_minDist = 4.0, "Minimum distance in transverse plane");
-    declareProperty("minDVMass", m_minDVMass = 10.0, "Minimum mass of DV");
+    declareProperty("chisqPerDofMax", m_chisqDof = 5.0, "Cut for chi^2 per degrees of freedom of DV fit");
+    declareProperty("distMin", m_distMin = 4.0, "Minimum distance of DV to all PVs in transverse plane");
+    declareProperty("DVMassMin", m_DVMassMin = 10.0, "Minimum mass of DV");
     declareProperty("MaterialMapFile", m_mapFile = "", "Path to material map file");
 }
 
@@ -64,7 +65,7 @@ bool DV::DVCuts::PassChisqCut(const xAOD::Vertex& dv) const
 {
     float chisqPerDOF = dv.chiSquared() / dv.numberDoF();
 
-    if(chisqPerDOF > m_chisqDoF) return false;
+    if(chisqPerDOF > m_chisqDof) return false;
     return true;
 }
 
@@ -74,7 +75,7 @@ bool DV::DVCuts::PassDistCut(const xAOD::Vertex& dv, const xAOD::VertexContainer
     for(const xAOD::Vertex* pv: pvc)
     {
         Amg::Vector3D dist = pv->position() - dv_pos;
-        if(dist.perp() < m_minDist)
+        if(dist.perp() < m_distMin)
         {
             return false;
         }
@@ -105,7 +106,7 @@ bool DV::DVCuts::PassMaterialVeto(const xAOD::Vertex& dv) const
 
 bool DV::DVCuts::PassMassCut(const xAOD::Vertex& dv) const
 {
-    if(std::fabs(m_accMass(dv)) < m_minDVMass)
+    if(std::fabs(m_accMass(dv)) < m_DVMassMin)
     {
         return false;
     }
