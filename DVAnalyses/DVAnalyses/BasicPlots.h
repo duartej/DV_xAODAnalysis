@@ -8,6 +8,9 @@
 #include <TProfile.h>
 #include <TProfile2D.h>
 
+#include "AsgTools/ToolHandle.h"
+#include "DVCuts/IDVCuts.h"
+
 namespace DV
 {
     class BasicPlots : public AlgBase 
@@ -17,16 +20,17 @@ namespace DV
             BasicPlots();
             virtual ~BasicPlots(){};
             
-            virtual void bookHists(PlotsManagerTool * pm);
-            virtual void execute(xAOD::TEvent*);
-            virtual void finalize();
-            virtual void assignCuts(){ ; };
+            virtual void bookHists(PlotsManagerTool * pm) override;
+            virtual void execute(xAOD::TEvent*) override;
+            virtual void finalize() override;
+d           virtual void assignCuts() override;
         private:
             TH2F* m_DVxy; //!
             TH1F* m_DVmass; //!
             TH1D* h_nTrkAssocVertAll; //!
             TH2D* h_DVmassVSnTrkAll; //!
             
+            ToolHandle<DV::IDVCuts> m_handle_dvcuts; //!
             //ClassDef(BasicPlots, 1);
     };
 }

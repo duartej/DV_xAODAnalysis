@@ -10,13 +10,21 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 
-#include "xAODRootAccess/TStore.h"
-
 #include <iostream>
 #include <vector>
 
-DV::BasicPlots::BasicPlots() 
+DV::BasicPlots::BasicPlots() :
+    m_DVxy(nullptr),
+    m_DVmass(nullptr),
+    h_nTrkAssocVertAll(nullptr),
+    h_DVmassVSnTrkAll(nullptr),
+    m_handle_dvcuts("DV::IDVCuts/DVCuts")
 {
+    //declareProperty( "DVCuts", m_handle_dvcuts, "The name of the displaced vertices cuts (DVCuts) tool");
+    //! just provisional uuntil we create an initialize method
+    /*StatusCode sc = m_handle_dvcuts.retrieve();
+    if( sc != StatusCode::SUCCESS ) 
+    { std::cout << "Your in troubles! The DVCuts tool has not been retrieved" << std::endl; }*/
 }
 
 void DV::BasicPlots::bookHists(DV::PlotsManagerTool * plotmanager) 
@@ -60,6 +68,14 @@ void DV::BasicPlots::execute(xAOD::TEvent* thisEvent)
 
 void DV::BasicPlots::finalize() 
 {  
+}
+
+void DV::BasicPlots::assingCuts()
+{
+    checkCutAvailability("DV::DVCuts/DVCuts","BasicPlots"); // <-- Here implement
+    // the ToolStoreManager call (which checks and do the initialization if needed)
+
+    //m_cuts = static_cast<const DV::DummyCuts*>(this->m_cutsMap["DummyCuts"]);
 }
 #endif  // ASGTOOL_STANDALONE
 
