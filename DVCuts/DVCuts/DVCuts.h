@@ -44,7 +44,7 @@ namespace DV
 
       public:
           // constructor for standalone usage
-          DVCuts(const std::string& type);
+          DVCuts(const std::string& name);
 
           StatusCode initialize() override;
 

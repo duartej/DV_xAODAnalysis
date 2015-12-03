@@ -19,8 +19,6 @@ namespace DV
         ASG_TOOL_INTERFACE(DV::IEventCuts)
 
         public:
-            virtual StatusCode initialize() = 0;
-
             virtual void SetTriggers(const std::vector<std::string>& trigNames) = 0;
 
             virtual const xAOD::Vertex* GetPV(const xAOD::VertexContainer& pvc) const = 0;

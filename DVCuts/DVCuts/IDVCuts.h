@@ -21,11 +21,8 @@
 // Framework includes
 #include "AsgTools/IAsgTool.h"
 
-#include "xAODTracking/Vertex.h"
-
-// STL
-#include <string>
-#include <vector>
+// xAOD
+#include "xAODTracking/VertexContainer.h"
 
 namespace DV
 {
