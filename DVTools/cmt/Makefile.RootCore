@@ -12,7 +12,7 @@ PACKAGE_OBJFLAGS = -DASGTOOL_STANDALONE
 PACKAGE_LDFLAGS  =
 PACKAGE_BINFLAGS =
 PACKAGE_LIBFLAGS =
-PACKAGE_DEP = AsgTools 
+PACKAGE_DEP      = AsgTools CaloGeoHelpers EventPrimitives FourMomUtils MuonIdHelpers TrigConfHLTData TrigConfInterfaces TrigDecisionInterface TrigDecisionTool TrigMuonMatching TrigNavStructure TrigSteeringEvent xAODBase xAODCaloEvent xAODEgamma xAODMissingET xAODMuon xAODPrimitives xAODTracking xAODTrigger
 
 PACKAGE_TRYDEP   =
 PACKAGE_CLEAN    =
