@@ -6,12 +6,10 @@
 
 // Builder for the analysis should be run
 #include "DVEventLoopCore/AlgBuilder.h"
-// Cut-container, to initialize the cut-algorithm
-// which can be used
-/////#include "DVEventLoopCore/CutsComposite.h"
+// tool instantiator/container
+#include "DVEventLoopCore/ToolInstantiator.h"
 // Plot Manager
 #include "DVTools/PlotsManagerTool.h"
-
 
 #include "xAODRootAccess/TStore.h"
 #include "xAODCore/ShallowCopy.h"
@@ -24,8 +22,9 @@ DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
     m_evtsMax(-1),
-    m_analysisAlgs(0),//new std::vector<DV::AlgBase*>),
-    m_plotmanager(0),
+    m_analysisAlgs(nullptr),//new std::vector<DV::AlgBase*>),
+    m_plotmanager(nullptr),
+    m_toolsContainer(nullptr),
     m_outputFilename("histograms.root")
 {
   // Here you put any code for the base initialization of variables,
@@ -42,20 +41,17 @@ DVEventLoop::~DVEventLoop()
 {
     for(auto & analysis: *(this->m_analysisAlgs))
     {
-        if( analysis != 0 )
+        if( analysis != nullptr )
         {
-            // FIXME:: What happens with the destruction of 
-            // the analysis? Problems with the TList of histograms...
             delete analysis;
-            analysis = 0;
+            analysis = nullptr;
         }
     }
-    if( this->m_analysisAlgs != 0 )
+    if( this->m_analysisAlgs != nullptr )
     {
         delete this->m_analysisAlgs;
-        this->m_analysisAlgs = 0;
+        this->m_analysisAlgs = nullptr;
     }
-
 }
 
 EL::StatusCode DVEventLoop::addCutAlgs(const std::vector<std::string> & cut_names) 
@@ -80,9 +76,9 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
 
 EL::StatusCode DVEventLoop::addAnalysisAlgs() 
 { 
-    // Create the cut-composite object to be populated
+    // Create the tool-instantiator/container object to be populated
     // by the analyses needs
-//--    DV::CutsComposite * cut_container = new DV::CutsComposite();
+    m_toolsContainer = DV::ToolInstantiator::getInstance();
     
     // The 'regular' analysis algorithms
     for(auto & alg: this->m_algNames)
@@ -92,19 +88,18 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
         {
             return EL::StatusCode::FAILURE;
         }
-        // Get the list of cut classes needed by the algorithm
-        // and add them to the cut container
-/*  -->      for(auto & cut: dvAna->getCutNames())
+        // Get the list of cut classes (tools) needed by the algorithm
+        // and let know the ToolInstantiator 
+        for(auto & cut: dvAna->getCutNames())
         {
-            const DV::CutsBase * cutobject = cut_container->add(cut);
-            dvAna->attachCut(cut,cutobject);
+            EL::StatusCode sc = (EL::StatusCode)m_toolsContainer->instantiateTool(cut);
+            if( sc != EL::StatusCode::SUCCESS )
+            {
+                return sc;
+            }
         }
-        // and personalize the cuts in the concrete alg
-        dvAna->assignCuts();*/
         this->m_analysisAlgs->push_back(dvAna);
     }
-    // Let's insert the cut container as the first algorithm
-//--    this->m_analysisAlgs->insert(this->m_analysisAlgs->begin(),cut_container);
 
     return EL::StatusCode::SUCCESS;
 }
@@ -147,6 +142,18 @@ EL::StatusCode DVEventLoop :: histInitialize ()
   }
   algList += " ]";
   Info("histInitialize()","%s", algList.c_str());
+  
+  
+  const std::vector<std::string> listOfTools = m_toolsContainer->getListOfTools();
+  Info("histInitialize()","Available Tools [#%lu]:", listOfTools.size());
+  std::string toolList(" [");
+  for(auto & toolName : listOfTools)
+  {
+      toolList += std::string(" "+toolName);
+  }
+  toolList += " ]";
+  Info("histInitialize()","%s", toolList.c_str());
+
 
   // Initialize plot tool
   m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");

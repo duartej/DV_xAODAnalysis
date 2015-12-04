@@ -48,6 +48,7 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
     // It is already present?  // with std::find and lambda func. ??
     for(auto & tool : m_tools)
     {
+        std::cout << "instantiateTool:" << tool->name() << std::endl;
         if( cutname == tool->name() )
         {
             return StatusCode::SUCCESS;
@@ -83,6 +84,7 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
          throw std::runtime_error(message);
     }
 
+    m_tools.push_back(p);
 
     return StatusCode::SUCCESS;
 }
