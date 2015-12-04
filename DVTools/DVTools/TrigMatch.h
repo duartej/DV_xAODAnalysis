@@ -22,7 +22,7 @@ namespace DV
 {
     class TrigMatch : virtual public ITrigMatch, public asg::AsgTool
     {
-      ASG_TOOL_CLASS(TrigMatch, DV::ITrigMatch)
+        ASG_TOOL_CLASS(TrigMatch, DV::ITrigMatch)
         public:
             TrigMatch(const std::string& name);
             virtual ~TrigMatch() = default;
