@@ -9,9 +9,11 @@ use AsgTools AsgTools-* Control/AthToolSupport
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 use GaudiInterface  GaudiInterface-* External
 use GoodRunsLists GoodRunsLists-* DataQuality
+use MuonSelectorTools MuonSelectorTools-* PhysicsAnalysis/MuonID
 use TrigDecisionTool TrigDecisionTool-* Trigger/TrigAnalysis
 use xAODEgamma xAODEgamma-* Event/xAOD
 use xAODEventInfo xAODEventInfo-* Event/xAOD
+use xAODMuon xAODMuon-* Event/xAOD
 use xAODTracking xAODTracking-* Event/xAOD
 
 private
