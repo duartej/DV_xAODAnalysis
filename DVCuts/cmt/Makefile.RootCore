@@ -12,7 +12,7 @@ PACKAGE_OBJFLAGS = -DASGTOOL_STANDALONE
 PACKAGE_LDFLAGS  =
 PACKAGE_BINFLAGS =
 PACKAGE_LIBFLAGS =
-PACKAGE_DEP      = AsgTools EventPrimitives GeoPrimitives GoodRunsLists TrigConfHLTData TrigConfInterfaces TrigConfL1Data TrigDecisionInterface TrigDecisionTool TrigNavStructure TrigSteeringEvent xAODBase xAODEventInfo xAODTracking xAODTrigger
+PACKAGE_DEP      = AsgTools CaloGeoHelpers ElectronPhotonSelectorTools EventPrimitives GeoPrimitives GoodRunsLists PATCore TrigConfHLTData TrigConfInterfaces TrigConfL1Data TrigDecisionInterface TrigDecisionTool TrigNavStructure TrigSteeringEvent xAODBase xAODCaloEvent xAODEgamma xAODEventInfo xAODPrimitives xAODTracking xAODTrigger
 
 PACKAGE_TRYDEP   =
 PACKAGE_CLEAN    =
