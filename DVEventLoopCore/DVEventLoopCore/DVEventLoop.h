@@ -22,6 +22,7 @@
 namespace DV
 {
     class PlotsManagerTool;
+    class ToolInstantiator;
 }
 
 class DVEventLoop : public EL::Algorithm
@@ -74,6 +75,8 @@ public:
   std::vector<DV::AlgBase*>* m_analysisAlgs;
 
   DV::PlotsManagerTool * m_plotmanager; //!
+
+  DV::ToolInstantiator * m_toolsContainer; //!
 
   std::string m_outputFilename;
 

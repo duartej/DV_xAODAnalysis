@@ -23,8 +23,9 @@ namespace DV
             virtual void bookHists(PlotsManagerTool * pm) override;
             virtual void execute(xAOD::TEvent*) override;
             virtual void finalize() override;
-d           virtual void assignCuts() override;
         private:
+            virtual void assignCutsAndTools() override; 
+            
             TH2F* m_DVxy; //!
             TH1F* m_DVmass; //!
             TH1D* h_nTrkAssocVertAll; //!

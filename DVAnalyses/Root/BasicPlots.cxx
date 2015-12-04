@@ -25,6 +25,9 @@ DV::BasicPlots::BasicPlots() :
     /*StatusCode sc = m_handle_dvcuts.retrieve();
     if( sc != StatusCode::SUCCESS ) 
     { std::cout << "Your in troubles! The DVCuts tool has not been retrieved" << std::endl; }*/
+
+    // Declare the necessary cuts this method needs
+    assignCutsAndTools();
 }
 
 void DV::BasicPlots::bookHists(DV::PlotsManagerTool * plotmanager) 
@@ -52,6 +55,12 @@ void DV::BasicPlots::execute(xAOD::TEvent* thisEvent)
     for( xAOD::VertexContainer::const_iterator dv_itr = recoVertices->begin();
             dv_itr != recoVertices->end(); dv_itr++) 
     {
+        // Testing some Cuts tools
+        if( ! m_handle_dvcuts->PassFiducialCuts( (*(*dv_itr)) ) )
+        {
+            continue;
+        }
+
         float dvx = (*dv_itr)->x();
         float dvy = (*dv_itr)->y();
         m_DVxy->Fill(dvx,dvy);
@@ -70,12 +79,11 @@ void DV::BasicPlots::finalize()
 {  
 }
 
-void DV::BasicPlots::assingCuts()
+void DV::BasicPlots::assignCutsAndTools()
 {
-    checkCutAvailability("DV::DVCuts/DVCuts","BasicPlots"); // <-- Here implement
-    // the ToolStoreManager call (which checks and do the initialization if needed)
-
-    //m_cuts = static_cast<const DV::DummyCuts*>(this->m_cutsMap["DummyCuts"]);
+    // Which cuts are needed? Remember the format ToolType/ToolName 
+    // (XXX:: so it can be retrieved from a property... )
+    m_cutnames.push_back("DV::IDVCuts/DVCuts");
 }
 #endif  // ASGTOOL_STANDALONE
 

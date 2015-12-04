@@ -20,7 +20,6 @@
 namespace DV 
 {
     class PlotsManagerTool;
-    class CutsBase;
 
 #ifdef ASGTOOL_ATHENA
     class AlgBase : public AthAnalysisAlgorithm
@@ -54,22 +53,17 @@ namespace DV
             virtual std::vector<std::string> getCutNames() { return m_cutnames; };
             //! Return the concrete tool classes needed by the algorithm
             virtual std::vector<std::string> getToolNames() { return m_toolnames; };
-            //! Get access to the needed cut classes
-            virtual void attachCut(const std::string & cutname,const CutsBase * cutObject) { m_cutsMap[cutname] = cutObject; };
-            //! Concrete implementation of the cuts.. explain that more
-            virtual void assignCuts() = 0;
         
         protected:
-            virtual void checkCutAvailability(const std::string & cut, const std::string & algname);
+            //! Description of the cuts and tools which should be prepare for this algorithm
+            virtual void assignCutsAndTools() = 0;
 #ifdef ASGTOOL_STANDALONE
             xAOD::TEvent * m_event;          //! Really needed?
             unsigned int   m_eventCounter;   //! Really needed?
 #endif // ASGTOOL_STANDALONE
+            //! cuts and tools to be used (XXX: should be tracked separately?)
             std::vector<std::string> m_cutnames;
             std::vector<std::string> m_toolnames;
-
-            //! cuts to be used
-            std::map<std::string,const CutsBase *> m_cutsMap;
     };
 }
 #endif
