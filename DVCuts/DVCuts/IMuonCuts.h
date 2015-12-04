@@ -6,6 +6,7 @@
 
 // xAOD
 #include "xAODMuon/Muon.h"
+#include "xAODTracking/TrackParticle.h"
 
 namespace DV
 {
@@ -14,6 +15,8 @@ namespace DV
         ASG_TOOL_INTERFACE(DV::IMuonCuts)
 
         public:
+            virtual const xAOD::TrackParticle* GetTrack(const xAOD::Muon& mu) const = 0;
+
             virtual bool PassPtCut(const xAOD::Muon& mu) const = 0;
             virtual bool PassEtaCut(const xAOD::Muon& mu) const = 0;
             virtual bool PassD0Cut(const xAOD::Muon& mu) const = 0;

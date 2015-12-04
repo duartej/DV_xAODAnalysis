@@ -29,6 +29,8 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
+            const xAOD::TrackParticle* GetTrack(const xAOD::Muon& mu) const override;
+
             bool PassPtCut(const xAOD::Muon& mu) const override;
             bool PassEtaCut(const xAOD::Muon& mu) const override;
             bool PassD0Cut(const xAOD::Muon& mu) const override;
@@ -44,8 +46,6 @@ namespace DV
             double m_etaMax;
             double m_d0Min;
             int m_muID;
-
-            inline const xAOD::TrackParticle* GetTrack(const xAOD::Muon& mu) const;
     };
 }
 

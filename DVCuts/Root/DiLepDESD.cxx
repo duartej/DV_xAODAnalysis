@@ -1,12 +1,11 @@
 #include "DVCuts/DiLepDESD.h"
 
 DV::DiLepDESD::DiLepDESD(const std::string& name) :
-    AsgTool(name)
+    AsgTool(name),
+    m_pass_siphtrig(false),
+    m_pass_diphtrig(false),
+    m_pass_simutrig(false)
 {
-    declareProperty("SiPhTrigger", m_trig_siph = "HLT_g140_loose", "Name of single photon trigger");
-    declareProperty("DiPhTrigger", m_trig_diph = "HLT_2g50_loose", "Name of diphoton trigger");
-    declareProperty("SiMuTrigger", m_trig_simu = "HLT_mu60_0eta105_msonly", "Name of single muon trigger");
-
     declareProperty("ElEtaMax", m_el_eta = 2.5, "Cut for electron |eta|");
     declareProperty("PhEtaMax", m_ph_eta = 2.5, "Cut for photon |eta|");
     declareProperty("MuEtaMax", m_mu_eta = 2.5, "Cut for muon |eta|");
@@ -28,28 +27,29 @@ DV::DiLepDESD::DiLepDESD(const std::string& name) :
 StatusCode DV::DiLepDESD::initialize()
 {
     // Greet the user:
-    ATH_MSG_DEBUG("Initialising... " );
-
-    if(m_trig.retrieve().isFailure())
-    {
-        ATH_MSG_ERROR("Failed to retrieve TrigMatch!");
-        return StatusCode::FAILURE;
-    }
+    ATH_MSG_DEBUG("Initialising... ");
 
     // Return gracefully:
     return StatusCode::SUCCESS;
 }
 
+void DV::DiLepDESD::SetTriggerFlags(bool siph, bool diph, bool simu)
+{
+    m_pass_siphtrig = siph;
+    m_pass_diphtrig = diph;
+    m_pass_simutrig = simu;
+}
+
 bool DV::DiLepDESD::PassSiEl(const xAOD::Electron& el) const
 {
-    if(!m_trig->Match(el, m_trig_siph)) return false;
+    if(!m_pass_siphtrig) return false;
 
     return PassCuts(el, m_siel_pt);
 }
 
 bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const
 {
-    if(!m_trig->Match(ph, m_trig_siph)) return false;
+    if(!m_pass_siphtrig) return false;
 
     if(SameCluster(ph, el)) return false;
 
@@ -61,23 +61,19 @@ bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) 
 
 bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const
 {
+    if(!m_pass_siphtrig) return false;
+
     if(SameCluster(ph1, ph2)) return false;
 
-    if(m_trig->Match(ph1, m_trig_siph))
-    {
-        if(PassCuts(ph1, m_siph_pt) && PassCuts(ph2, m_siph_xpt)) return true;
-    }
-    if(m_trig->Match(ph2, m_trig_siph))
-    {
-        if(PassCuts(ph2, m_siph_pt) && PassCuts(ph1, m_siph_xpt)) return true;
-    }
+    if(PassCuts(ph1, m_siph_pt) && PassCuts(ph2, m_siph_xpt)) return true;
+    if(PassCuts(ph2, m_siph_pt) && PassCuts(ph1, m_siph_xpt)) return true;
 
     return false;
 }
 
 bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) const
 {
-    if(!m_trig->Match(ph, m_trig_siph)) return false;
+    if(!m_pass_siphtrig) return false;
 
     if(!PassCuts(ph, m_siph_pt)) return false;
     if(!PassCuts(mu, m_siph_xpt, m_mu_eta)) return false;
@@ -87,14 +83,14 @@ bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) cons
 
 bool DV::DiLepDESD::PassSiMu(const xAOD::Muon& mu) const
 {
-    if(!m_trig->Match(mu, m_trig_simu)) return false;
+    if(!m_pass_simutrig) return false;
 
     return PassCuts(mu, m_simu_pt, m_mu_beta);
 }
 
 bool DV::DiLepDESD::PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const
 {
-    if(!m_trig->Match(el1, m_trig_diph) || !m_trig->Match(el2, m_trig_diph)) return false;
+    if(!m_pass_diphtrig) return false;
 
     if(SameCluster(el1, el2)) return false;
 
@@ -106,7 +102,7 @@ bool DV::DiLepDESD::PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el
 
 bool DV::DiLepDESD::PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const
 {
-    if(!m_trig->Match(ph1, m_trig_diph) || !m_trig->Match(ph2, m_trig_diph)) return false;
+    if(!m_pass_diphtrig) return false;
 
     if(SameCluster(ph1, ph2)) return false;
 
@@ -118,7 +114,7 @@ bool DV::DiLepDESD::PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) c
 
 bool DV::DiLepDESD::PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const
 {
-    if(!m_trig->Match(el, m_trig_diph) || !m_trig->Match(ph, m_trig_diph)) return false;
+    if(!m_pass_diphtrig) return false;
 
     if(SameCluster(el, ph)) return false;
 
@@ -130,7 +126,7 @@ bool DV::DiLepDESD::PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph)
 
 bool DV::DiLepDESD::PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const
 {
-    if(!m_trig->Match(el, m_trig_diph) || !m_trig->Match(ph, m_trig_diph)) return false;
+    if(!m_pass_diphtrig) return false;
 
     if(SameCluster(el, ph)) return false;
 
@@ -230,4 +226,45 @@ bool DV::DiLepDESD::PassCuts(const xAOD::Muon& mu, double pt_cut, double eta_cut
     }
 
     return true;
+}
+
+bool DV::DiLepDESD::PassAny(const xAOD::ElectronContainer& elc,
+                            const xAOD::PhotonContainer& phc,
+                            const xAOD::MuonContainer& muc) const
+{
+    for(auto ph1 = phc.cbegin(); ph1 != phc.cend(); ph1++)
+    {
+        for(auto ph2 = ph1+1; ph2 != phc.cend(); ph2++)
+        {
+            if(PassSiPhX(**ph1, **ph2)) return true;
+            if(PassDiPh(**ph1, **ph2)) return true;
+        }
+        for(const xAOD::Electron* el: elc)
+        {
+            if(PassSiPhX(**ph1, *el)) return true;
+            if(PassDiElPh(*el, **ph1)) return true;
+            if(PassDiLoElPh(*el, **ph1)) return true;
+        }
+        for(const xAOD::Muon* mu: muc)
+        {
+            if(PassSiPhX(**ph1, *mu)) return true;
+        }
+    }
+
+    for(auto el1 = elc.cbegin(); el1 != elc.cend(); el1++)
+    {
+        if(PassSiEl(**el1)) return true;
+
+        for(auto el2 = el1+1; el2 != elc.cend(); el2++)
+        {
+            if(PassDiEl(**el1, **el2)) return true;
+        }
+    }
+
+    for(const xAOD::Muon* mu: muc)
+    {
+        if(PassSiMu(*mu)) return true;
+    }
+
+    return false;
 }

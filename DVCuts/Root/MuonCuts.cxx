@@ -30,6 +30,17 @@ StatusCode DV::MuonCuts::initialize()
     return StatusCode::SUCCESS;
 }
 
+const xAOD::TrackParticle* DV::MuonCuts::GetTrack(const xAOD::Muon& mu) const
+{
+    const xAOD::TrackParticle* mu_tr = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
+    if(mu_tr == nullptr)
+    {
+        ATH_MSG_WARNING("Failed to retrieve Muon track!");
+    }
+
+    return mu_tr;
+}
+
 bool DV::MuonCuts::PassPtCut(const xAOD::Muon& mu) const
 {
     const xAOD::TrackParticle* mu_tr = GetTrack(mu);
@@ -72,15 +83,4 @@ bool DV::MuonCuts::IsPreRetracking(const xAOD::Muon& mu) const
 {
     // FIXME: find some clever way to do it
     return false;
-}
-
-const xAOD::TrackParticle* DV::MuonCuts::GetTrack(const xAOD::Muon& mu) const
-{
-    const xAOD::TrackParticle* mu_tr = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(mu_tr == nullptr)
-    {
-        ATH_MSG_WARNING("Failed to retrieve Muon track!");
-    }
-
-    return mu_tr;
 }

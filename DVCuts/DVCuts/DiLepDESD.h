@@ -9,13 +9,12 @@
 #include "AsgTools/ToolHandle.h"
 
 // xAOD
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODMuon/Muon.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 // DV
 #include "DVCuts/IDiLepDESD.h"
-#include "DVTools/ITrigMatch.h"
 
 namespace DV
 {
@@ -30,6 +29,9 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
+            // CAUTION!: has to be called for EVERY DV before the filters can be used!
+            void SetTriggerFlags(bool siph, bool diph, bool simu) override;
+
             // single filter implementations
             bool PassSiEl(const xAOD::Electron& el) const override;
             bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const override;
@@ -43,13 +45,15 @@ namespace DV
             bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
             bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
 
-        private:
-            ToolHandle<DV::ITrigMatch> m_trig;
+            bool PassAny(const xAOD::ElectronContainer& elc,
+                         const xAOD::PhotonContainer& phc,
+                         const xAOD::MuonContainer& muc) const;
 
-            // trigger names
-            std::string m_trig_siph;
-            std::string m_trig_diph;
-            std::string m_trig_simu;
+        private:
+            // trigger flags
+            bool m_pass_siphtrig;
+            bool m_pass_diphtrig;
+            bool m_pass_simutrig;
 
             // cut values of the filters
             double m_el_eta;

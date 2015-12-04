@@ -5,9 +5,9 @@
 #include "AsgTools/IAsgTool.h"
 
 // xAOD
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/Photon.h"
-#include "xAODMuon/Muon.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace DV
 {
@@ -16,6 +16,8 @@ namespace DV
         ASG_TOOL_INTERFACE(DV::IDiLepDESD)
 
         public:
+            virtual void SetTriggerFlags(bool siph, bool diph, bool simu) = 0;
+
             virtual bool PassSiEl(const xAOD::Electron& el) const = 0;
             virtual bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const = 0;
             virtual bool PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const = 0;
@@ -26,6 +28,10 @@ namespace DV
             virtual bool PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const = 0;
             virtual bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
             virtual bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
+
+            virtual bool PassAny(const xAOD::ElectronContainer& elc,
+                                 const xAOD::PhotonContainer& phc,
+                                 const xAOD::MuonContainer& muc) const = 0;
     };
 }
 

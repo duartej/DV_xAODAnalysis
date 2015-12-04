@@ -33,6 +33,17 @@ StatusCode DV::ElecCuts::initialize()
     return StatusCode::SUCCESS;
 }
 
+const xAOD::TrackParticle* DV::ElecCuts::GetTrack(const xAOD::Electron& el) const
+{
+    const xAOD::TrackParticle* el_tr = el.trackParticle();
+    if(el_tr == nullptr)
+    {
+        ATH_MSG_WARNING("Failed to retrieve electron track!");
+    }
+
+    return el_tr;
+}
+
 bool DV::ElecCuts::PassPtCut(const xAOD::Electron& el) const
 {
     const xAOD::TrackParticle* el_tr = GetTrack(el);
@@ -90,15 +101,4 @@ const xAOD::Photon* DV::ElecCuts::FindMatchingPhoton(const xAOD::Electron& el, c
     }
 
     return nullptr;
-}
-
-const xAOD::TrackParticle* DV::ElecCuts::GetTrack(const xAOD::Electron& el) const
-{
-    const xAOD::TrackParticle* el_tr = el.trackParticle();
-    if(el_tr == nullptr)
-    {
-        ATH_MSG_WARNING("Failed to retrieve electron track!");
-    }
-
-    return el_tr;
 }

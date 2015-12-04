@@ -30,6 +30,8 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
+            const xAOD::TrackParticle* GetTrack(const xAOD::Electron& el) const override;
+
             bool PassPtCut(const xAOD::Electron& el) const override;
             bool PassEtaCut(const xAOD::Electron& el) const override;
             bool PassD0Cut(const xAOD::Electron& el) const override;
@@ -47,8 +49,6 @@ namespace DV
             double m_etaMax;
             double m_d0Min;
             std::string m_elecID;
-
-            inline const xAOD::TrackParticle* GetTrack(const xAOD::Electron& el) const;
     };
 }
 
