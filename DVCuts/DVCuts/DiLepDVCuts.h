@@ -6,6 +6,7 @@
 
 // Tools
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/ToolHandle.h"
 
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"

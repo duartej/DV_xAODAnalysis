@@ -3,7 +3,7 @@
 #include <cmath>
 
 DV::MuonCuts::MuonCuts(const std::string& name) :
-    asg::AsgTool(name), m_mst("")
+    asg::AsgTool(name), m_mst("CP::IMuonSelectionTool/DVMuonSelectionTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for muon track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for muon track |eta|");
@@ -16,7 +16,11 @@ StatusCode DV::MuonCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
+#ifdef ASGTOOL_STANDALONE
     CP::MuonSelectionTool* mst = new CP::MuonSelectionTool("DVMuonSelectionTool");
+#elif defined(ASGTOOL_ATHENA)
+    CP::MuonSelectionTool *mst = dynamic_cast<CP::MuonSelectionTool*>(&*m_mst);
+#endif
 
     // configure muon identification
     ATH_CHECK(mst->setProperty("MuQuality", m_muID));
@@ -24,7 +28,9 @@ StatusCode DV::MuonCuts::initialize()
     ATH_CHECK(mst->setProperty("PixCutOff", true));
     ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
 
-    m_mst = mst;
+#ifdef ASGTOOL_STANDALONE
+    m_mst = mst;    
+#endif
 
     // Return gracefully:
     return StatusCode::SUCCESS;

@@ -3,7 +3,7 @@
 #include <cmath>
 
 DV::ElecCuts::ElecCuts(const std::string& name) :
-    asg::AsgTool(name), m_elt("")
+    asg::AsgTool(name), m_elt("AsgElectronLikelihoodTool/DVElectronLikelihoodTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for electron track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for electron track |eta|");
@@ -16,7 +16,11 @@ StatusCode DV::ElecCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
+#ifdef ASGTOOL_STANDALONE
     AsgElectronLikelihoodTool* elt = new AsgElectronLikelihoodTool("DVElectronLikelihoodTool");
+#elif defined(ASGTOOL_ATHENA)
+    AsgElectronLikelihoodTool* elt = dynamic_cast<AsgElectronLikelihoodTool*>(&*m_elt);
+#endif
 
     // set working point of electron ID
     std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihood" + m_elecID + "NoD0OfflineConfig2015.conf";
@@ -27,7 +31,9 @@ StatusCode DV::ElecCuts::initialize()
     ATH_CHECK(elt->setProperty("CutPi", std::vector<int>()));
     ATH_CHECK(elt->setProperty("CutSi", std::vector<int>()));
 
+#ifdef ASGTOOL_STANDALONE
     m_elt = elt;
+#endif
 
     // Return gracefully:
     return StatusCode::SUCCESS;

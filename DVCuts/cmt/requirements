@@ -6,7 +6,7 @@ public
 use AtlasPolicy AtlasPolicy-*
 use AtlasROOT AtlasROOT-* External
 use AsgTools AsgTools-* Control/AthToolSupport
-use DVTools DVTools-*
+use DVTools DVTools-*   DV_xAODAnalysis
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 use GaudiInterface  GaudiInterface-* External
 use GoodRunsLists GoodRunsLists-* DataQuality
