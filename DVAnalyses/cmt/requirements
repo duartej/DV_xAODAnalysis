@@ -25,8 +25,8 @@ end_private
 branches src src/components doc python share
 
 ## default is to make component library. See: https://twiki.cern.ch/twiki/bin/view/Main/LearningAthena#Libraries_in_CMT for alternatives
-library DVAnalyses ../Root/AlgBase.cxx components/*.cxx *.cxx
-apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/AlgBase.cxx components/*.cxx"
+#apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
