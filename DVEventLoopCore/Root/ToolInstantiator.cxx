@@ -16,8 +16,14 @@
 
 // Insert here the include of any tool you want to use with this 
 // instantiator (what we should used? IAsgTools or AsgTools?)
-#include "DVCuts/IDVCuts.h"  
 #include "DVCuts/DVCuts.h"
+#include "DVCuts/DiLepCosmics.h"
+#include "DVCuts/DiLepDESD.h"
+#include "DVCuts/DiLepDVCuts.h"
+#include "DVCuts/EventCuts.h"
+#include "DVCuts/ElecCuts.h"
+#include "DVCuts/MuonCuts.h"
+
 
 // system libraries
 #include<iostream>
@@ -64,14 +70,34 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
 
     asg::IAsgTool * p = 0;
     
-    // Algorithm cases
-    if( toolType == "DV::DVCuts" )
+    // Algorithm cases: (Note the inclusion of the Interfaces for the ToolHandle case)
+    if( toolType == "DV::DVCuts" or toolType == "DV::IDVCuts" )
     {
         p = new DV::DVCuts(toolName);
     }
-    else if( toolType == "DV::IDVCuts" )
+    else if( toolType == "DV::DiLepCosmics" or toolType == "DV::IDiLepCosmics" )
     {
-        p = new DV::DVCuts(toolName);
+        p = new DV::DiLepCosmics(toolName);
+    }
+    else if( toolType == "DV::DiLepDESD" or toolType == "DV::IDiLepDESD" )
+    {
+        p = new DV::DiLepDESD(toolName);
+    }
+    else if( toolType == "DV::DiLepDVCuts" or toolType == "DV::IDiLepDVCuts" )
+    {
+        p = new DV::DiLepDVCuts(toolName);
+    }
+    else if( toolType == "DV::EventCuts" or toolType == "DV::IEventCuts" )
+    {
+        p = new DV::EventCuts(toolName);
+    }
+    else if( toolType == "DV::ElecCuts" or toolType == "DV::IElecCuts" )
+    {
+        p = new DV::ElecCuts(toolName);
+    }
+    else if( toolType == "DV::MuonCuts" or toolType == "DV::IMuonCuts" )
+    {
+        p = new DV::MuonCuts(toolName);
     }
     else
     {
