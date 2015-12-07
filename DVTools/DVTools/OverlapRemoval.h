@@ -12,7 +12,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-// DVCuts
+// DVTools
 #include "DVTools/IOverlapRemoval.h"
 
 namespace DV

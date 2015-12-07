@@ -2,6 +2,7 @@
 
 DV::DiLepDESD::DiLepDESD(const std::string& name) :
     AsgTool(name),
+    m_phMatch("DV::PhotonMatch/PhotonMatch"),
     m_pass_siphtrig(false),
     m_pass_diphtrig(false),
     m_pass_simutrig(false)
@@ -28,6 +29,12 @@ StatusCode DV::DiLepDESD::initialize()
 {
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... ");
+
+    if(m_phMatch.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Failed to retrieve PhotonMatch!");
+        return StatusCode::FAILURE;
+    }
 
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -228,36 +235,37 @@ bool DV::DiLepDESD::PassCuts(const xAOD::Muon& mu, double pt_cut, double eta_cut
     return true;
 }
 
-bool DV::DiLepDESD::PassAny(const xAOD::ElectronContainer& elc,
-                            const xAOD::PhotonContainer& phc,
-                            const xAOD::MuonContainer& muc) const
+bool DV::DiLepDESD::PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const
 {
-    for(auto ph1 = phc.cbegin(); ph1 != phc.cend(); ph1++)
-    {
-        for(auto ph2 = ph1+1; ph2 != phc.cend(); ph2++)
-        {
-            if(PassSiPhX(**ph1, **ph2)) return true;
-            if(PassDiPh(**ph1, **ph2)) return true;
-        }
-        for(const xAOD::Electron* el: elc)
-        {
-            if(PassSiPhX(**ph1, *el)) return true;
-            if(PassDiElPh(*el, **ph1)) return true;
-            if(PassDiLoElPh(*el, **ph1)) return true;
-        }
-        for(const xAOD::Muon* mu: muc)
-        {
-            if(PassSiPhX(**ph1, *mu)) return true;
-        }
-    }
-
     for(auto el1 = elc.cbegin(); el1 != elc.cend(); el1++)
     {
+        const xAOD::Photon* ph1 = m_phMatch->GetPhoton(**el1);
+
         if(PassSiEl(**el1)) return true;
 
         for(auto el2 = el1+1; el2 != elc.cend(); el2++)
         {
+            const xAOD::Photon* ph2 = m_phMatch->GetPhoton(**el2);
+
             if(PassDiEl(**el1, **el2)) return true;
+            if(ph1)
+            {
+                if(PassSiPhX(*ph1, **el2)) return true;
+                if(PassDiElPh(**el2, *ph1)) return true;
+                if(PassDiLoElPh(**el2, *ph1)) return true;
+            }
+            if(ph1 && ph2)
+            {
+                if(PassSiPhX(*ph1, *ph2)) return true;
+                if(PassDiPh(*ph1, *ph2)) return true;
+            }
+        }
+
+        if(!ph1) continue;
+
+        for(const xAOD::Muon* mu: muc)
+        {
+            if(PassSiPhX(*ph1, *mu)) return true;
         }
     }
 

@@ -10,11 +10,12 @@
 
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/Photon.h"
 #include "xAODMuon/MuonContainer.h"
 
 // DV
 #include "DVCuts/IDiLepDESD.h"
+#include "DVTools/IPhotonMatch.h"
 
 namespace DV
 {
@@ -29,7 +30,7 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
-            // CAUTION!: has to be called for EVERY DV before the filters can be used!
+            // CAUTION!: has to be called for every DV before the filters can be used!
             void SetTriggerFlags(bool siph, bool diph, bool simu) override;
 
             // single filter implementations
@@ -45,11 +46,11 @@ namespace DV
             bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
             bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
 
-            bool PassAny(const xAOD::ElectronContainer& elc,
-                         const xAOD::PhotonContainer& phc,
-                         const xAOD::MuonContainer& muc) const;
+            bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const override;
 
         private:
+            ToolHandle<DV::IPhotonMatch> m_phMatch;
+
             // trigger flags
             bool m_pass_siphtrig;
             bool m_pass_diphtrig;

@@ -4,10 +4,13 @@
 
 DV::DiLepDVCuts::DiLepDVCuts(const std::string & name) :
     asg::AsgTool(name),
-    m_desd(""), m_ec(""), m_mc(""), m_over(""), m_trig(""),
-    m_accEl("DV_ElCont"),
-    m_accPh("DV_PhCont"),
-    m_accMu("DV_MuCont"),
+    m_desd("DV::DiLepDESD/DiLepDESD"),
+    m_ec("DV::ElecCuts/DiLepElecCuts"),
+    m_mc("DV::MuonCuts/DiLepMuonCuts"),
+    m_over("DV::OverlapRemoval/OverlapRemoval"),
+    m_trig("DV::TrigMatch/TrigMatch"),
+    m_accEl("DV_Electrons"),
+    m_accMu("DV_Muons"),
     m_accTrigSiPh("DV_SiPhTrigMatch"),
     m_accTrigDiPh("DV_DiPhTrigMatch"),
     m_accTrigSiMu("DV_SiMuTrigMatch")
@@ -53,107 +56,92 @@ StatusCode DV::DiLepDVCuts::initialize()
     return StatusCode::SUCCESS;
 }
 
-void DV::DiLepDVCuts::ApplyLeptonMatching(xAOD::Vertex& dv,
-                                          const xAOD::ElectronContainer& elc,
-                                          const xAOD::PhotonContainer& phc,
-                                          const xAOD::MuonContainer& muc) const
+void DV::DiLepDVCuts::PrepareVertex(xAOD::Vertex& dv,
+                                    const xAOD::ElectronContainer& elc,
+                                    const xAOD::MuonContainer& muc) const
 {
+    // lepton matching
     xAOD::ElectronContainer* dv_elc = new xAOD::ElectronContainer();
-    xAOD::PhotonContainer* dv_phc = new xAOD::PhotonContainer();
     xAOD::MuonContainer* dv_muc = new xAOD::MuonContainer();
-    // FIXME: stores
-    // FIXME: memory leaks (where should the containers be deleted?)
+    // FIXME: stores, memory leak ...
 
     for(const auto& trl: dv.trackParticleLinks())
     {
         for(const xAOD::Electron* el: elc)
         {
+            if(m_over->IsOverlap(*el)) continue;
+
             if((*trl) == m_ec->GetTrack(*el))
             {
-                xAOD::Electron* el_ptr = new xAOD::Electron();
-                el_ptr->makePrivateStore(*el);
-                dv_elc->push_back(el_ptr);
-
-                // find associated photon
-                const xAOD::Photon* ph = m_ec->FindMatchingPhoton(*el, phc);
-                if(ph)
-                {
-                    xAOD::Photon* ph_ptr = new xAOD::Photon();
-                    ph_ptr->makePrivateStore(*ph);
-                    dv_phc->push_back(ph_ptr);
-                }
+                xAOD::Electron* nel = new xAOD::Electron();
+                nel->makePrivateStore(*el);
+                dv_elc->push_back(nel);
             }
         }
         for(const xAOD::Muon* mu: muc)
         {
+            if(m_over->IsOverlap(*mu)) continue;
+
             if((*trl) == m_mc->GetTrack(*mu))
             {
-                xAOD::Muon* mu_ptr = new xAOD::Muon();
-                mu_ptr->makePrivateStore(*mu);
-                dv_muc->push_back(mu_ptr);
+                xAOD::Muon* nmu = new xAOD::Muon();
+                nmu->makePrivateStore(*mu);
+                dv_muc->push_back(nmu);
             }
         }
     }
 
     m_accEl(dv) = dv_elc;
     m_accMu(dv) = dv_muc;
-}
 
-void DV::DiLepDVCuts::ApplyOverlapRemoval(const xAOD::Vertex& dv) const
-{
-    // retrieve leptons from vertex
-    xAOD::ElectronContainer* elc = nullptr;
-    xAOD::MuonContainer* muc = nullptr;
-    GetLeptonContainers(dv, elc, muc);
-
-    if(elc && muc)
-    {
-        m_over->RemoveOverlap(*elc, *muc);
-    }
-    else
-    {
-        ATH_MSG_ERROR("Overlap removal could not be applied!");
-    }
-}
-
-void DV::DiLepDVCuts::ApplyTriggerMatching(xAOD::Vertex& dv) const
-{
-    // retrieve leptons from vertex
-    xAOD::ElectronContainer* elc = nullptr;
-    xAOD::MuonContainer* muc = nullptr;
-    GetLeptonContainers(dv, elc, muc);
-
+    // trigger matching
     m_accTrigSiPh(dv) = 0;
     m_accTrigDiPh(dv) = 0;
     m_accTrigSiMu(dv) = 0;
 
-    if(elc && muc)
+    bool siph_matched = false;
+    unsigned int count_di = 0;
+    for(xAOD::Electron* el: *dv_elc)
     {
-        unsigned int count_di = 0;
-        for(xAOD::Electron* el: *elc)
+        if(!siph_matched && m_trig->Match(*el, m_trig_siph))
         {
-            if(m_over->IsOverlap(*el)) continue;
-
-            if(m_trig->Match(*el, m_trig_siph)) m_accTrigSiPh(dv) = 1;
-            if(m_trig->Match(*el, m_trig_diph)) count_di++;
+            siph_matched = true;
+            m_accTrigSiPh(dv) = 1;
         }
-        if(count_di >= 2) m_accTrigDiPh(dv) = 1;
+        if(count_di < 2 && m_trig->Match(*el, m_trig_diph)) count_di++;
+    }
+    if(count_di == 2) m_accTrigDiPh(dv) = 1;
 
-        for(xAOD::Muon* mu: *muc)
+    for(xAOD::Muon* mu: *dv_muc)
+    {
+        if(m_trig->Match(*mu, m_trig_simu))
         {
-            if(m_over->IsOverlap(*mu)) continue;
-
-            if(m_trig->Match(*mu, m_trig_simu))
-            {
-                m_accTrigSiMu(dv) = 1;
-                break;
-            }
+            m_accTrigSiMu(dv) = 1;
+            break;
         }
     }
-    else
+}
+
+const xAOD::ElectronContainer* DV::DiLepDVCuts::GetEl(const xAOD::Vertex& dv) const
+{
+    if(!m_accEl.isAvailable(dv))
     {
-        ATH_MSG_ERROR("Triggers could not be matched!");
+        ATH_MSG_WARNING("Failed to retrieve electrons from DV!");
+        return nullptr;
     }
+
+    return m_accEl(dv);
+}
+
+const xAOD::MuonContainer* DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
+{
+    if(!m_accMu.isAvailable(dv))
+    {
+        ATH_MSG_WARNING("Failed to retrieve muons from DV!");
+        return nullptr;
+    }
+
+    return m_accMu(dv);
 }
 
 bool DV::DiLepDVCuts::PassCentralEtaVeto(const xAOD::Vertex& dv) const
@@ -190,53 +178,18 @@ bool DV::DiLepDVCuts::PassTriggerMatching(const xAOD::Vertex& dv) const
 
 bool DV::DiLepDVCuts::PassDESDMatching(const xAOD::Vertex& dv) const
 {
-    // retrieve containers from vertex
-    xAOD::ElectronContainer* elc = nullptr;
-    xAOD::MuonContainer* muc = nullptr;
-    GetLeptonContainers(dv, elc, muc);
+    // retrieve particles from vertex
+    const xAOD::ElectronContainer* elc = GetEl(dv);
+    const xAOD::MuonContainer* muc = GetMu(dv);
 
-    xAOD::PhotonContainer* phc = nullptr;
-    GetPhotonContainer(dv, phc);
-
-    if(elc && phc && muc)
+    if(elc && muc)
     {
         m_desd->SetTriggerFlags(m_accTrigSiPh(dv),
                                 m_accTrigDiPh(dv),
                                 m_accTrigSiMu(dv));
 
-        return m_desd->PassAny(*elc, *phc, *muc);
-    }
-    else
-    {
-        ATH_MSG_ERROR("DESD filters could not be matched!");
+        return m_desd->PassAny(*elc, *muc);
     }
 
     return false;
-}
-
-void DV::DiLepDVCuts::GetLeptonContainers(const xAOD::Vertex& dv,
-                                          xAOD::ElectronContainer*& elc,
-                                          xAOD::MuonContainer*& muc) const
-{
-    elc = m_accEl(dv);
-    if(!elc)
-    {
-        ATH_MSG_ERROR("Failed to retrieve electrons from DV!");
-    }
-
-    muc = m_accMu(dv);
-    if(!muc)
-    {
-        ATH_MSG_ERROR("Failed to retrieve muons from DV!");
-    }
-}
-
-void DV::DiLepDVCuts::GetPhotonContainer(const xAOD::Vertex& dv,
-                                          xAOD::PhotonContainer*& phc) const
-{
-    phc = m_accPh(dv);
-    if(!phc)
-    {
-        ATH_MSG_ERROR("Failed to retrieve photons from DV!");
-    }
 }

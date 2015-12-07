@@ -3,7 +3,8 @@
 #include <cmath>
 
 DV::ElecCuts::ElecCuts(const std::string& name) :
-    asg::AsgTool(name), m_elt("AsgElectronLikelihoodTool/DVElectronLikelihoodTool")
+    asg::AsgTool(name),
+    m_elt("AsgElectronLikelihoodTool/DVElectronLikelihoodTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for electron track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for electron track |eta|");
@@ -92,19 +93,4 @@ bool DV::ElecCuts::IsPreRetracking(const xAOD::Electron& el) const
 {
     // FIXME: find some clever way to do it
     return false;
-}
-
-const xAOD::Photon* DV::ElecCuts::FindMatchingPhoton(const xAOD::Electron& el, const xAOD::PhotonContainer& phc) const
-{
-    const xAOD::CaloCluster* el_calo = el.caloCluster();
-
-    for(const xAOD::Photon* ph: phc)
-    {
-        const xAOD::CaloCluster* ph_calo = ph->caloCluster();
-
-        // search for photons with the same calo cluster as the electron
-        if(ph_calo->p4().DeltaR(el_calo->p4()) < 0.01) return ph;
-    }
-
-    return nullptr;
 }

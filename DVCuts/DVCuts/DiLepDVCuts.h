@@ -10,8 +10,8 @@
 
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTracking/Vertex.h"
 
 // DV
 #include "DVCuts/IDiLepDESD.h"
@@ -34,13 +34,18 @@ namespace DV
 
             StatusCode initialize() override;
 
-            // method matches leptons and photons to vertex and decorates the vertex
-            void ApplyLeptonMatching(xAOD::Vertex& dv,
-                                     const xAOD::ElectronContainer& elc,
-                                     const xAOD::PhotonContainer& phc,
-                                     const xAOD::MuonContainer& muc) const override;
-            void ApplyOverlapRemoval(const xAOD::Vertex& dv) const override;
-            void ApplyTriggerMatching(xAOD::Vertex& dv) const override;
+            /*
+             * CAUTION!:
+             * PrepareVertex() matches leptons to a DV (via tracks) and performs trigger matching.
+             * This method has to be called on every DV before the other methods are used.
+             * The lepton containers should contain all leptons from the current event.
+             */
+            void PrepareVertex(xAOD::Vertex& dv,
+                               const xAOD::ElectronContainer& elc,
+                               const xAOD::MuonContainer& muc) const override;
+
+            const xAOD::ElectronContainer* GetEl(const xAOD::Vertex& dv) const override;
+            const xAOD::MuonContainer* GetMu(const xAOD::Vertex& dv) const override;
 
             bool PassCentralEtaVeto(const xAOD::Vertex& dv) const override;
             bool PassChargeRequirement(const xAOD::Vertex& dv) const override;
@@ -65,21 +70,13 @@ namespace DV
 
             // accessors for leptons associated to a DV
             SG::AuxElement::Accessor<xAOD::ElectronContainer*> m_accEl;
-            SG::AuxElement::Accessor<xAOD::PhotonContainer*> m_accPh;
             SG::AuxElement::Accessor<xAOD::MuonContainer*> m_accMu;
 
             // accessors for trigger matching results
             SG::AuxElement::Accessor<char> m_accTrigSiPh;
             SG::AuxElement::Accessor<char> m_accTrigDiPh;
             SG::AuxElement::Accessor<char> m_accTrigSiMu;
-
-            void GetLeptonContainers(const xAOD::Vertex& dv,
-                                     xAOD::ElectronContainer*& elc,
-                                     xAOD::MuonContainer*& muc) const;
-
-            void GetPhotonContainer(const xAOD::Vertex& dv,
-                                    xAOD::PhotonContainer*& phc) const;
     };
 }
 
-#endif   // DV_DiLepDVCUTS_H
+#endif   // DV_DILEPDVCUTS_H

@@ -6,7 +6,6 @@
 
 // xAOD
 #include "xAODEgamma/Electron.h"
-#include "xAODEgamma/PhotonContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
 namespace DV
@@ -24,8 +23,6 @@ namespace DV
             virtual bool PassID(const xAOD::Electron& el) const = 0;
 
             virtual bool IsPreRetracking(const xAOD::Electron& el) const = 0;
-
-            virtual const xAOD::Photon* FindMatchingPhoton(const xAOD::Electron& el, const xAOD::PhotonContainer& phc) const = 0;
     };
 }
 

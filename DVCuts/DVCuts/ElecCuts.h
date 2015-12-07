@@ -11,7 +11,6 @@
 
 // xAOD
 #include "xAODEgamma/Electron.h"
-#include "xAODEgamma/PhotonContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
 // DVCuts
@@ -38,8 +37,6 @@ namespace DV
             bool PassID(const xAOD::Electron& el) const override;
 
             bool IsPreRetracking(const xAOD::Electron& el) const override;
-
-            const xAOD::Photon* FindMatchingPhoton(const xAOD::Electron& el, const xAOD::PhotonContainer& phc) const override;
 
         private:
             // electron identification tool

@@ -6,7 +6,7 @@
 
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/Photon.h"
 #include "xAODMuon/MuonContainer.h"
 
 namespace DV
@@ -29,9 +29,7 @@ namespace DV
             virtual bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
             virtual bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
 
-            virtual bool PassAny(const xAOD::ElectronContainer& elc,
-                                 const xAOD::PhotonContainer& phc,
-                                 const xAOD::MuonContainer& muc) const = 0;
+            virtual bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const = 0;
     };
 }
 
