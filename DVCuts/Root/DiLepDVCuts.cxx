@@ -187,7 +187,27 @@ bool DV::DiLepDVCuts::PassNLeptons(const xAOD::Vertex& dv) const
 
     if(elc && muc)
     {
-       return (elc->size() + muc->size()) >= 2;
+       unsigned int nel = 0;
+       for(const xAOD::Electron* el: *elc)
+       {
+           if(!m_ec->PassPtCut(*el)) continue;
+           if(!m_ec->PassEtaCut(*el)) continue;
+           if(!m_ec->PassID(*el)) continue;
+
+           nel++;
+       }
+
+       unsigned int nmu = 0;
+       for(const xAOD::Muon* mu: *muc)
+       {
+           if(!m_mc->PassPtCut(*mu)) continue;
+           if(!m_mc->PassEtaCut(*mu)) continue;
+           if(!m_mc->PassID(*mu)) continue;
+
+           nmu++;
+       }
+
+       return (nel + nmu) >= 2;
     }
 
     return false;
