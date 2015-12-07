@@ -11,6 +11,8 @@
 
 namespace DV
 {
+    enum class DiLepTypes;
+
     class IDiLepDVCuts : virtual public asg::IAsgTool
     {
         /// Declare the interface that the class provides
@@ -22,9 +24,11 @@ namespace DV
 
             virtual const xAOD::ElectronContainer* GetEl(const xAOD::Vertex& dv) const = 0;
             virtual const xAOD::MuonContainer* GetMu(const xAOD::Vertex& dv) const = 0;
+            virtual DV::DiLepTypes GetType(const xAOD::Vertex& dv) const = 0;
 
             virtual bool PassCentralEtaVeto(const xAOD::Vertex& dv) const = 0;
             virtual bool PassChargeRequirement(const xAOD::Vertex& dv) const = 0;
+            virtual bool PassNLeptons(const xAOD::Vertex& dv) const = 0;
 
             virtual bool PassTriggerMatching(const xAOD::Vertex& dv) const = 0;
             virtual bool PassDESDMatching(const xAOD::Vertex& dv) const = 0;

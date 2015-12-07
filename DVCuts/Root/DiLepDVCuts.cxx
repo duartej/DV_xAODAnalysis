@@ -144,6 +144,22 @@ const xAOD::MuonContainer* DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
     return m_accMu(dv);
 }
 
+DV::DiLepTypes DV::DiLepDVCuts::GetType(const xAOD::Vertex& dv) const
+{
+    // retrieve particles from vertex
+    const xAOD::ElectronContainer* elc = GetEl(dv);
+    const xAOD::MuonContainer* muc = GetMu(dv);
+
+    if(elc && muc)
+    {
+        if(elc->size() >= 1 && muc->size() >= 1) return DV::DiLepTypes::em;
+        else if(elc->size() >= 2) return DV::DiLepTypes::ee;
+        else if(muc->size() >= 2) return DV::DiLepTypes::mm;
+    }
+
+    return DV::DiLepTypes::None;
+}
+
 bool DV::DiLepDVCuts::PassCentralEtaVeto(const xAOD::Vertex& dv) const
 {
     for(const auto& trl: dv.trackParticleLinks())
@@ -165,6 +181,20 @@ bool DV::DiLepDVCuts::PassChargeRequirement(const xAOD::Vertex& dv) const
     }
 
     return has_pos && has_neg;
+}
+
+bool DV::DiLepDVCuts::PassNLeptons(const xAOD::Vertex& dv) const
+{
+    // retrieve particles from vertex
+    const xAOD::ElectronContainer* elc = GetEl(dv);
+    const xAOD::MuonContainer* muc = GetMu(dv);
+
+    if(elc && muc)
+    {
+       return (elc->size() + muc->size()) >= 2;
+    }
+
+    return false;
 }
 
 bool DV::DiLepDVCuts::PassTriggerMatching(const xAOD::Vertex& dv) const

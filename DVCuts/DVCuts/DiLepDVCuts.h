@@ -23,6 +23,8 @@
 
 namespace DV
 {
+    enum class DiLepTypes {None = 0, ee, em, mm};
+
     class DiLepDVCuts : public asg::AsgTool, virtual public DV::IDiLepDVCuts
     {
         // Creates a proper constructor for Athena
@@ -46,9 +48,11 @@ namespace DV
 
             const xAOD::ElectronContainer* GetEl(const xAOD::Vertex& dv) const override;
             const xAOD::MuonContainer* GetMu(const xAOD::Vertex& dv) const override;
+            DV::DiLepTypes GetType(const xAOD::Vertex& dv) const override;
 
             bool PassCentralEtaVeto(const xAOD::Vertex& dv) const override;
             bool PassChargeRequirement(const xAOD::Vertex& dv) const override;
+            bool PassNLeptons(const xAOD::Vertex& dv) const override;
 
             bool PassTriggerMatching(const xAOD::Vertex& dv) const override;
             bool PassDESDMatching(const xAOD::Vertex& dv) const override;
