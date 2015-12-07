@@ -4,8 +4,8 @@
 
 DV::OverlapRemoval::OverlapRemoval(const std::string& name) :
     AsgTool(name),
-    m_accOver("DV_isOverlap"),
-    m_accLepTrk("DV_isLepTrk")
+    m_decOver("DV_isOverlap"),
+    m_decLepTrk("DV_isLepTrk")
 {
 }
 
@@ -18,17 +18,17 @@ StatusCode DV::OverlapRemoval::initialize()
     return StatusCode::SUCCESS;
 }
 
-void DV::OverlapRemoval::RemoveOverlap(xAOD::ElectronContainer& elc,
-                                       xAOD::MuonContainer& muc) const
+void DV::OverlapRemoval::RemoveOverlap(const xAOD::ElectronContainer& elc,
+                                       const xAOD::MuonContainer& muc) const
 {
-    for(auto el1 = elc.begin(); el1 != elc.end(); el1++)
+    for(auto el1 = elc.cbegin(); el1 != elc.cend(); el1++)
     {
         const xAOD::TrackParticle* el1_tr = xAOD::EgammaHelpers::getOriginalTrackParticle(*el1);
 
-        m_accOver(**el1) = 0;
+        m_decOver(**el1) = 0;
 
         // ee
-        for(auto el2 = el1+1; el2 != elc.end(); el2++)
+        for(auto el2 = el1+1; el2 != elc.cend(); el2++)
         {
             const xAOD::TrackParticle* el2_tr = xAOD::EgammaHelpers::getOriginalTrackParticle(*el2);
 
@@ -37,16 +37,16 @@ void DV::OverlapRemoval::RemoveOverlap(xAOD::ElectronContainer& elc,
                 // remove lower pt electron
                 if((*el1)->pt() < (*el2)->pt())
                 {
-                    m_accOver(**el1) = 1;
+                    m_decOver(**el1) = 1;
                 }
                 else
                 {
-                    m_accOver(**el2) = 1;
+                    m_decOver(**el2) = 1;
                 }
             }
         }
 
-        if(m_accOver(**el1) == 1) continue;
+        if(m_decOver(**el1) == 1) continue;
 
         // em
         for(auto mu = muc.cbegin(); mu != muc.cend(); mu++)
@@ -56,19 +56,19 @@ void DV::OverlapRemoval::RemoveOverlap(xAOD::ElectronContainer& elc,
             if(el1_tr == mu_tr)
             {
                 // only the electron is removed
-                m_accOver(**el1) = 1;
+                m_decOver(**el1) = 1;
             }
         }
     }
 
     // mm
-    for(auto mu1 = muc.begin(); mu1 != muc.end(); mu1++)
+    for(auto mu1 = muc.cbegin(); mu1 != muc.cend(); mu1++)
     {
         const xAOD::TrackParticle* mu1_tr = (*mu1)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
 
-        m_accOver(**mu1) = 0;
+        m_decOver(**mu1) = 0;
 
-        for(auto mu2 = mu1+1; mu2 != muc.end(); mu2++)
+        for(auto mu2 = mu1+1; mu2 != muc.cend(); mu2++)
         {
             const xAOD::TrackParticle* mu2_tr = (*mu2)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
 
@@ -77,11 +77,11 @@ void DV::OverlapRemoval::RemoveOverlap(xAOD::ElectronContainer& elc,
                 // remove lower pt muon
                 if((*mu1)->pt() < (*mu2)->pt())
                 {
-                    m_accOver(**mu1) = 1;
+                    m_decOver(**mu1) = 1;
                 }
                 else
                 {
-                    m_accOver(**mu2) = 1;
+                    m_decOver(**mu2) = 1;
                 }
             }
         }
@@ -90,11 +90,11 @@ void DV::OverlapRemoval::RemoveOverlap(xAOD::ElectronContainer& elc,
 
 void DV::OverlapRemoval::RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
                                             const xAOD::MuonContainer& muc,
-                                            xAOD::TrackParticleContainer& trc) const
+                                            const xAOD::TrackParticleContainer& trc) const
 {
-    for(auto tr = trc.begin(); tr != trc.end(); tr++)
+    for(auto tr = trc.cbegin(); tr != trc.cend(); tr++)
     {
-        m_accLepTrk(**tr) = 0;
+        m_decLepTrk(**tr) = 0;
 
         for(const xAOD::Electron* el: elc)
         {
@@ -102,12 +102,12 @@ void DV::OverlapRemoval::RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
 
             if(*tr == el_tr)
             {
-                m_accLepTrk(**tr) = 1;
+                m_decLepTrk(**tr) = 1;
                 break;
             }
         }
 
-        if(m_accLepTrk(**tr) == true) continue;
+        if(m_decLepTrk(**tr) == true) continue;
 
         for(const xAOD::Muon* mu: muc)
         {
@@ -115,7 +115,7 @@ void DV::OverlapRemoval::RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
 
             if(*tr == mu_tr)
             {
-                m_accLepTrk(**tr) = 1;
+                m_decLepTrk(**tr) = 1;
                 break;
             }
         }
@@ -124,10 +124,10 @@ void DV::OverlapRemoval::RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
 
 bool DV::OverlapRemoval::IsOverlap(const xAOD::IParticle& p) const
 {
-    return m_accOver(p) == 1;
+    return m_decOver(p) == 1;
 }
 
 bool DV::OverlapRemoval::IsLeptonTrack(const xAOD::TrackParticle& tr) const
 {
-    return m_accLepTrk(tr) == 1;
+    return m_decLepTrk(tr) == 1;
 }

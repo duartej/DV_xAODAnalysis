@@ -26,21 +26,21 @@ namespace DV
 
             StatusCode initialize() override;
 
-            // particles are decorated and not removed!
-            void RemoveOverlap(xAOD::ElectronContainer& elc,
-                               xAOD::MuonContainer& muc) const override;
+            // the particles are decorated and not removed
+            void RemoveOverlap(const xAOD::ElectronContainer& elc,
+                               const xAOD::MuonContainer& muc) const override;
             void RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
                                     const xAOD::MuonContainer& muc,
-                                    xAOD::TrackParticleContainer& trc) const override;
+                                    const xAOD::TrackParticleContainer& trc) const override;
 
             bool IsOverlap(const xAOD::IParticle& p) const override;
             bool IsLeptonTrack(const xAOD::TrackParticle& tr) const override;
 
         private:
-            // accessor for isOverlap flag
-            SG::AuxElement::Accessor<char> m_accOver;
-            // accessor for isLeptonTrack flag
-            SG::AuxElement::Accessor<char> m_accLepTrk;
+            // decorator for isOverlap flag
+            SG::AuxElement::Decorator<char> m_decOver;
+            // decorator for isLeptonTrack flag
+            SG::AuxElement::Decorator<char> m_decLepTrk;
     };
 }
 
