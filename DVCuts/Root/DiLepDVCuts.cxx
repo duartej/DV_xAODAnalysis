@@ -57,42 +57,38 @@ StatusCode DV::DiLepDVCuts::initialize()
 }
 
 void DV::DiLepDVCuts::PrepareVertex(xAOD::Vertex& dv,
-                                    const xAOD::ElectronContainer& elc,
-                                    const xAOD::MuonContainer& muc) const
+                                    xAOD::ElectronContainer& elc,
+                                    xAOD::MuonContainer& muc) const
 {
-    // lepton matching
-    xAOD::ElectronContainer* dv_elc = new xAOD::ElectronContainer();
-    xAOD::MuonContainer* dv_muc = new xAOD::MuonContainer();
-    // FIXME: stores, memory leak ...
+    // create containers
+    auto dv_elc = std::make_shared<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS);
+    m_accEl(dv) = dv_elc;
 
+    auto dv_muc = std::make_shared<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
+    m_accMu(dv) = dv_muc;
+
+    // lepton matching
     for(const auto& trl: dv.trackParticleLinks())
     {
-        for(const xAOD::Electron* el: elc)
+        for(xAOD::Electron* el: elc)
         {
             if(m_over->IsOverlap(*el)) continue;
 
             if((*trl) == m_ec->GetTrack(*el))
             {
-                xAOD::Electron* nel = new xAOD::Electron();
-                nel->makePrivateStore(*el);
-                dv_elc->push_back(nel);
+                dv_elc->push_back(el);
             }
         }
-        for(const xAOD::Muon* mu: muc)
+        for(xAOD::Muon* mu: muc)
         {
             if(m_over->IsOverlap(*mu)) continue;
 
             if((*trl) == m_mc->GetTrack(*mu))
             {
-                xAOD::Muon* nmu = new xAOD::Muon();
-                nmu->makePrivateStore(*mu);
-                dv_muc->push_back(nmu);
+                dv_muc->push_back(mu);
             }
         }
     }
-
-    m_accEl(dv) = dv_elc;
-    m_accMu(dv) = dv_muc;
 
     // trigger matching
     m_accTrigSiPh(dv) = 0;
@@ -122,7 +118,7 @@ void DV::DiLepDVCuts::PrepareVertex(xAOD::Vertex& dv,
     }
 }
 
-const xAOD::ElectronContainer* DV::DiLepDVCuts::GetEl(const xAOD::Vertex& dv) const
+const std::shared_ptr<xAOD::ElectronContainer> DV::DiLepDVCuts::GetEl(const xAOD::Vertex& dv) const
 {
     if(!m_accEl.isAvailable(dv))
     {
@@ -133,7 +129,7 @@ const xAOD::ElectronContainer* DV::DiLepDVCuts::GetEl(const xAOD::Vertex& dv) co
     return m_accEl(dv);
 }
 
-const xAOD::MuonContainer* DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
+const std::shared_ptr<xAOD::MuonContainer> DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
 {
     if(!m_accMu.isAvailable(dv))
     {
@@ -147,8 +143,8 @@ const xAOD::MuonContainer* DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
 DV::DiLepTypes DV::DiLepDVCuts::GetType(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    const xAOD::ElectronContainer* elc = GetEl(dv);
-    const xAOD::MuonContainer* muc = GetMu(dv);
+    auto elc = GetEl(dv);
+    auto muc = GetMu(dv);
 
     if(elc && muc)
     {
@@ -186,8 +182,8 @@ bool DV::DiLepDVCuts::PassChargeRequirement(const xAOD::Vertex& dv) const
 bool DV::DiLepDVCuts::PassNLeptons(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    const xAOD::ElectronContainer* elc = GetEl(dv);
-    const xAOD::MuonContainer* muc = GetMu(dv);
+    auto elc = GetEl(dv);
+    auto muc = GetMu(dv);
 
     if(elc && muc)
     {
@@ -209,8 +205,8 @@ bool DV::DiLepDVCuts::PassTriggerMatching(const xAOD::Vertex& dv) const
 bool DV::DiLepDVCuts::PassDESDMatching(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    const xAOD::ElectronContainer* elc = GetEl(dv);
-    const xAOD::MuonContainer* muc = GetMu(dv);
+    auto elc = GetEl(dv);
+    auto muc = GetMu(dv);
 
     if(elc && muc)
     {

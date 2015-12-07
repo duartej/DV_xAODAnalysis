@@ -1,6 +1,9 @@
 #ifndef DV_IDILEPDVCUTS_H
 #define DV_IDILEPDVCUTS_H
 
+// STL
+#include <memory>
+
 // Framework includes
 #include "AsgTools/IAsgTool.h"
 
@@ -19,11 +22,11 @@ namespace DV
         ASG_TOOL_INTERFACE(DV::IDiLepDVCuts)
         public:
             virtual void PrepareVertex(xAOD::Vertex& dv,
-                                       const xAOD::ElectronContainer& elc,
-                                       const xAOD::MuonContainer& muc) const = 0;
+                                       xAOD::ElectronContainer& elc,
+                                       xAOD::MuonContainer& muc) const = 0;
 
-            virtual const xAOD::ElectronContainer* GetEl(const xAOD::Vertex& dv) const = 0;
-            virtual const xAOD::MuonContainer* GetMu(const xAOD::Vertex& dv) const = 0;
+            virtual const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const = 0;
+            virtual const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const = 0;
             virtual DV::DiLepTypes GetType(const xAOD::Vertex& dv) const = 0;
 
             virtual bool PassCentralEtaVeto(const xAOD::Vertex& dv) const = 0;

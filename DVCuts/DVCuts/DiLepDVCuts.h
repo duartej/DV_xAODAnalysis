@@ -2,6 +2,7 @@
 #define DV_DILEPDVCUTS_H
 
 // STL
+#include <memory>
 #include <string>
 
 // Tools
@@ -43,11 +44,11 @@ namespace DV
              * The lepton containers should contain all leptons from the current event.
              */
             void PrepareVertex(xAOD::Vertex& dv,
-                               const xAOD::ElectronContainer& elc,
-                               const xAOD::MuonContainer& muc) const override;
+                               xAOD::ElectronContainer& elc,
+                               xAOD::MuonContainer& muc) const override;
 
-            const xAOD::ElectronContainer* GetEl(const xAOD::Vertex& dv) const override;
-            const xAOD::MuonContainer* GetMu(const xAOD::Vertex& dv) const override;
+            const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const override;
+            const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const override;
             DV::DiLepTypes GetType(const xAOD::Vertex& dv) const override;
 
             bool PassCentralEtaVeto(const xAOD::Vertex& dv) const override;
@@ -73,8 +74,8 @@ namespace DV
             double m_centEta;
 
             // accessors for leptons associated to a DV
-            SG::AuxElement::Accessor<xAOD::ElectronContainer*> m_accEl;
-            SG::AuxElement::Accessor<xAOD::MuonContainer*> m_accMu;
+            SG::AuxElement::Accessor<std::shared_ptr<xAOD::ElectronContainer>> m_accEl;
+            SG::AuxElement::Accessor<std::shared_ptr<xAOD::MuonContainer>> m_accMu;
 
             // accessors for trigger matching results
             SG::AuxElement::Accessor<char> m_accTrigSiPh;
