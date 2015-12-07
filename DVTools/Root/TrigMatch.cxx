@@ -4,8 +4,8 @@
 
 DV::TrigMatch::TrigMatch(const std::string& name) :
     AsgTool(name),
-    m_tdt(""),
-    m_tmm("")
+    m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
+    m_tmm("Trig::TrigMuonMatching/TrigMuonMatching")
 {
 }
 

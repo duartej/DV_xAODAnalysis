@@ -2,12 +2,15 @@
 
 #include <cmath>
 
-DV::EventCuts::EventCuts(const std::string& name)
+DV::EventCuts::EventCuts(const std::string& name) :
+    asg::AsgTool(name),
+    m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
 #ifdef ASGTOOL_ATHENA
-    : asg::AsgTool(name), m_grl(""), m_tdt(""), m_useGRL(true), m_checkTrig(true)
+    m_grl("GoodRunsListSelectionTool/GoodRunsListSelectionTool"),
 #elif defined(ASGTOOL_STANDALONE)
-    : asg::AsgTool(name), m_grlR(nullptr), m_tdt(""), m_useGRL(true), m_checkTrig(true)
+    m_grlR(nullptr),
 #endif // ASGTOOL_STANDALONE
+    m_useGRL(true), m_checkTrig(true)
 {
 #ifdef ASGTOOL_ATHENA
     declareProperty("GoodRunsListSelectionTool", m_grl);
@@ -30,6 +33,9 @@ DV::EventCuts::~EventCuts()
 
 StatusCode DV::EventCuts::initialize()
 {
+    // Greet the user:
+    ATH_MSG_DEBUG("Initialising... ");
+
     if(m_useGRL)
     {
 #ifdef ASGTOOL_ATHENA
@@ -71,6 +77,7 @@ StatusCode DV::EventCuts::initialize()
         ATH_MSG_WARNING("Triggers are not checked!");
     }
 
+    // Return gracefully:
     return StatusCode::SUCCESS;
 }
 

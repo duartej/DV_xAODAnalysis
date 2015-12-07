@@ -3,7 +3,9 @@
 #include <cmath>
 
 DV::DiLepCosmics::DiLepCosmics(const std::string& name) :
-    asg::AsgTool(name), m_ec(""), m_mc("")
+    asg::AsgTool(name),
+    m_ec("DV::ElecCuts/DiLepElecCuts"),
+    m_mc("DV::MuonCuts/DiLepMuonCuts")
 {
     declareProperty("RcosMax", m_Rcos = 0.04, "Cut for Rcos");
     declareProperty("deltaRMax", m_deltaR = 0.04, "Cut for deltaR");

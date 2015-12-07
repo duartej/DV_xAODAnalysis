@@ -52,6 +52,8 @@ namespace DV
             bool PassPVCuts(const xAOD::VertexContainer& pvc) const override;
 
         private:
+            ToolHandle<Trig::TrigDecisionTool> m_tdt;
+
 #ifdef ASGTOOL_ATHENA
             ToolHandle<IGoodRunsListSelectionTool> m_grl;
 #elif defined(ASGTOOL_STANDALONE)
@@ -60,8 +62,6 @@ namespace DV
 
             std::string m_grlFile;
 #endif // ASGTOOL_STANDALONE
-
-            ToolHandle<Trig::TrigDecisionTool> m_tdt;
 
             bool m_useGRL;
             bool m_checkTrig;
