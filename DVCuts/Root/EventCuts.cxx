@@ -20,8 +20,6 @@ DV::EventCuts::EventCuts(const std::string& name) :
 
     declareProperty("useGRL", m_useGRL);
     declareProperty("checkTriggers", m_checkTrig);
-
-    declareProperty("TrigDecisionTool", m_tdt);
 }
 
 DV::EventCuts::~EventCuts()

@@ -21,6 +21,11 @@ StatusCode DV::TrigMatch::initialize()
         return StatusCode::FAILURE;
     }
 
+#ifdef ASGTOOL_STANDALONE
+    Trig::TrigMuonMatching* tmm = new Trig::TrigMuonMatching("TrigMuonMatching");
+    m_tmm = tmm;
+#endif
+
     // retrieve TrigMuonMatching
     if(m_tmm.retrieve().isFailure())
     {

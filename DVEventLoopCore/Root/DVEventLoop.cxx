@@ -10,6 +10,9 @@
 // Plot Manager
 #include "DVTools/PlotsManagerTool.h"
 
+#include "TrigConfxAOD/xAODConfigTool.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
+
 // this is needed to distribute the algorithm to the workers
 ClassImp(DVEventLoop)
 
@@ -188,7 +191,7 @@ EL::StatusCode DVEventLoop :: initialize ()
     // input events.
 
     m_event = wk()->xaodEvent();
-    m_eventCounter=0;
+    m_eventCounter = 0;
 
     // just coherence
     if(m_evtsMax < 0)
@@ -200,9 +203,29 @@ EL::StatusCode DVEventLoop :: initialize ()
     Info("initialize()", "Number of available events = %lli", m_event->getEntries() );
     Info("initialize()", "Number of events to be processed= %i", m_evtsMax );
 
+    // create TrigDecisionTool
+    auto tct = new TrigConf::xAODConfigTool("xAODConfigTool");
+    if(tct->initialize().isFailure()) return StatusCode::FAILURE;
+
+    ToolHandle<TrigConf::ITrigConfigTool> tch(tct);
+
+    auto tdt = new Trig::TrigDecisionTool("TrigDecisionTool");
+    if(tdt->setProperty("ConfigTool", tch).isFailure()) return EL::StatusCode::FAILURE;
+    if(tdt->setProperty("TrigDecisionKey", "xTrigDecision").isFailure()) return EL::StatusCode::FAILURE;
+    if(tdt->initialize().isFailure()) return EL::StatusCode::FAILURE;
+
+    // initialize analyses
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
         if(!m_analysisAlgs->at(i)->initialize())
+        {
+            return EL::StatusCode::FAILURE;
+        }
+    }
+    // initialize tools
+    for(const std::string& toolName: DV::ToolInstantiator::getListOfTools())
+    {
+        if(!DV::ToolInstantiator::initializeTool(toolName))
         {
             return EL::StatusCode::FAILURE;
         }

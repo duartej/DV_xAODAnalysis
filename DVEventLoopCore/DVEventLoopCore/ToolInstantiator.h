@@ -2,24 +2,24 @@
 //
 // Package:    DV_xAODAnalysis/DVAnalysis
 // Class:      DVToolInstantiator
-// 
+//
 /**\class DVToolInstantiator DVToolInstantiator.h DV_xAODAnalysis/DVAnalysis/Root/DVToolInstantiator.cxx
  Description: a container of tools and a centralized place (builder) to
         create the tool instances
  Implementation: The class inherits from DV::AlgBase in order to be treat by
         the DVEventLoop (the main actor) identically as a regular algorithm,
-        therefore taking care of initialization and destruction, and providing 
-        event-wise data from the input file. 
+        therefore taking care of initialization and destruction, and providing
+        event-wise data from the input file.
         This class is a container of cut algorithms which are going to be used
-        by the DV::AlgBase algorithms scheduled. All the algorithms (clients) 
+        by the DV::AlgBase algorithms scheduled. All the algorithms (clients)
         shared the same instance of a particular cut.
-        The main method, DVToolInstantiator::add(string), initializes the 
+        The main method, DVToolInstantiator::add(string), initializes the
         concrete DV::ToolStore given the name of the class.
 */
 //
-// Original Author: Jordi Duarte Campderros  
+// Original Author: Jordi Duarte Campderros
 //         Created:  Sun Nov 03 15:32:34 CET 2015
-// 
+//
 // jordi.duarte.campderros@cern.ch
 //
 //
@@ -35,16 +35,18 @@
 
 namespace DV
 {
-    class ToolInstantiator 
+    class ToolInstantiator
     {
         public:
             ~ToolInstantiator();
             // the unique instance
-            static ToolInstantiator * getInstance();       
+            static ToolInstantiator * getInstance();
             //! try to instantiate the tool given "ToolType/ToolName".
             static StatusCode instantiateTool(const std::string & type_and_name);
             //! Get the "ToolType/ToolName" list of available tools
             static const std::vector<std::string> getListOfTools();
+            //! Initialize an instantiated tool
+            static StatusCode initializeTool(const std::string & type_and_name);
 
         private:
             ToolInstantiator() { ; };

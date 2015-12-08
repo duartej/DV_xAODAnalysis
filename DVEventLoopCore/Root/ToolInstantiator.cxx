@@ -2,11 +2,11 @@
 //
 // Package:    DV_xAODDVAnalysis/DVEventLoopCore
 // Class:      DV::ToolInstantiator
-// 
 //
-// Original Author: Jordi Duarte Campderros  
+//
+// Original Author: Jordi Duarte Campderros
 //         Created: Sun Nov 3 13:59:11 CET 2015
-// 
+//
 // jordi.duarte.campderros@cern.ch
 //
 
@@ -14,16 +14,22 @@
 
 #include "DVEventLoopCore/ToolInstantiator.h"
 
-// Insert here the include of any tool you want to use with this 
+// Insert here the include of any tool you want to use with this
 // instantiator (what we should used? IAsgTools or AsgTools?)
-#include "DVCuts/DVCuts.h"
+
+// DVCuts
 #include "DVCuts/DiLepCosmics.h"
 #include "DVCuts/DiLepDESD.h"
 #include "DVCuts/DiLepDVCuts.h"
-#include "DVCuts/EventCuts.h"
+#include "DVCuts/DVCuts.h"
 #include "DVCuts/ElecCuts.h"
+#include "DVCuts/EventCuts.h"
 #include "DVCuts/MuonCuts.h"
 
+// DVTools
+#include "DVTools/OverlapRemoval.h"
+#include "DVTools/PhotonMatch.h"
+#include "DVTools/TrigMatch.h"
 
 // system libraries
 #include<iostream>
@@ -45,7 +51,7 @@ DV::ToolInstantiator *  DV::ToolInstantiator::getInstance()
     {
         m_instance = new DV::ToolInstantiator();
     }
-    
+
     return m_instance;
 }
 
@@ -61,7 +67,7 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
         }
     }
 
-    // Not found .. let's instantiate the tool 
+    // Not found .. let's instantiate the tool
     // Assuming cutname = "ToolType/ToolName"
     const size_t slashPos = cutname.find("/");
     // FIXME:: It's an error to have a different format, return Status/throw instance
@@ -69,13 +75,9 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
     const std::string toolName(cutname.substr(slashPos+1));
 
     asg::IAsgTool * p = 0;
-    
+
     // Algorithm cases: (Note the inclusion of the Interfaces for the ToolHandle case)
-    if( toolType == "DV::DVCuts" or toolType == "DV::IDVCuts" )
-    {
-        p = new DV::DVCuts(toolName);
-    }
-    else if( toolType == "DV::DiLepCosmics" or toolType == "DV::IDiLepCosmics" )
+    if( toolType == "DV::DiLepCosmics" or toolType == "DV::IDiLepCosmics" )
     {
         p = new DV::DiLepCosmics(toolName);
     }
@@ -87,17 +89,33 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
     {
         p = new DV::DiLepDVCuts(toolName);
     }
-    else if( toolType == "DV::EventCuts" or toolType == "DV::IEventCuts" )
+    else if( toolType == "DV::DVCuts" or toolType == "DV::IDVCuts" )
     {
-        p = new DV::EventCuts(toolName);
+        p = new DV::DVCuts(toolName);
     }
     else if( toolType == "DV::ElecCuts" or toolType == "DV::IElecCuts" )
     {
         p = new DV::ElecCuts(toolName);
     }
+    else if( toolType == "DV::EventCuts" or toolType == "DV::IEventCuts" )
+    {
+        p = new DV::EventCuts(toolName);
+    }
     else if( toolType == "DV::MuonCuts" or toolType == "DV::IMuonCuts" )
     {
         p = new DV::MuonCuts(toolName);
+    }
+    else if( toolType == "DV::OverlapRemoval" or toolType == "DV::IOverlapRemoval" )
+    {
+        p = new DV::OverlapRemoval(toolName);
+    }
+    else if( toolType == "DV::PhotonMatch" or toolType == "DV::IPhotonMatch" )
+    {
+        p = new DV::PhotonMatch(toolName);
+    }
+    else if( toolType == "DV::TrigMatch" or toolType == "DV::ITrigMatch" )
+    {
+        p = new DV::TrigMatch(toolName);
     }
     else
     {
@@ -115,7 +133,7 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
     return StatusCode::SUCCESS;
 }
 
-const std::vector<std::string> DV::ToolInstantiator::getListOfTools() 
+const std::vector<std::string> DV::ToolInstantiator::getListOfTools()
 {
     std::vector<std::string> toolList;
     for(auto & tool : m_tools)
@@ -124,4 +142,17 @@ const std::vector<std::string> DV::ToolInstantiator::getListOfTools()
     }
 
     return toolList;
+}
+
+StatusCode DV::ToolInstantiator::initializeTool(const std::string & name)
+{
+    for(auto & tool : m_tools)
+    {
+        if( name == tool->name() )
+        {
+            return tool->initialize();
+        }
+    }
+
+    return StatusCode::FAILURE;
 }
