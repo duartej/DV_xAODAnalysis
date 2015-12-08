@@ -10,7 +10,7 @@
 // jordi.duarte.campderros@cern.ch
 //
 
-//#include "AsgTools/ToolStore.h"
+#include "AsgTools/MsgStream.h"
 
 #include "DVEventLoopCore/ToolInstantiator.h"
 
@@ -60,7 +60,6 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
     // It is already present?  // with std::find and lambda func. ??
     for(auto & tool : m_tools)
     {
-        std::cout << "instantiateTool:" << tool->name() << std::endl;
         if( cutname == tool->name() )
         {
             return StatusCode::SUCCESS;
@@ -127,7 +126,10 @@ StatusCode DV::ToolInstantiator::instantiateTool(const std::string & cutname)
                 "\nOr you can contact <jorge.duarte.campderros@cern.ch> ...");
          throw std::runtime_error(message);
     }
-
+    
+    // PROV-- XXX
+    std::cout << "ToolInstantiator::instantiateTool: '" << cutname 
+        << "' new instance" << std::endl;
     m_tools.push_back(p);
 
     return StatusCode::SUCCESS;
