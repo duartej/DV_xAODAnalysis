@@ -13,24 +13,25 @@
 
 namespace DV
 {
-    class BasicPlots : public AlgBase 
+    class BasicPlots : public AlgBase
     {
         public:
             // Constructor
             BasicPlots();
-            virtual ~BasicPlots(){};
-            
-            virtual void bookHists(PlotsManagerTool * pm) override;
-            virtual void execute(xAOD::TEvent*) override;
-            virtual void finalize() override;
+            virtual ~BasicPlots() = default;
+
+            void bookHists(PlotsManagerTool * pm) override;
+            bool initialize() override;
+            bool execute(xAOD::TEvent*) override;
+            bool finalize() override;
         private:
-            virtual void assignCutsAndTools() override; 
-            
+            virtual void assignCutsAndTools() override;
+
             TH2F* m_DVxy; //!
             TH1F* m_DVmass; //!
             TH1D* h_nTrkAssocVertAll; //!
             TH2D* h_DVmassVSnTrkAll; //!
-            
+
             ToolHandle<DV::IDVCuts> m_handle_dvcuts; //!
             //ClassDef(BasicPlots, 1);
     };
@@ -38,4 +39,4 @@ namespace DV
 
 #endif // ASGTOOL_STANDALONE
 
-#endif 
+#endif

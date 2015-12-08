@@ -11,49 +11,46 @@
 #  error "What environment are we in?!?"
 #endif // Include headers depending environment
 
-
 // System headers
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
-namespace DV 
+namespace DV
 {
     class PlotsManagerTool;
 
 #ifdef ASGTOOL_ATHENA
     class AlgBase : public AthAnalysisAlgorithm
 #elif defined(ASGTOOL_STANDALONE)
-    class AlgBase 
-#else
-#  error "What environment are we in?!?"
+    class AlgBase
 #endif // Environment selection
     {
         public:
 #ifdef ASGTOOL_ATHENA
             // Constructor in Athena
-            AlgBase(const std::string& name, ISvcLocator* pSvcLocator) : 
+            AlgBase(const std::string& name, ISvcLocator* pSvcLocator) :
                 AthAnalysisAlgorithm(name,pSvcLocator) { ; };
 #endif
             virtual ~AlgBase() { };
-            
+
             //! book histograms at DVEventLoop::histInitialize
             virtual void bookHists(PlotsManagerTool * pm) = 0;
 #ifdef ASGTOOL_ATHENA
             // Allow to inheriting from Athena... not sure. To be overwritten
             // by the concrete
 #elif defined(ASGTOOL_STANDALONE)
-            //! to be called byt the DVEventLoop::histFinalize
-            virtual void execute(xAOD::TEvent*)=0;        
-            virtual void finalize() =0;        
-            virtual void setEvent(xAOD::TEvent *event) { m_event=event; };
+            virtual bool initialize() = 0;
+            virtual bool execute(xAOD::TEvent*) = 0;
+            virtual bool finalize() = 0;
+            virtual void setEvent(xAOD::TEvent *event) { m_event = event; };
 #endif // ASGTOOL_STANDALONE
 
             //! Return the concrete Cut classes needed by the algorithm
             virtual std::vector<std::string> getCutNames() { return m_cutnames; };
             //! Return the concrete tool classes needed by the algorithm
             virtual std::vector<std::string> getToolNames() { return m_toolnames; };
-        
+
         protected:
             //! Description of the cuts and tools which should be prepare for this algorithm
             virtual void assignCutsAndTools() = 0;
