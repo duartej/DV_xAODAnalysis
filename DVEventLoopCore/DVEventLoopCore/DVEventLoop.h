@@ -31,7 +31,7 @@ class DVEventLoop : public EL::Algorithm
     // protected from being send from the submission node to the worker
     // node (done by the //!)
     public:
-        DVEventLoop ();
+        DVEventLoop();
         ~DVEventLoop();
 
         //! set the maximum number of events to be processed

@@ -2,18 +2,13 @@
 #include <EventLoop/StatusCode.h>
 #include <EventLoop/Worker.h>
 
-#include <DVEventLoopCore/DVEventLoop.h>
-
+#include "DVEventLoopCore/DVEventLoop.h"
 // Builder for the analysis should be run
 #include "DVEventLoopCore/AlgBuilder.h"
 // tool instantiator/container
 #include "DVEventLoopCore/ToolInstantiator.h"
 // Plot Manager
 #include "DVTools/PlotsManagerTool.h"
-
-#include "xAODRootAccess/TStore.h"
-#include "xAODCore/ShallowCopy.h"
-
 
 // this is needed to distribute the algorithm to the workers
 ClassImp(DVEventLoop)
@@ -269,7 +264,7 @@ EL::StatusCode DVEventLoop :: finalize ()
         {
             return EL::StatusCode::FAILURE;
         }
-     }
+    }
 
     return EL::StatusCode::SUCCESS;
 }
