@@ -10,9 +10,6 @@
 // Plot Manager
 #include "DVTools/PlotsManagerTool.h"
 
-#include "TrigConfxAOD/xAODConfigTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
-
 // this is needed to distribute the algorithm to the workers
 ClassImp(DVEventLoop)
 
@@ -201,10 +198,11 @@ EL::StatusCode DVEventLoop :: initialize ()
 
     // as a check, let's see the number of events in our xAOD
     Info("initialize()", "Number of available events = %lli", m_event->getEntries() );
-    Info("initialize()", "Number of events to be processed= %i", m_evtsMax );
+    Info("initialize()", "Number of events to be processed= %lu", m_evtsMax );
 
-    // create TrigDecisionTool
-    auto tct = new TrigConf::xAODConfigTool("xAODConfigTool");
+    // FIXME:: Why is this defined here? Should be managed by the client who needs it
+    // create TrigDecisionTool --> BLOCK MOVED TO THE EventCut class!!
+    /*auto tct = new TrigConf::xAODConfigTool("xAODConfigTool");
     if(tct->initialize().isFailure()) return StatusCode::FAILURE;
 
     ToolHandle<TrigConf::ITrigConfigTool> tch(tct);
@@ -213,8 +211,9 @@ EL::StatusCode DVEventLoop :: initialize ()
     if(tdt->setProperty("ConfigTool", tch).isFailure()) return EL::StatusCode::FAILURE;
     if(tdt->setProperty("TrigDecisionKey", "xTrigDecision").isFailure()) return EL::StatusCode::FAILURE;
     if(tdt->initialize().isFailure()) return EL::StatusCode::FAILURE;
+    // :: Why is this defined here? END-FIXME-!*/
 
-    // initialize analyses
+    // first initialize analyses, which can change some properties of the tools
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
         if(!m_analysisAlgs->at(i)->initialize())
@@ -222,7 +221,8 @@ EL::StatusCode DVEventLoop :: initialize ()
             return EL::StatusCode::FAILURE;
         }
     }
-    // initialize tools
+
+    // then initialize tools 
     for(const std::string& toolName: DV::ToolInstantiator::getListOfTools())
     {
         if(!DV::ToolInstantiator::initializeTool(toolName))
@@ -244,9 +244,9 @@ EL::StatusCode DVEventLoop :: execute ()
     // print every 5% of processed events, so we know where we are:
     if( (m_eventCounter % int(float(m_evtsMax)*0.05) ) == 0 )
     {
-        Info("execute()", "Event number = %i", m_eventCounter );
+        Info("execute()", "Event number = %lu", m_eventCounter );
     }
-    m_eventCounter++;
+    ++m_eventCounter;
 
     // execute all the event
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
