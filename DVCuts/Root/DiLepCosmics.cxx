@@ -79,8 +79,7 @@ bool DV::DiLepCosmics::PassMuPairCosmicVeto(const xAOD::Muon& mu1, const xAOD::M
 bool DV::DiLepCosmics::PassElMuPairCosmicVeto(const xAOD::Electron& el, const xAOD::Muon& mu) const
 {
     if(!m_mc->PassPtCut(mu)) return true;
-    if(!m_ec->PassPtCut(el)) return true;
-    if(!m_ec->PassEtaCut(el)) return true;
+    if(!m_ec->PassKinematics(el)) return true;
     if(!m_ec->PassID(el)) return true;
 
     return PassCosmicVeto(el.p4(), mu.p4());
@@ -88,8 +87,7 @@ bool DV::DiLepCosmics::PassElMuPairCosmicVeto(const xAOD::Electron& el, const xA
 
 bool DV::DiLepCosmics::PassElPairCosmicVeto(const xAOD::Electron& el1, const xAOD::Electron& el2) const
 {
-    if(!m_ec->PassPtCut(el1) || !m_ec->PassPtCut(el2)) return true;
-    if(!m_ec->PassEtaCut(el1) || !m_ec->PassEtaCut(el2)) return true;
+    if(!m_ec->PassKinematics(el1) || !m_ec->PassKinematics(el2)) return true;
     if(!m_ec->PassID(el1) || !m_ec->PassID(el2)) return true;
 
     return PassCosmicVeto(el1.p4(), el2.p4());

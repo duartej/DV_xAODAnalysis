@@ -21,9 +21,14 @@ namespace DV
         /// Declare the interface that the class provides
         ASG_TOOL_INTERFACE(DV::IDiLepDVCuts)
         public:
-            virtual void PrepareVertex(xAOD::Vertex& dv,
-                                       xAOD::ElectronContainer& elc,
-                                       xAOD::MuonContainer& muc) const = 0;
+            virtual void ApplyLeptonMatching(xAOD::Vertex& dv,
+                                             xAOD::ElectronContainer& elc,
+                                             xAOD::MuonContainer& muc) const = 0;
+            virtual void ApplyOverlapRemoval(const xAOD::Vertex& dv) const = 0;
+            virtual void ApplyKinematics(const xAOD::Vertex& dv) const = 0;
+            virtual void ApplyTightness(const xAOD::Vertex& dv) const = 0;
+
+            virtual void DoTriggerMatching(xAOD::Vertex& dv) const = 0;
 
             virtual const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const = 0;
             virtual const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const = 0;

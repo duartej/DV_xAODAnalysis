@@ -78,6 +78,14 @@ bool DV::MuonCuts::PassEtaCut(const xAOD::Muon& mu) const
     return false;
 }
 
+bool DV::MuonCuts::PassKinematics(const xAOD::Muon& mu) const
+{
+    if(!PassPtCut(mu)) return false;
+    if(!PassEtaCut(mu)) return false;
+
+    return true;
+}
+
 bool DV::MuonCuts::PassD0Cut(const xAOD::Muon& mu) const
 {
     const xAOD::TrackParticle* mu_tr = GetTrack(mu);

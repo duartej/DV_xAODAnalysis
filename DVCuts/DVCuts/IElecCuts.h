@@ -19,7 +19,10 @@ namespace DV
 
             virtual bool PassPtCut(const xAOD::Electron& el) const = 0;
             virtual bool PassEtaCut(const xAOD::Electron& el) const = 0;
+            virtual bool PassKinematics(const xAOD::Electron& el) const = 0;
+
             virtual bool PassD0Cut(const xAOD::Electron& el) const = 0;
+
             virtual bool PassID(const xAOD::Electron& el) const = 0;
 
             virtual bool IsPreRetracking(const xAOD::Electron& el) const = 0;

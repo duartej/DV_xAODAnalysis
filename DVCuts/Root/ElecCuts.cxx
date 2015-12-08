@@ -78,6 +78,14 @@ bool DV::ElecCuts::PassEtaCut(const xAOD::Electron& el) const
     return false;
 }
 
+bool DV::ElecCuts::PassKinematics(const xAOD::Electron& el) const
+{
+    if(!PassPtCut(el)) return false;
+    if(!PassEtaCut(el)) return false;
+
+    return true;
+}
+
 bool DV::ElecCuts::PassD0Cut(const xAOD::Electron& el) const
 {
     const xAOD::TrackParticle* el_tr = GetTrack(el);

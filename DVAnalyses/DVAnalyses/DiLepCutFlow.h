@@ -16,6 +16,8 @@
 #include "DVCuts/IEventCuts.h"
 #include "DVCuts/IDiLepCosmics.h"
 #include "DVCuts/IDiLepDVCuts.h"
+#include "DVTools/IOverlapRemoval.h"
+#include "DVTools/IPhotonMatch.h"
 
 namespace DV
 {
@@ -36,8 +38,12 @@ namespace DV
             ToolHandle<DV::IDiLepCosmics> m_cos; //!
             ToolHandle<DV::IDVCuts> m_dvc; //!
             ToolHandle<DV::IDiLepDVCuts> m_dilepdvc; //!
+            ToolHandle<DV::IOverlapRemoval> m_or; //!
+            ToolHandle<DV::IPhotonMatch> m_phmatch; //!
 
-            std::uint64_t m_cutflow_passed;
+            std::uint64_t m_nevt_passed;
+            std::uint64_t m_nvx;
+            std::uint64_t m_nvx_passed;
 
             //ClassDef(DiLepCutFlow, 1);
     };

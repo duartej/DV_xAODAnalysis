@@ -38,14 +38,18 @@ namespace DV
             StatusCode initialize() override;
 
             /*
-             * CAUTION!:
-             * PrepareVertex() matches leptons to a DV (via tracks) and performs trigger matching.
+             * Matches leptons to a DV (via tracks).
              * This method has to be called on every DV before the other methods are used.
              * The lepton containers should contain all leptons from the current event.
              */
-            void PrepareVertex(xAOD::Vertex& dv,
-                               xAOD::ElectronContainer& elc,
-                               xAOD::MuonContainer& muc) const override;
+            void ApplyLeptonMatching(xAOD::Vertex& dv,
+                                     xAOD::ElectronContainer& elc,
+                                     xAOD::MuonContainer& muc) const override;
+            void ApplyOverlapRemoval(const xAOD::Vertex& dv) const override;
+            void ApplyKinematics(const xAOD::Vertex& dv) const override;
+            void ApplyTightness(const xAOD::Vertex& dv) const override;
+
+            void DoTriggerMatching(xAOD::Vertex& dv) const override;
 
             const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const override;
             const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const override;

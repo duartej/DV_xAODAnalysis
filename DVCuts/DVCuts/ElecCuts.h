@@ -33,7 +33,10 @@ namespace DV
 
             bool PassPtCut(const xAOD::Electron& el) const override;
             bool PassEtaCut(const xAOD::Electron& el) const override;
+            bool PassKinematics(const xAOD::Electron& el) const override;
+
             bool PassD0Cut(const xAOD::Electron& el) const override;
+
             bool PassID(const xAOD::Electron& el) const override;
 
             bool IsPreRetracking(const xAOD::Electron& el) const override;
