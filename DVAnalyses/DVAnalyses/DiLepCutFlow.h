@@ -4,6 +4,9 @@
 // For RootCore
 #ifdef ASGTOOL_STANDALONE
 
+// STL
+#include <cstdint>
+
 // Tools
 #include "AsgTools/ToolHandle.h"
 
@@ -33,6 +36,8 @@ namespace DV
             ToolHandle<DV::IDiLepCosmics> m_cos; //!
             ToolHandle<DV::IDVCuts> m_dvc; //!
             ToolHandle<DV::IDiLepDVCuts> m_dilepdvc; //!
+
+            std::uint64_t m_cutflow_passed;
 
             //ClassDef(DiLepCutFlow, 1);
     };

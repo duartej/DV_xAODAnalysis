@@ -9,7 +9,8 @@ DV::DiLepCutFlow::DiLepCutFlow() :
     m_evtc("DV::EventCuts/EventCuts"),
     m_cos("DV::DiLepCosmics/DiLepCosmics"),
     m_dvc("DV::DVCuts/DVCuts"),
-    m_dilepdvc("DV::DiLepDVCuts/DiLepDVCuts")
+    m_dilepdvc("DV::DiLepDVCuts/DiLepDVCuts"),
+    m_cutflow_passed(0)
 {
     assignCutsAndTools();
 }
@@ -33,6 +34,8 @@ bool DV::DiLepCutFlow::initialize()
 
 bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 {
+    m_eventCounter++;
+
     // retrieve event info
     const xAOD::EventInfo* ei = nullptr;
     if(evt->retrieve(ei, "EventInfo").isFailure())
@@ -73,13 +76,15 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 
     if(!m_evtc->PassPVCuts(*pvc)) return true;
 
-    std::cout << "EVENT PASSED ALL EVENT CUTS :)" << std::endl;
+    m_cutflow_passed++;
 
     return true;
 }
 
 bool DV::DiLepCutFlow::finalize()
 {
+    std::cout << "Events passed cutflow: " << m_cutflow_passed << " / " << m_eventCounter << std::endl;
+
     return true;
 }
 

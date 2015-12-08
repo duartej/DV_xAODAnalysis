@@ -45,7 +45,6 @@ namespace DV
             double m_ptMin;
             double m_etaMax;
             double m_d0Min;
-            int m_muID;
     };
 }
 

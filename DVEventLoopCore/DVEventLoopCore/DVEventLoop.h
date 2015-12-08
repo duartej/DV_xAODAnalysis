@@ -6,6 +6,7 @@
 #define DVEVENTLOOP_H
 
 // STL
+#include<cstdint>
 #include<string>
 #include<vector>
 
@@ -56,9 +57,9 @@ class DVEventLoop : public EL::Algorithm
         virtual EL::StatusCode histFinalize ();
 
 
-        xAOD::TEvent *m_event;          //!
-        unsigned int  m_eventCounter;   //!
-        int m_evtsMax;                  //!
+        xAOD::TEvent *m_event;        //!
+        std::uint64_t m_eventCounter; //!
+        std::uint64_t m_evtsMax;      //!
 
         std::vector<std::string> m_cutNames;
         std::vector<std::string> m_algNames;

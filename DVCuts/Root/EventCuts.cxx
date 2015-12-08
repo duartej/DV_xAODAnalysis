@@ -2,6 +2,10 @@
 
 #include <cmath>
 
+#ifdef ASGTOOL_STANDALONE
+#include "TSystem.h"
+#endif
+
 DV::EventCuts::EventCuts(const std::string& name) :
     asg::AsgTool(name),
     m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -49,8 +53,11 @@ StatusCode DV::EventCuts::initialize()
             return StatusCode::FAILURE;
         }
 
+        std::string grlPath = "$ROOTCOREBIN/../DV_xAODAnalysis/DVAnalyses/data/" + m_grlFile;
+        grlPath = gSystem->ExpandPathName(grlPath.c_str());
+
         m_grlR = new Root::TGoodRunsListReader();
-        m_grlR->SetXMLFile(m_grlFile.c_str());
+        m_grlR->SetXMLFile(grlPath.c_str());
         m_grlR->Interpret();
 
         m_grl = m_grlR->GetMergedGoodRunsList();

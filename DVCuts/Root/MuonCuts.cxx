@@ -9,7 +9,6 @@ DV::MuonCuts::MuonCuts(const std::string& name) :
     declareProperty("ptMin", m_ptMin = 10000., "Cut for muon track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for muon track |eta|");
     declareProperty("d0Min", m_d0Min = 2.0, "Cut for muon track |d0|");
-    declareProperty("muID", m_muID = xAOD::Muon::VeryLoose, "Working point for muon identification");
 }
 
 StatusCode DV::MuonCuts::initialize()
@@ -19,19 +18,28 @@ StatusCode DV::MuonCuts::initialize()
 
 #ifdef ASGTOOL_STANDALONE
     CP::MuonSelectionTool* mst = new CP::MuonSelectionTool("DVMuonSelectionTool");
+    m_mst = mst;
 #elif defined(ASGTOOL_ATHENA)
+    // retrieve MuonSelectionTool
+    if(m_mst.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR("Could not retrieve MuonSelectionTool!");
+      return StatusCode::FAILURE;
+    }
+
     CP::MuonSelectionTool *mst = dynamic_cast<CP::MuonSelectionTool*>(&*m_mst);
 #endif
 
     // configure muon identification
-    ATH_CHECK(mst->setProperty("MuQuality", m_muID));
+    ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::VeryLoose)));
     // turn off cuts on si hits
     ATH_CHECK(mst->setProperty("PixCutOff", true));
     ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
 
-#ifdef ASGTOOL_STANDALONE
-    m_mst = mst;
-#endif
+    ATH_CHECK(mst->initialize());
+
+    // silence MuonSelectionTool
+    mst->msg().setLevel(MSG::ERROR);
 
     // Return gracefully:
     return StatusCode::SUCCESS;
@@ -40,9 +48,9 @@ StatusCode DV::MuonCuts::initialize()
 const xAOD::TrackParticle* DV::MuonCuts::GetTrack(const xAOD::Muon& mu) const
 {
     const xAOD::TrackParticle* mu_tr = mu.trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(mu_tr == nullptr)
+    if(mu_tr == nullptr && mu.muonType() == xAOD::Muon::Combined)
     {
-        ATH_MSG_WARNING("Failed to retrieve Muon track!");
+        ATH_MSG_WARNING("Failed to retrieve ID track of combined muon!");
     }
 
     return mu_tr;
@@ -83,6 +91,8 @@ bool DV::MuonCuts::PassD0Cut(const xAOD::Muon& mu) const
 
 bool DV::MuonCuts::PassID(const xAOD::Muon& mu) const
 {
+    if(mu.muonType() != xAOD::Muon::Combined) return false;
+
     return m_mst->accept(mu);
 }
 

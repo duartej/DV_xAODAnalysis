@@ -9,7 +9,6 @@ DV::ElecCuts::ElecCuts(const std::string& name) :
     declareProperty("ptMin", m_ptMin = 10000., "Cut for electron track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for electron track |eta|");
     declareProperty("d0Min", m_d0Min = 2.0, "Cut for electron track |d0|");
-    declareProperty("elecID", m_elecID = "Loose", "Working point for electron likelihood identification");
 }
 
 StatusCode DV::ElecCuts::initialize()
@@ -19,12 +18,20 @@ StatusCode DV::ElecCuts::initialize()
 
 #ifdef ASGTOOL_STANDALONE
     AsgElectronLikelihoodTool* elt = new AsgElectronLikelihoodTool("DVElectronLikelihoodTool");
+    m_elt = elt;
 #elif defined(ASGTOOL_ATHENA)
+    // retrieve AsgElectronLikelihoodTool
+    if(m_elt.retrieve().isFailure())
+    {
+      ATH_MSG_ERROR("Could not retrieve AsgElectronLikelihoodTool!");
+      return StatusCode::FAILURE;
+    }
+
     AsgElectronLikelihoodTool* elt = dynamic_cast<AsgElectronLikelihoodTool*>(&*m_elt);
 #endif
 
     // set working point of electron ID
-    std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihood" + m_elecID + "NoD0OfflineConfig2015.conf";
+    std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
     ATH_CHECK(elt->setProperty("ConfigFile", config_file));
 
     // turn off cuts on si hits for electron ID
@@ -32,9 +39,7 @@ StatusCode DV::ElecCuts::initialize()
     ATH_CHECK(elt->setProperty("CutPi", std::vector<int>()));
     ATH_CHECK(elt->setProperty("CutSi", std::vector<int>()));
 
-#ifdef ASGTOOL_STANDALONE
-    m_elt = elt;
-#endif
+    ATH_CHECK(elt->initialize());
 
     // Return gracefully:
     return StatusCode::SUCCESS;

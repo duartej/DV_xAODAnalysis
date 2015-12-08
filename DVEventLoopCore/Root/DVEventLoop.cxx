@@ -19,7 +19,7 @@ ClassImp(DVEventLoop)
 DVEventLoop::DVEventLoop():
     m_event(0),
     m_eventCounter(0),
-    m_evtsMax(-1),
+    m_evtsMax(0),
     m_analysisAlgs(nullptr),
     m_plotmanager(nullptr),
     m_toolsContainer(nullptr),
@@ -194,7 +194,7 @@ EL::StatusCode DVEventLoop :: initialize ()
     m_eventCounter = 0;
 
     // just coherence
-    if(m_evtsMax < 0)
+    if(m_evtsMax == 0)
     {
         m_evtsMax = m_event->getEntries();
     }

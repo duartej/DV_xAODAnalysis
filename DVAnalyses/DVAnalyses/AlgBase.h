@@ -12,6 +12,7 @@
 #endif // Include headers depending environment
 
 // System headers
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
@@ -43,7 +44,6 @@ namespace DV
             virtual bool initialize() = 0;
             virtual bool execute(xAOD::TEvent*) = 0;
             virtual bool finalize() = 0;
-            virtual void setEvent(xAOD::TEvent *event) { m_event = event; };
 #endif // ASGTOOL_STANDALONE
 
             //! Return the concrete Cut classes needed by the algorithm
@@ -55,8 +55,7 @@ namespace DV
             //! Description of the cuts and tools which should be prepare for this algorithm
             virtual void assignCutsAndTools() = 0;
 #ifdef ASGTOOL_STANDALONE
-            xAOD::TEvent * m_event;          //! Really needed?
-            unsigned int   m_eventCounter;   //! Really needed?
+            std::uint64_t m_eventCounter = 0;
 #endif // ASGTOOL_STANDALONE
             //! cuts and tools to be used (XXX: should be tracked separately?)
             std::vector<std::string> m_cutnames;
