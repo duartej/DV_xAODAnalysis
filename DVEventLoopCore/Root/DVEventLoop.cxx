@@ -200,19 +200,6 @@ EL::StatusCode DVEventLoop :: initialize ()
     Info("initialize()", "Number of available events = %lli", m_event->getEntries() );
     Info("initialize()", "Number of events to be processed= %lu", m_evtsMax );
 
-    // FIXME:: Why is this defined here? Should be managed by the client who needs it
-    // create TrigDecisionTool --> BLOCK MOVED TO THE EventCut class!!
-    /*auto tct = new TrigConf::xAODConfigTool("xAODConfigTool");
-    if(tct->initialize().isFailure()) return StatusCode::FAILURE;
-
-    ToolHandle<TrigConf::ITrigConfigTool> tch(tct);
-
-    auto tdt = new Trig::TrigDecisionTool("TrigDecisionTool");
-    if(tdt->setProperty("ConfigTool", tch).isFailure()) return EL::StatusCode::FAILURE;
-    if(tdt->setProperty("TrigDecisionKey", "xTrigDecision").isFailure()) return EL::StatusCode::FAILURE;
-    if(tdt->initialize().isFailure()) return EL::StatusCode::FAILURE;
-    // :: Why is this defined here? END-FIXME-!*/
-
     // first initialize analyses, which can change some properties of the tools
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
@@ -222,7 +209,7 @@ EL::StatusCode DVEventLoop :: initialize ()
         }
     }
 
-    // then initialize tools 
+    // then initialize tools
     for(const std::string& toolName: DV::ToolInstantiator::getListOfTools())
     {
         if(!DV::ToolInstantiator::initializeTool(toolName))

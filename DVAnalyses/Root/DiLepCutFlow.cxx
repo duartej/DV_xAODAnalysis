@@ -163,6 +163,14 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
         m_nvx_passed++;
     }
 
+    // delete copies
+    delete elc_copy.first;
+    delete elc_copy.second;
+    delete muc_copy.first;
+    delete muc_copy.second;
+    delete dvc_copy.first;
+    delete dvc_copy.second;
+
     return true;
 }
 
