@@ -39,29 +39,29 @@ class DVEventLoop : public EL::Algorithm
         void setEvtsMax(const int & evtmax){ m_evtsMax = evtmax; };
         //! name of the output file
         void setOutputFilename(const std::string & name) { m_outputFilename = name; };
-        //! entry point of the available cut algorithms
-        EL::StatusCode addCutAlgs(const std::vector<std::string> & cut_algs);
         //! entry point for the analysis algorithms to be executed
         EL::StatusCode addAnalysisAlgs(const std::vector<std::string> & ana_names);
 
-        // these are the functions inherited from Algorithm
-        virtual EL::StatusCode setupJob (EL::Job& job);
-        virtual EL::StatusCode fileExecute ();
-        virtual EL::StatusCode histInitialize ();
-        virtual EL::StatusCode addAnalysisAlgs ();
-        virtual EL::StatusCode changeInput (bool firstFile);
-        virtual EL::StatusCode initialize ();
-        virtual EL::StatusCode execute ();
-        virtual EL::StatusCode postExecute ();
-        virtual EL::StatusCode finalize ();
-        virtual EL::StatusCode histFinalize ();
+        EL::StatusCode addAnalysisAlgs ();
+        EL::StatusCode addAnalysisTools ();
 
+        // these are the functions inherited from Algorithm
+        EL::StatusCode setupJob (EL::Job& job) override;
+        EL::StatusCode fileExecute () override;
+        EL::StatusCode histInitialize () override;
+        EL::StatusCode changeInput (bool firstFile) override;
+        EL::StatusCode initialize () override;
+        EL::StatusCode execute () override;
+        EL::StatusCode postExecute () override;
+        EL::StatusCode finalize () override;
+        EL::StatusCode histFinalize () override;
+
+    //private:
 
         xAOD::TEvent *m_event;        //!
         std::uint64_t m_eventCounter; //!
         std::uint64_t m_evtsMax;      //!
 
-        std::vector<std::string> m_cutNames;
         std::vector<std::string> m_algNames;
 
         std::vector<DV::AlgBase*>* m_analysisAlgs;

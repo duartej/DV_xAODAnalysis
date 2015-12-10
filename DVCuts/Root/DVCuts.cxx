@@ -91,9 +91,7 @@ bool DV::DVCuts::PassMaterialVeto(const xAOD::Vertex& dv) const
     double phiDV = dv_pos.phi();
     if(phiDV < 0)
     {
-        //FIXME:: Not available yet the utils pkg.
-        //phiDV = 2. * DV::Pi + phiDV;
-        phiDV = 2.*3.1415926535897932384626433832795028841971693993 + phiDV;
+        phiDV = 2.*std::acos(-1.) + phiDV;
     }
 
     double zDV = dv_pos.z();

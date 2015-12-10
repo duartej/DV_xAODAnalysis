@@ -34,7 +34,7 @@ StatusCode DV::DiLepCosmics::initialize()
 bool DV::DiLepCosmics::PassCosmicVeto(const TLorentzVector& lv1, const TLorentzVector& lv2) const
 {
     // FIXME: pi
-    double deltaPhiMinusPi = std::fabs(std::fabs(lv1.DeltaPhi(lv2)) - 3.1415926535897932384626433832795028841971693993);
+    double deltaPhiMinusPi = std::fabs(std::fabs(lv1.DeltaPhi(lv2)) - std::acos(-1.));
     double sumEta = lv1.Eta() + lv2.Eta();
     if(std::sqrt(sumEta * sumEta + deltaPhiMinusPi * deltaPhiMinusPi) < m_Rcos) return false;
 

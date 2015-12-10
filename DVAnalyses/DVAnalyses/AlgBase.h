@@ -46,8 +46,6 @@ namespace DV
             virtual bool finalize() = 0;
 #endif // ASGTOOL_STANDALONE
 
-            //! Return the concrete Cut classes needed by the algorithm
-            virtual std::vector<std::string> getCutNames() { return m_cutnames; };
             //! Return the concrete tool classes needed by the algorithm
             virtual std::vector<std::string> getToolNames() { return m_toolnames; };
 
@@ -57,8 +55,7 @@ namespace DV
 #ifdef ASGTOOL_STANDALONE
             std::uint64_t m_eventCounter = 0;
 #endif // ASGTOOL_STANDALONE
-            //! cuts and tools to be used (XXX: should be tracked separately?)
-            std::vector<std::string> m_cutnames;
+            //! tools to be used
             std::vector<std::string> m_toolnames;
     };
 }

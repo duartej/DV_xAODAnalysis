@@ -184,16 +184,16 @@ bool DV::DiLepCutFlow::finalize()
 
 void DV::DiLepCutFlow::assignCutsAndTools()
 {
-    m_cutnames.push_back("DV::DiLepCosmics/DiLepCosmics");
-    m_cutnames.push_back("DV::DiLepDESD/DiLepDESD");
-    m_cutnames.push_back("DV::DiLepDVCuts/DiLepDVCuts");
-    m_cutnames.push_back("DV::DVCuts/DVCuts");
-    m_cutnames.push_back("DV::ElecCuts/DiLepElecCuts");
-    m_cutnames.push_back("DV::EventCuts/EventCuts");
-    m_cutnames.push_back("DV::MuonCuts/DiLepMuonCuts");
-    m_cutnames.push_back("DV::OverlapRemoval/OverlapRemoval");
-    m_cutnames.push_back("DV::PhotonMatch/PhotonMatch");
-    m_cutnames.push_back("DV::TrigMatch/TrigMatch");
+    m_toolnames.push_back("DV::DiLepCosmics/DiLepCosmics");
+    m_toolnames.push_back("DV::DiLepDESD/DiLepDESD");
+    m_toolnames.push_back("DV::DiLepDVCuts/DiLepDVCuts");
+    m_toolnames.push_back("DV::DVCuts/DVCuts");
+    m_toolnames.push_back("DV::ElecCuts/DiLepElecCuts");
+    m_toolnames.push_back("DV::EventCuts/EventCuts");
+    m_toolnames.push_back("DV::MuonCuts/DiLepMuonCuts");
+    m_toolnames.push_back("DV::OverlapRemoval/OverlapRemoval");
+    m_toolnames.push_back("DV::PhotonMatch/PhotonMatch");
+    m_toolnames.push_back("DV::TrigMatch/TrigMatch");
 }
 
 #endif

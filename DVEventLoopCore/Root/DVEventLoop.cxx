@@ -49,16 +49,6 @@ DVEventLoop::~DVEventLoop()
     }
 }
 
-EL::StatusCode DVEventLoop::addCutAlgs(const std::vector<std::string> & cut_names)
-{
-    for(auto & cut: cut_names)
-    {
-        this->m_cutNames.push_back(cut);
-    }
-
-    return EL::StatusCode::SUCCESS;
-}
-
 EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg_names)
 {
     for(auto & alg: alg_names)
@@ -71,10 +61,6 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs(const std::vector<std::string> & alg
 
 EL::StatusCode DVEventLoop::addAnalysisAlgs()
 {
-    // Create the tool-instantiator/container object to be populated
-    // by the analyses needs
-    m_toolsContainer = DV::ToolInstantiator::getInstance();
-
     // The 'regular' analysis algorithms
     for(auto & alg: this->m_algNames)
     {
@@ -83,17 +69,30 @@ EL::StatusCode DVEventLoop::addAnalysisAlgs()
         {
             return EL::StatusCode::FAILURE;
         }
-        // Get the list of cut classes (tools) needed by the algorithm
+        this->m_analysisAlgs->push_back(dvAna);
+    }
+
+    return EL::StatusCode::SUCCESS;
+}
+
+EL::StatusCode DVEventLoop::addAnalysisTools()
+{
+    // Create the tool-instantiator/container object to be populated
+    // by the analyses needs
+    m_toolsContainer = DV::ToolInstantiator::getInstance();
+
+    // The 'regular' analysis algorithms
+    for(auto & alg: *(this->m_analysisAlgs))
+    {
+        // Get the list of tools needed by the algorithm
         // and let know the ToolInstantiator
-        for(auto & cut: dvAna->getCutNames())
+        for(auto & tool: alg->getToolNames())
         {
-            EL::StatusCode sc = (EL::StatusCode)m_toolsContainer->instantiateTool(cut);
-            if( sc != EL::StatusCode::SUCCESS )
+            if( m_toolsContainer->instantiateDVTool(tool).isFailure() )
             {
-                return sc;
+                return EL::StatusCode::FAILURE;
             }
         }
-        this->m_analysisAlgs->push_back(dvAna);
     }
 
     return EL::StatusCode::SUCCESS;
@@ -135,18 +134,6 @@ EL::StatusCode DVEventLoop :: histInitialize ()
     }
     algList += " ]";
     Info("histInitialize()","%s", algList.c_str());
-
-
-    const std::vector<std::string> listOfTools = m_toolsContainer->getListOfTools();
-    Info("histInitialize()","Available Tools [#%lu]:", listOfTools.size());
-    std::string toolList(" [");
-    for(auto & toolName : listOfTools)
-    {
-        toolList += std::string(" "+toolName);
-    }
-    toolList += " ]";
-    Info("histInitialize()","%s", toolList.c_str());
-
 
     // Initialize plot tool
     m_plotmanager = new DV::PlotsManagerTool("PlotManagerTool");
@@ -200,7 +187,31 @@ EL::StatusCode DVEventLoop :: initialize ()
     Info("initialize()", "Number of available events = %lli", m_event->getEntries() );
     Info("initialize()", "Number of events to be processed= %lu", m_evtsMax );
 
-    // first initialize analyses, which can change some properties of the tools
+    // create all tools
+    addAnalysisTools();
+
+    // print out tools
+    const std::vector<std::string> listOfDVTools = m_toolsContainer->getListOfDVTools();
+    Info("initialize()","Available DV tools [#%lu]:", listOfDVTools.size());
+    std::string toolList(" [");
+    for(auto & toolName : listOfDVTools)
+    {
+        toolList += std::string(" "+toolName);
+    }
+    toolList += " ]";
+    Info("initialize()","%s", toolList.c_str());
+
+    const std::vector<std::string> listOfAtlasTools = m_toolsContainer->getListOfAtlasTools();
+    Info("initialize()","Available Atlas tools [#%lu]:", listOfAtlasTools.size());
+    toolList = " [";
+    for(auto & toolName : listOfAtlasTools)
+    {
+        toolList += std::string(" "+toolName);
+    }
+    toolList += " ]";
+    Info("initialize()","%s", toolList.c_str());
+
+    // first initialize analyses, which can change some properties of the DV tools
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
         if(!m_analysisAlgs->at(i)->initialize())
@@ -209,13 +220,16 @@ EL::StatusCode DVEventLoop :: initialize ()
         }
     }
 
-    // then initialize tools
-    for(const std::string& toolName: DV::ToolInstantiator::getListOfTools())
+    // then initialize DV tools, which can change some properties of the Atlas tools
+    if(m_toolsContainer->initializeDVTools().isFailure())
     {
-        if(!DV::ToolInstantiator::initializeTool(toolName))
-        {
-            return EL::StatusCode::FAILURE;
-        }
+        return EL::StatusCode::FAILURE;
+    }
+
+    // at the end initialize Atlas tools
+    if(m_toolsContainer->initializeAtlasTools().isFailure())
+    {
+        return EL::StatusCode::FAILURE;
     }
 
     return EL::StatusCode::SUCCESS;

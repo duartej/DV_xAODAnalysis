@@ -4,8 +4,6 @@
 
 #ifdef ASGTOOL_STANDALONE
 #include "TSystem.h"
-#include "TrigConfxAOD/xAODConfigTool.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
 #endif
 
 DV::EventCuts::EventCuts(const std::string& name) :
@@ -73,26 +71,12 @@ StatusCode DV::EventCuts::initialize()
 
     if(m_checkTrig)
     {
-#ifdef ASGTOOL_ATHENA
+        // retrieve TrigDecisionTool
         if(m_tdt.retrieve().isFailure())
         {
             ATH_MSG_ERROR("Failed to retrieve TrigDecisionTool!");
             return StatusCode::FAILURE;
         }
-#elif defined(ASGTOOL_STANDALONE)
-        // FIXME: temporary solution should be done centrally
-        auto tct = new TrigConf::xAODConfigTool("xAODConfigTool");
-        ATH_CHECK(tct->initialize());
-
-        ToolHandle<TrigConf::ITrigConfigTool> tch(tct);
-
-        auto tdt = new Trig::TrigDecisionTool("TrigDecisionTool");
-        ATH_CHECK(tdt->setProperty("ConfigTool", tch));
-        ATH_CHECK(tdt->setProperty("TrigDecisionKey", "xTrigDecision"));
-        ATH_CHECK(tdt->initialize());
-
-        m_tdt = tdt;
-#endif  // ASGTOOL_STANDALONE
     }
     else
     {

@@ -91,7 +91,7 @@ void DV::BasicPlots::assignCutsAndTools()
 {
     // Which cuts are needed? Remember the format ToolType/ToolName
     // (XXX:: so it can be retrieved from a property... )
-    m_cutnames.push_back("DV::IDVCuts/DVCuts");
+    m_toolnames.push_back("DV::IDVCuts/DVCuts");
 }
 #endif  // ASGTOOL_STANDALONE
 
