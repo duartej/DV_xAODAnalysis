@@ -25,11 +25,11 @@
 #include "DVTools/IPlotsManagerTool.h"
 
 // Get the ClassDef macros
-#include "Rtypes.h"
+//#include "Rtypes.h"
 
 // system
 #include<string>
-#include<unordered_set>
+#include<vector>
 
 // forward declarations
 class TList;
@@ -46,23 +46,30 @@ namespace DV
         public:
             // Constructor for standalone usage
             PlotsManagerTool(const std::string & name);
-            //virtual ~PlotsManager(){};
+            virtual ~PlotsManagerTool() = default;
 
             // Function initializing the tool
             StatusCode initialize();
 
             //! Initialize the output file
-            void bookFile(const std::string & name,const std::string & mode);
+            void bookFile(const std::string & name, const std::string & mode);
 
             //! wrappers to the ROOT Functions
-            template <class THist1Dim,typename TYPE>
-                THist1Dim * bookTH1(const char * name, const char * title,
-                    const int & xbin, const TYPE & xmin, const TYPE & xmax );
+            template <class THist1Dim>
+                THist1Dim * bookTH1(const std::string & name, const std::string & title,
+                    const int & xbins, const double & xmin, const double & xmax );
+            template <class THist1Dim>
+                THist1Dim * bookTH1(const std::string & name, const std::string & title,
+                    const int & xbins, const std::vector<double> & xbin_edges );
 
-            template <class THist2Dim,typename TYPE>
-                THist2Dim * bookTH2(const char * name, const char * title,
-                    const int & xbin, const TYPE & xmin, const TYPE & xmax,
-                    const int & ybin, const TYPE & ymin, const TYPE & ymax );
+            template <class THist2Dim>
+                THist2Dim * bookTH2(const std::string & name, const std::string & title,
+                    const int & xbins, const double & xmin, const double & xmax,
+                    const int & ybins, const double & ymin, const double & ymax );
+            template <class THist2Dim>
+                THist2Dim * bookTH2(const std::string & name, const std::string & title,
+                    const int & xbins, const std::vector<double> & xbin_edges,
+                    const int & ybins, const std::vector<double> & ybin_edges );
 
             //! keep track of the module which is going to use the plot manager
             //! to book its histos
@@ -70,11 +77,11 @@ namespace DV
             //! Store the histograms
             bool saveResults();
         private:
-            std::string m_outputFilename;
             std::string m_currentModule;
-            //std::unordered_set<std::string> m_histNames;
             TList * m_histList;
             TFile * m_outputfile; //!
+
+            inline void checkHistName(const std::string & hist_name) const;
 
             // this is needed to distribute the algorithm to the workers
             //ClassDef(PlotsManagerTool, 0);

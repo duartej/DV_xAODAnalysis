@@ -34,11 +34,11 @@ void DV::BasicPlots::bookHists(DV::PlotsManagerTool * plotmanager)
 {
     plotmanager->setCurrentModule("BasicPlots");
 
-    m_DVxy   = plotmanager->bookTH2<TH2F,float>("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
-    m_DVmass = plotmanager->bookTH1<TH1F,float>("DVmass","; m [GeV]",100,0.,20.);
+    m_DVxy   = plotmanager->bookTH2<TH2F>("DVxy","; x [mm]; y [mm]", 300,-300.,300.,300,-300.,300.);
+    m_DVmass = plotmanager->bookTH1<TH1F>("DVmass","; m [GeV]",100,0.,20.);
 
-    h_nTrkAssocVertAll = plotmanager->bookTH1<TH1D,double>("h_nTrkAssocVertAll","; nTrk",48,2,50);
-    h_DVmassVSnTrkAll  = plotmanager->bookTH2<TH2D,double>("h_DVmassVSnTrkAll","; nTrk; m_{DV} [GeV]",48,2,50,100,0,100);
+    h_nTrkAssocVertAll = plotmanager->bookTH1<TH1D>("h_nTrkAssocVertAll","; nTrk",48,2,50);
+    h_DVmassVSnTrkAll  = plotmanager->bookTH2<TH2D>("h_DVmassVSnTrkAll","; nTrk; m_{DV} [GeV]",48,2,50,100,0,100);
 }
 
 bool DV::BasicPlots::initialize()

@@ -1,13 +1,8 @@
 
-
 #include "DVTools/PlotsManagerTool.h"
 
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH1D.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TH2D.h"
+#include "TH1.h"
+#include "TH2.h"
 #include "TList.h"
 #include "TFile.h"
 #include "TObject.h"
@@ -19,95 +14,155 @@
 
 DV::PlotsManagerTool::PlotsManagerTool(const std::string & name):
     asg::AsgTool( name ),
-    m_histList(0)
+    m_histList(0),
+    m_outputfile(0)
 {
     m_histList = new TList();
-    declareProperty( "OutputFilename", m_outputFilename = "dv_histos.root" );
 }
 
-StatusCode DV::PlotsManagerTool::initialize() 
+StatusCode DV::PlotsManagerTool::initialize()
 {
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
-    ATH_MSG_DEBUG("OutputFilename = " << m_outputFilename );
+
     // Return gracefully:
     return StatusCode::SUCCESS;
 }
 
-
 void DV::PlotsManagerTool::bookFile(const std::string & outfilename, const std::string & mode)
 {
-    m_outputfile = TFile::Open(outfilename.c_str(),mode.c_str());
-    // FIXME: Check if it is oK!!
+    if(!m_outputfile)
+    {
+        m_outputfile = TFile::Open(outfilename.c_str(), mode.c_str());
+    }
+    else
+    {
+        std::string message("PlotsManagerTool ERROR: There is already an open output file!");
+        throw std::runtime_error(message);
+    }
 }
 
-template <class THist1Dim,typename TYPE>
-THist1Dim * DV::PlotsManagerTool::bookTH1(const char * name, const char * title,
-                    const int & xbin, const TYPE & xmin, const TYPE & xmax )
+void DV::PlotsManagerTool::checkHistName(const std::string & hist_name) const
 {
-    const std::string hname(std::string(name)+"_"+m_currentModule);
-    if( m_histList->FindObject(hname.c_str()) != 0 )
+    if( m_histList->FindObject(hist_name.c_str()) != 0 )
     {
-        std::string message("PlotsManagerTool ERROR: ""'"+std::string(name)+
-                "' already used name ... Please change the name of this histo!!");
-        throw std::runtime_error(message);//"Invalid histogram name");
+        std::string message("PlotsManagerTool ERROR: A histogram with name '" + hist_name +
+                "' already exists! Please change the name of this histo!");
+        throw std::runtime_error(message);
     }
-
-    m_histList->Add( new THist1Dim(hname.c_str(),title,xbin,xmin,xmax) );
-
-    return static_cast<THist1Dim*>(m_histList->Last());
 }
 
-template <class THist2Dim,typename TYPE>
-THist2Dim * DV::PlotsManagerTool::bookTH2(const char * name, const char * title,
-                    const int & xbin, const TYPE & xmin, const TYPE & xmax,
-                    const int & ybin, const TYPE & ymin, const TYPE & ymax )
+template <class THist1Dim>
+THist1Dim * DV::PlotsManagerTool::bookTH1(const std::string & name, const std::string & title,
+                    const int & xbins, const double & xmin, const double & xmax )
 {
-    const std::string hname(std::string(name)+"_"+m_currentModule);
-    // FIXME:: Not needed unordered_set, exist a TList::Find(const char *name) function
-    if( m_histList->FindObject(hname.c_str()) != 0 )
-    {
-        std::string message("PlotsManagerTool ERROR: ""'"+std::string(name)+
-                "' already used name ... Please change the name of this histo!!");
-        throw std::runtime_error(message);//"Invalid histogram name");
-    }
+    const std::string hname(name + "_" + m_currentModule);
+    checkHistName(hname);
 
-    m_histList->Add( new THist2Dim(hname.c_str(),title,xbin,xmin,xmax,ybin,ymin,ymax) );
+    auto hist = new THist1Dim(hname.c_str(), title.c_str(), xbins, xmin, xmax);
+    m_histList->Add(hist);
 
-    return static_cast<THist2Dim*>(m_histList->Last());
+    return hist;
+}
+
+template <class THist1Dim>
+THist1Dim * DV::PlotsManagerTool::bookTH1(const std::string & name, const std::string & title,
+                    const int & xbins, const std::vector<double> & xbin_edges )
+{
+    const std::string hname(name + "_" + m_currentModule);
+    checkHistName(hname);
+
+    auto hist = new THist1Dim(hname.c_str(), title.c_str(), xbins, &xbin_edges[0]);
+    m_histList->Add(hist);
+
+    return hist;
+}
+
+template <class THist2Dim>
+THist2Dim * DV::PlotsManagerTool::bookTH2(const std::string & name, const std::string & title,
+                    const int & xbins, const double & xmin, const double & xmax,
+                    const int & ybins, const double & ymin, const double & ymax )
+{
+    const std::string hname(name + "_" + m_currentModule);
+    checkHistName(hname);
+
+    auto hist = new THist2Dim(hname.c_str(), title.c_str(), xbins, xmin, xmax, ybins, ymin, ymax);
+    m_histList->Add(hist);
+
+    return hist;
+}
+
+template <class THist2Dim>
+THist2Dim * DV::PlotsManagerTool::bookTH2(const std::string & name, const std::string & title,
+                    const int & xbins, const std::vector<double> & xbin_edges,
+                    const int & ybins, const std::vector<double> & ybin_edges )
+{
+    const std::string hname(name + "_" + m_currentModule);
+    checkHistName(hname);
+
+    auto hist = new THist2Dim(hname.c_str(), title.c_str(), xbins, &xbin_edges[0], ybins, &ybin_edges[0]);
+    m_histList->Add(hist);
+
+    return hist;
 }
 
 // Declarations of used and valid specializations
-template TH1I * DV::PlotsManagerTool::bookTH1<TH1I,int>(const char * name, const char * title,
-        const int & xbin, const int & xmin, const int & xmax);
-template TH1F * DV::PlotsManagerTool::bookTH1<TH1F,float>(const char * name, const char * title,
-        const int & xbin, const float & xmin, const float & xmax);
-template TH1D * DV::PlotsManagerTool::bookTH1<TH1D,double>(const char * name, const char * title,
+template TH1C * DV::PlotsManagerTool::bookTH1<TH1C>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax);
+template TH1I * DV::PlotsManagerTool::bookTH1<TH1I>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax);
+template TH1F * DV::PlotsManagerTool::bookTH1<TH1F>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax);
+template TH1D * DV::PlotsManagerTool::bookTH1<TH1D>(const std::string & name, const std::string & title,
         const int & xbin, const double & xmin, const double & xmax);
 
-template TH2I * DV::PlotsManagerTool::bookTH2<TH2I,int>(const char * name, const char * title,
-        const int & xbin, const int & xmin, const int & xmax,
-        const int & ybin, const int & ymin, const int & ymax);
-template TH2F * DV::PlotsManagerTool::bookTH2<TH2F,float>(const char * name, const char * title,
-        const int & xbin, const float & xmin, const float & xmax,
-        const int & ybin, const float & ymin, const float & ymax);
-template TH2D * DV::PlotsManagerTool::bookTH2<TH2D,double>(const char * name, const char * title,
+template TH1C * DV::PlotsManagerTool::bookTH1<TH1C>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges);
+template TH1I * DV::PlotsManagerTool::bookTH1<TH1I>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges);
+template TH1F * DV::PlotsManagerTool::bookTH1<TH1F>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges);
+template TH1D * DV::PlotsManagerTool::bookTH1<TH1D>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges);
+
+template TH2C * DV::PlotsManagerTool::bookTH2<TH2C>(const std::string & name, const std::string & title,
         const int & xbin, const double & xmin, const double & xmax,
         const int & ybin, const double & ymin, const double & ymax);
+template TH2I * DV::PlotsManagerTool::bookTH2<TH2I>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax,
+        const int & ybin, const double & ymin, const double & ymax);
+template TH2F * DV::PlotsManagerTool::bookTH2<TH2F>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax,
+        const int & ybin, const double & ymin, const double & ymax);
+template TH2D * DV::PlotsManagerTool::bookTH2<TH2D>(const std::string & name, const std::string & title,
+        const int & xbin, const double & xmin, const double & xmax,
+        const int & ybin, const double & ymin, const double & ymax);
+
+template TH2C * DV::PlotsManagerTool::bookTH2<TH2C>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges,
+        const int & ybins, const std::vector<double> & ybin_edges);
+template TH2I * DV::PlotsManagerTool::bookTH2<TH2I>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges,
+        const int & ybins, const std::vector<double> & ybin_edges);
+template TH2F * DV::PlotsManagerTool::bookTH2<TH2F>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges,
+        const int & ybins, const std::vector<double> & ybin_edges);
+template TH2D * DV::PlotsManagerTool::bookTH2<TH2D>(const std::string & name, const std::string & title,
+        const int & xbins, const std::vector<double> & xbin_edges,
+        const int & ybins, const std::vector<double> & ybin_edges);
 
 bool DV::PlotsManagerTool::saveResults()
 {
     m_outputfile->cd();
-    
-    //TList * hists = this->getHists();
+
     TObject* h(0);
 
     TIter next(m_histList);
-    while( (h=next()) ) 
+    while( (h=next()) )
     {
         h->Write();
     }
-  
+
     m_outputfile->Close();
 
     // freeing memory
