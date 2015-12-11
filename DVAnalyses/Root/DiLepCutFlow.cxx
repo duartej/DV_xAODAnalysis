@@ -28,7 +28,7 @@ void DV::DiLepCutFlow::bookHists(PlotsManagerTool* pm)
 bool DV::DiLepCutFlow::initialize()
 {
     // configure EventCuts
-    DV::EventCuts* evtc = dynamic_cast<DV::EventCuts*>(&*m_evtc);
+    auto evtc = dynamic_cast<DV::EventCuts*>(&*m_evtc);
 
     std::string grl_file = "data15_13TeV.periodAllYear_DetStatus-v73-pro19-08_DQDefects-00-01-02_PHYS_StandardGRL_All_Good_25ns.xml";
     if(evtc->setProperty("GoodRunsListFile", grl_file).isFailure()) return false;
@@ -184,6 +184,7 @@ bool DV::DiLepCutFlow::finalize()
 
 void DV::DiLepCutFlow::assignCutsAndTools()
 {
+    // add DV tools
     m_toolnames.push_back("DV::DiLepCosmics/DiLepCosmics");
     m_toolnames.push_back("DV::DiLepDESD/DiLepDESD");
     m_toolnames.push_back("DV::DiLepDVCuts/DiLepDVCuts");

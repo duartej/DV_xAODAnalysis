@@ -29,7 +29,6 @@ DVEventLoop::DVEventLoop():
     // initialization code will go into histInitialize() and
     // initialize().
     m_analysisAlgs = new std::vector<DV::AlgBase*>;
-    //m_plotmanager  = new DV::PlotsManagerTool("PlotManagerTool");
 }
 
 DVEventLoop::~DVEventLoop()
@@ -124,8 +123,10 @@ EL::StatusCode DVEventLoop :: histInitialize ()
     // trees.  This method gets called before any input files are
     // connected.
 
+    // create analysis algorithms
     addAnalysisAlgs();
 
+    // print out analyses
     Info("histInitialize()","Scheduled %lu analysis algs:", m_analysisAlgs->size());
     std::string algList(" [");
     for(auto & algName : m_algNames)
@@ -249,7 +250,7 @@ EL::StatusCode DVEventLoop :: execute ()
     }
     ++m_eventCounter;
 
-    // execute all the event
+    // execute analyses
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
         if(!m_analysisAlgs->at(i)->execute(m_event))
@@ -282,6 +283,7 @@ EL::StatusCode DVEventLoop :: finalize ()
     // merged.  This is different from histFinalize() in that it only
     // gets called on worker nodes that processed input events.
 
+    // finalize analyses
     for(unsigned int i = 0; i < m_analysisAlgs->size(); ++i)
     {
         if(!m_analysisAlgs->at(i)->finalize())
