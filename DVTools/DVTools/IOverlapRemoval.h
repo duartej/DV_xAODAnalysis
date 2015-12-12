@@ -15,11 +15,11 @@ namespace DV
     {
         ASG_TOOL_INTERFACE(DV::IOverlapRemoval)
         public:
-            virtual void RemoveOverlap(const xAOD::ElectronContainer& elc,
-                                       const xAOD::MuonContainer& muc) const = 0;
-            virtual void RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
-                                            const xAOD::MuonContainer& muc,
-                                            const xAOD::TrackParticleContainer& trc) const = 0;
+            virtual void FindOverlap(const xAOD::ElectronContainer& elc,
+                                     const xAOD::MuonContainer& muc) const = 0;
+            virtual void FindLeptonTracks(const xAOD::ElectronContainer& elc,
+                                          const xAOD::MuonContainer& muc,
+                                          const xAOD::TrackParticleContainer& trc) const = 0;
 
             virtual bool IsOverlap(const xAOD::IParticle& p) const = 0;
             virtual bool IsLeptonTrack(const xAOD::TrackParticle& tr) const = 0;

@@ -49,10 +49,10 @@ namespace DV
             virtual ~PlotsManagerTool() = default;
 
             // Function initializing the tool
-            StatusCode initialize();
+            StatusCode initialize() override;
 
             //! Initialize the output file
-            void bookFile(const std::string & name, const std::string & mode);
+            void bookFile(const std::string & name, const std::string & mode) override;
 
             //! wrappers to the ROOT Functions
             template <class THist1Dim>
@@ -73,9 +73,10 @@ namespace DV
 
             //! keep track of the module which is going to use the plot manager
             //! to book its histos
-            void setCurrentModule(const std::string & name) { m_currentModule = name; };
+            void setCurrentModule(const std::string & name) override { m_currentModule = name; };
+
             //! Store the histograms
-            bool saveResults();
+            bool saveResults() override;
         private:
             std::string m_currentModule;
             TList * m_histList;

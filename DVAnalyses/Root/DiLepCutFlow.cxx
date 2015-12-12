@@ -93,7 +93,7 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
     auto muc_copy = xAOD::shallowCopyContainer(*muc);
 
     // decorate overlap
-    m_or->RemoveOverlap(*elc_copy.first, *muc_copy.first);
+    m_or->FindOverlap(*elc_copy.first, *muc_copy.first);
 
     // retrieve photons
     const xAOD::PhotonContainer* phc = nullptr;

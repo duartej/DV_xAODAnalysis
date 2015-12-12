@@ -18,8 +18,8 @@ StatusCode DV::OverlapRemoval::initialize()
     return StatusCode::SUCCESS;
 }
 
-void DV::OverlapRemoval::RemoveOverlap(const xAOD::ElectronContainer& elc,
-                                       const xAOD::MuonContainer& muc) const
+void DV::OverlapRemoval::FindOverlap(const xAOD::ElectronContainer& elc,
+                                     const xAOD::MuonContainer& muc) const
 {
     for(auto el1 = elc.cbegin(); el1 != elc.cend(); el1++)
     {
@@ -88,9 +88,9 @@ void DV::OverlapRemoval::RemoveOverlap(const xAOD::ElectronContainer& elc,
     }
 }
 
-void DV::OverlapRemoval::RemoveLeptonTracks(const xAOD::ElectronContainer& elc,
-                                            const xAOD::MuonContainer& muc,
-                                            const xAOD::TrackParticleContainer& trc) const
+void DV::OverlapRemoval::FindLeptonTracks(const xAOD::ElectronContainer& elc,
+                                          const xAOD::MuonContainer& muc,
+                                          const xAOD::TrackParticleContainer& trc) const
 {
     for(auto tr = trc.cbegin(); tr != trc.cend(); tr++)
     {

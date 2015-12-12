@@ -7,7 +7,6 @@
 // Tools
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "FourMomUtils/xAODP4Helpers.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigMuonMatching/TrigMuonMatching.h"
 

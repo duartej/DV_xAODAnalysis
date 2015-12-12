@@ -1,5 +1,7 @@
 #include "DVTools/TrigMatch.h"
 
+#include "FourMomUtils/xAODP4Helpers.h"
+
 #include "xAODEgamma/PhotonContainer.h"
 
 DV::TrigMatch::TrigMatch(const std::string& name) :
