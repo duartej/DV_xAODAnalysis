@@ -5,6 +5,7 @@
 
 #include "DVAnalyses/DiLepCutFlow.h"
 
+#include "DVCuts/DVCuts.h"
 #include "DVCuts/EventCuts.h"
 
 DV::DiLepCutFlow::DiLepCutFlow() :
@@ -34,6 +35,11 @@ bool DV::DiLepCutFlow::initialize()
     if(evtc->setProperty("GoodRunsListFile", grl_file).isFailure()) return false;
 
     evtc->SetTriggers({"HLT_g140_loose", "HLT_2g50_loose", "HLT_mu60_0eta105_msonly"});
+
+    // configure DVCuts
+    auto dvc = dynamic_cast<DV::DVCuts*>(&*m_dvc);
+
+    if(dvc->setProperty("MaterialMapFile", "materialMap3D.root").isFailure()) return false;
 
     return true;
 }

@@ -244,7 +244,8 @@ EL::StatusCode DVEventLoop :: execute ()
     // code will go.
 
     // print every 5% of processed events, so we know where we are:
-    if( (m_eventCounter % int(float(m_evtsMax)*0.05) ) == 0 )
+    int print_step = int(float(m_evtsMax)*0.05);
+    if( print_step == 0 || (m_eventCounter % print_step ) == 0 )
     {
         Info("execute()", "Event number = %lu", m_eventCounter );
     }
