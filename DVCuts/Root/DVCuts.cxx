@@ -15,11 +15,11 @@ DV::DVCuts::DVCuts(const std::string & name) :
     m_accMass("massPionHypo"),
     m_materialMap(nullptr)
 {
-    declareProperty("d0Max", m_d0Max = 300.0, "Fiducial cut for d0 [mm]");
-    declareProperty("z0Max", m_z0Max = 300.0, "Fiducial cut for z0, absolute value [z0]");
+    declareProperty("rDVMax", m_rDVMax = 300.0, "Fiducial cut for r_DV [mm]");
+    declareProperty("zDVMax", m_zDVMax = 300.0, "Fiducial cut for |z_DV| [mm]");
     declareProperty("chisqPerDofMax", m_chisqDof = 5.0, "Cut for chi^2 per degrees of freedom of DV fit");
-    declareProperty("distMin", m_distMin = 4.0, "Minimum distance of DV to all PVs in transverse plane");
-    declareProperty("DVMassMin", m_DVMassMin = 10.0, "Minimum mass of DV");
+    declareProperty("distMin", m_distMin = 4.0, "Minimum distance of DV to all PVs in transverse plane [mm]");
+    declareProperty("DVMassMin", m_DVMassMin = 10000.0, "Minimum mass of DV [MeV]");
     declareProperty("MaterialMapFile", m_mapFile = "", "Path to material map file");
 }
 
@@ -64,7 +64,7 @@ bool DV::DVCuts::PassFiducialCuts(const xAOD::Vertex& dv) const
 {
     Amg::Vector3D dv_pos = dv.position();
 
-    if(dv_pos.perp() > m_d0Max || std::fabs(dv_pos.z()) > m_z0Max)
+    if(dv_pos.perp() > m_rDVMax || std::fabs(dv_pos.z()) > m_zDVMax)
     {
         return false;
     }

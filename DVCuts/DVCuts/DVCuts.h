@@ -57,10 +57,10 @@ namespace DV
           bool PassVertexCuts(const xAOD::Vertex& dv, const xAOD::VertexContainer& pvc) const override;
 
       private:
-          //! fiducial cut for d0
-          float m_d0Max;
-          //! fiducial cut for z0
-          float m_z0Max;
+          //! fiducial cut for r_DV
+          float m_rDVMax;
+          //! fiducial cut for z_DV
+          float m_zDVMax;
           //! cut on fit quality
           float m_chisqDof;
           //! cut on distance in transverse plane
