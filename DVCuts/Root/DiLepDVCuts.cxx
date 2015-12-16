@@ -2,6 +2,8 @@
 
 #include<cmath>
 
+#include "xAODEgamma/ElectronxAODHelpers.h"
+
 DV::DiLepDVCuts::DiLepDVCuts(const std::string & name) :
     asg::AsgTool(name),
     m_desd("DV::DiLepDESD/DiLepDESD"),
@@ -67,19 +69,26 @@ void DV::DiLepDVCuts::ApplyLeptonMatching(xAOD::Vertex& dv,
     auto dv_muc = std::make_shared<xAOD::MuonContainer>(SG::VIEW_ELEMENTS);
     m_accMu(dv) = dv_muc;
 
-    // lepton matching
+    // lepton matching (temporary solution, better: pointer comparison...)
     for(const auto& trl: dv.trackParticleLinks())
     {
+        auto tr_p4 = (*trl)->p4();
+
         for(xAOD::Electron* el: elc)
         {
-            if((*trl) == m_ec->GetTrack(*el))
+            auto el_p4 = xAOD::EgammaHelpers::getOriginalTrackParticle(el)->p4();
+
+            if(tr_p4 == el_p4)
             {
                 dv_elc->push_back(el);
             }
         }
         for(xAOD::Muon* mu: muc)
         {
-            if((*trl) == m_mc->GetTrack(*mu))
+            const xAOD::TrackParticle* mu_idtr = m_mc->GetTrack(*mu);
+            if(mu_idtr == nullptr) continue;
+
+            if(tr_p4 == mu_idtr->p4())
             {
                 dv_muc->push_back(mu);
             }
@@ -211,6 +220,19 @@ DV::DiLepTypes DV::DiLepDVCuts::GetType(const xAOD::Vertex& dv) const
     }
 
     return DV::DiLepTypes::None;
+}
+
+std::string DV::DiLepDVCuts::GetTypeStr(const xAOD::Vertex& dv) const
+{
+    auto dv_type = GetType(dv);
+
+    switch(dv_type)
+    {
+        case DV::DiLepTypes::ee : return "ee";
+        case DV::DiLepTypes::em : return "em";
+        case DV::DiLepTypes::mm : return "mm";
+        default : return "";
+    }
 }
 
 bool DV::DiLepDVCuts::PassCentralEtaVeto(const xAOD::Vertex& dv) const

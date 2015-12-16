@@ -24,7 +24,7 @@
 
 namespace DV
 {
-    enum class DiLepTypes {None = 0, ee, em, mm};
+    enum class DiLepTypes {ee = 0, em, mm, None};
 
     class DiLepDVCuts : public asg::AsgTool, virtual public DV::IDiLepDVCuts
     {
@@ -53,7 +53,9 @@ namespace DV
 
             const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const override;
             const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const override;
+
             DV::DiLepTypes GetType(const xAOD::Vertex& dv) const override;
+            std::string GetTypeStr(const xAOD::Vertex& dv) const override;
 
             bool PassCentralEtaVeto(const xAOD::Vertex& dv) const override;
             bool PassChargeRequirement(const xAOD::Vertex& dv) const override;

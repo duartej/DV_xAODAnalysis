@@ -32,7 +32,9 @@ namespace DV
 
             virtual const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const = 0;
             virtual const std::shared_ptr<xAOD::MuonContainer> GetMu(const xAOD::Vertex& dv) const = 0;
+
             virtual DV::DiLepTypes GetType(const xAOD::Vertex& dv) const = 0;
+            virtual std::string GetTypeStr(const xAOD::Vertex& dv) const = 0;
 
             virtual bool PassCentralEtaVeto(const xAOD::Vertex& dv) const = 0;
             virtual bool PassChargeRequirement(const xAOD::Vertex& dv) const = 0;
