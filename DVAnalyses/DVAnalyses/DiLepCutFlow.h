@@ -5,7 +5,8 @@
 #ifdef ASGTOOL_STANDALONE
 
 // STL
-#include <cstdint>
+#include <string>
+#include <vector>
 
 // Tools
 #include "AsgTools/ToolHandle.h"
@@ -18,6 +19,9 @@
 #include "DVCuts/IDiLepDVCuts.h"
 #include "DVTools/IOverlapRemoval.h"
 #include "DVTools/IPhotonMatch.h"
+
+// forward declaration
+class TH1F;
 
 namespace DV
 {
@@ -41,9 +45,11 @@ namespace DV
             ToolHandle<DV::IOverlapRemoval> m_or; //!
             ToolHandle<DV::IPhotonMatch> m_phmatch; //!
 
-            std::uint64_t m_nevt_passed;
-            std::uint64_t m_nvx;
-            std::uint64_t m_nvx_passed;
+            std::vector<std::string> m_evt_bins;
+            std::vector<std::string> m_vx_bins;
+
+            TH1F* m_evt_hist;
+            TH1F* m_vx_hist;
 
             //ClassDef(DiLepCutFlow, 1);
     };

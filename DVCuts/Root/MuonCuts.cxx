@@ -25,7 +25,7 @@ StatusCode DV::MuonCuts::initialize()
 
     // configure muon identification
     ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
-                                            IntegerProperty("MuQuality", static_cast<int>(xAOD::Muon::VeryLoose))));
+                                            IntegerProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose))));
     // turn off cuts on si hits
     ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
                                             BooleanProperty("PixCutOff", true)));

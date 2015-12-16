@@ -1,12 +1,17 @@
 // To be used for RootCore ONLY
 #ifdef ASGTOOL_STANDALONE
 
+// ROOT
+#include "TH1F.h"
+
+// xAOD
 #include "xAODCore/ShallowCopy.h"
 
+// DV
 #include "DVAnalyses/DiLepCutFlow.h"
-
 #include "DVCuts/DVCuts.h"
 #include "DVCuts/EventCuts.h"
+#include "DVTools/PlotsManagerTool.h"
 
 DV::DiLepCutFlow::DiLepCutFlow() :
     m_evtc("DV::EventCuts/EventCuts"),
@@ -15,15 +20,53 @@ DV::DiLepCutFlow::DiLepCutFlow() :
     m_dilepdvc("DV::DiLepDVCuts/DiLepDVCuts"),
     m_or("DV::OverlapRemoval/OverlapRemoval"),
     m_phmatch("DV::PhotonMatch/PhotonMatch"),
-    m_nevt_passed(0),
-    m_nvx(0),
-    m_nvx_passed(0)
+    m_evt_hist(nullptr),
+    m_vx_hist(nullptr)
 {
     assignCutsAndTools();
 }
 
 void DV::DiLepCutFlow::bookHists(PlotsManagerTool* pm)
 {
+    pm->setCurrentModule("DiLep");
+
+    m_evt_bins.push_back("Initial events");
+    m_evt_bins.push_back("Event cleaning");
+    m_evt_bins.push_back("GRL");
+    m_evt_bins.push_back("Trigger");
+    m_evt_bins.push_back("Cosmics veto");
+    m_evt_bins.push_back("Primary vertex");
+
+    std::size_t n_evt_bins = m_evt_bins.size();
+
+    m_evt_hist = pm->bookTH1<TH1F>("evt_cuts", "", n_evt_bins, -0.5, n_evt_bins-0.5);
+    for(std::size_t i = 0; i < n_evt_bins; i++)
+    {
+        m_evt_hist->GetXaxis()->SetBinLabel(i+1, m_evt_bins.at(i).c_str());
+    }
+
+    m_vx_bins.push_back("Reco DV");
+    m_vx_bins.push_back("Fiducial acceptance");
+    m_vx_bins.push_back("DV displacement");
+    m_vx_bins.push_back("Fit quality");
+    m_vx_bins.push_back("Material veto");
+    m_vx_bins.push_back("Central track veto");
+    m_vx_bins.push_back("Lepton matching");
+    m_vx_bins.push_back("Lepton kinematics");
+    m_vx_bins.push_back("Lepton ID");
+    m_vx_bins.push_back("Overlap removal");
+    m_vx_bins.push_back("Trigger matching");
+    m_vx_bins.push_back("DESD offline cuts");
+    m_vx_bins.push_back("DV mass");
+    m_vx_bins.push_back("Opposite charge");
+
+    std::size_t n_vx_bins = m_vx_bins.size();
+
+    m_vx_hist = pm->bookTH1<TH1F>("vx_cuts", "", n_vx_bins, -0.5, n_vx_bins-0.5);
+    for(std::size_t i = 0; i < n_vx_bins; i++)
+    {
+        m_vx_hist->GetXaxis()->SetBinLabel(i+1, m_vx_bins.at(i).c_str());
+    }
 }
 
 bool DV::DiLepCutFlow::initialize()
@@ -46,7 +89,7 @@ bool DV::DiLepCutFlow::initialize()
 
 bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 {
-    m_eventCounter++;
+    m_evt_hist->Fill("Initial events", 1.);
 
     // retrieve event info
     const xAOD::EventInfo* ei = nullptr;
@@ -56,14 +99,17 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
         return false;
     }
 
-    // GRL
-    if(!m_evtc->PassGRL(*ei)) return true;
-
     // event cleaning
     if(!m_evtc->PassEventCleaning(*ei)) return true;
+    m_evt_hist->Fill("Event cleaning", 1.);
+
+    // GRL
+    if(!m_evtc->PassGRL(*ei)) return true;
+    m_evt_hist->Fill("GRL", 1.);
 
     // trigger check
     if(!m_evtc->PassTrigger()) return true;
+    m_evt_hist->Fill("Trigger", 1.);
 
     // retrieve leptons
     const xAOD::ElectronContainer* elc = nullptr;
@@ -79,8 +125,9 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
         return false;
     }
 
-    // cosmic veto
+    // cosmics veto
     if(!m_cos->PassCosmicEventVeto(*elc, *muc)) return true;
+    m_evt_hist->Fill("Cosmics veto", 1.);
 
     // retrieve PVs of event
     const xAOD::VertexContainer* pvc = nullptr;
@@ -91,8 +138,7 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
     }
 
     if(!m_evtc->PassPVCuts(*pvc)) return true;
-
-    m_nevt_passed++;
+    m_evt_hist->Fill("Primary vertex", 1.);
 
     // make copies of leptons
     auto elc_copy = xAOD::shallowCopyContainer(*elc);
@@ -125,48 +171,59 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 
     for(xAOD::Vertex* dv: *dvc_copy.first)
     {
-        m_nvx++;
+        m_vx_hist->Fill("Reco DV", 1.);
 
         // FIXME: better blinding :)
         if(!ei->eventType(xAOD::EventInfo::IS_SIMULATION)) continue;
 
         if(!m_dvc->PassFiducialCuts(*dv)) continue;
+        m_vx_hist->Fill("Fiducial acceptance", 1.);
 
         if(!m_dvc->PassDistCut(*dv, *pvc)) continue;
+        m_vx_hist->Fill("DV displacement", 1.);
 
         if(!m_dvc->PassChisqCut(*dv)) continue;
+        m_vx_hist->Fill("Fit quality", 1.);
 
         if(!m_dvc->PassMaterialVeto(*dv)) continue;
+        m_vx_hist->Fill("Material veto", 1.);
 
         if(!m_dilepdvc->PassCentralEtaVeto(*dv)) continue;
+        m_vx_hist->Fill("Central track veto", 1.);
 
         // perform lepton matching
         m_dilepdvc->ApplyLeptonMatching(*dv, *elc_copy.first, *muc_copy.first);
         if(!m_dilepdvc->PassNLeptons(*dv)) continue;
+        m_vx_hist->Fill("Lepton matching", 1.);
 
         // kinematic cuts
         m_dilepdvc->ApplyKinematics(*dv);
         if(!m_dilepdvc->PassNLeptons(*dv)) continue;
+        m_vx_hist->Fill("Lepton kinematics", 1.);
 
         // ID cuts
         m_dilepdvc->ApplyTightness(*dv);
         if(!m_dilepdvc->PassNLeptons(*dv)) continue;
+        m_vx_hist->Fill("Lepton ID", 1.);
 
         // overlap removal
         m_dilepdvc->ApplyOverlapRemoval(*dv);
         if(!m_dilepdvc->PassNLeptons(*dv)) continue;
+        m_vx_hist->Fill("Overlap removal", 1.);
 
         // trigger matching
         m_dilepdvc->DoTriggerMatching(*dv);
         if(!m_dilepdvc->PassTriggerMatching(*dv)) continue;
+        m_vx_hist->Fill("Trigger matching", 1.);
 
         if(!m_dilepdvc->PassDESDMatching(*dv)) continue;
+        m_vx_hist->Fill("DESD offline cuts", 1.);
 
         if(!m_dvc->PassMassCut(*dv)) continue;
+        m_vx_hist->Fill("DV mass", 1.);
 
         if(!m_dilepdvc->PassChargeRequirement(*dv)) continue;
-
-        m_nvx_passed++;
+        m_vx_hist->Fill("Opposite charge", 1.);
     }
 
     // delete copies
@@ -182,9 +239,6 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 
 bool DV::DiLepCutFlow::finalize()
 {
-    std::cout << "Events passed cutflow: " << m_nevt_passed << " / " << m_eventCounter << std::endl;
-    std::cout << "DVs passed cutflow: " << m_nvx_passed << " / " << m_nvx << std::endl;
-
     return true;
 }
 
