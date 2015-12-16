@@ -33,30 +33,31 @@ namespace DV
 #endif
             virtual ~AlgBase() = default;
 
-            //! book histograms at DVEventLoop::histInitialize
-            virtual void bookHists(PlotsManagerTool * pm) = 0;
-
 #ifdef ASGTOOL_ATHENA
             StatusCode initialize() override = 0;
             StatusCode execute() override = 0;
             StatusCode finalize() override = 0;
 #elif defined(ASGTOOL_STANDALONE)
+            //! book histograms at DVEventLoop::histInitialize
+            virtual void bookHists(PlotsManagerTool * pm) = 0;
+
             virtual bool initialize() = 0;
             virtual bool execute(xAOD::TEvent*) = 0;
             virtual bool finalize() = 0;
-#endif
 
             //! Return the concrete tool classes needed by the algorithm
             virtual std::vector<std::string> getToolNames() { return m_toolnames; };
+#endif
+
 
         protected:
+#ifdef ASGTOOL_STANDALONE
             //! Description of the cuts and tools which should be prepare for this algorithm
             virtual void assignCutsAndTools() = 0;
-#ifdef ASGTOOL_STANDALONE
             std::uint64_t m_eventCounter = 0;
-#endif
             //! tools to be used
             std::vector<std::string> m_toolnames;
+#endif
     };
 }
 #endif
