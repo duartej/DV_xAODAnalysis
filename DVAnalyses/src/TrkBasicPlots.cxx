@@ -74,6 +74,7 @@ StatusCode DV::TrkBasicPlots::initialize()
 
     // Cuts
     CHECK( m_dvcuts.retrieve() );
+    CHECK( m_dvcuts->initialize() );
 
     return StatusCode::SUCCESS;
 }
