@@ -2,6 +2,9 @@
 
 #include "TFile.h"
 #include "TH3C.h"
+#ifdef ASGTOOL_STANDALONE
+#include "TSystem.h"
+#endif
 
 #include "xAODTracking/VertexContainer.h"
 
@@ -31,6 +34,11 @@ StatusCode DV::DVCuts::initialize()
     }
     else
     {
+#ifdef ASGTOOL_STANDALONE
+        m_mapFile = "$ROOTCOREBIN/../DV_xAODAnalysis/DVAnalyses/data/" + m_mapFile;
+        m_mapFile = gSystem->ExpandPathName(m_mapFile.c_str());
+#endif
+
         TFile* mapFH = new TFile(m_mapFile.c_str(), "READ");
         if(mapFH->IsOpen())
         {
@@ -44,6 +52,8 @@ StatusCode DV::DVCuts::initialize()
             ATH_MSG_ERROR("Material map could not be loaded!");
             return StatusCode::FAILURE;
         }
+
+        ATH_MSG_INFO("Material map was successfully loaded!");
     }
 
     // Return gracefully:
@@ -85,6 +95,8 @@ bool DV::DVCuts::PassDistCut(const xAOD::Vertex& dv, const xAOD::VertexContainer
 
 bool DV::DVCuts::PassMaterialVeto(const xAOD::Vertex& dv) const
 {
+    if(!m_materialMap) return false;
+
     Amg::Vector3D dv_pos = dv.position();
 
     double rDV   = dv_pos.perp();
