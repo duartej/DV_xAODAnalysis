@@ -8,6 +8,7 @@ use AtlasPolicy 	        AtlasPolicy-*
 ## for gaudi tools, services and objects
 use AtlasROOT               AtlasROOT-*             External
 use AthAnalysisBaseComps    AthAnalysisBaseComps-*  Control
+use DVCuts                  DVCuts-*                DV_xAODAnalysis
 
 ## put here your package dependencies...
 
@@ -15,8 +16,10 @@ use AthAnalysisBaseComps    AthAnalysisBaseComps-*  Control
 private
 #use AthenaBaseComps AthenaBaseComps-*   Control
 use GaudiInterface  GaudiInterface-*    External
-#use xAODTracking    xAODTracking-*      Event/xAOD
+use xAODTracking    xAODTracking-*      Event/xAOD
+use xAODEventInfo   xAODEventInfo-*      Event/xAOD
 #use DVTools         DVTools-*           DV_xAODAnalysis
+
 # Added the pre-processor flag by hand, otherwise do not compile...
 # It should be automatized somehow..
 macro_append cppflags -DASGTOOL_ATHENA
