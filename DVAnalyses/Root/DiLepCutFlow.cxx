@@ -16,7 +16,7 @@
 DV::DiLepCutFlow::DiLepCutFlow() :
     m_evtc("DV::EventCuts/EventCuts"),
     m_cos("DV::DiLepCosmics/DiLepCosmics"),
-    m_dvc("DV::DVCuts/DVCuts"),
+    m_dvc("DV::DVCuts/DiLepBaseCuts"),
     m_dilepdvc("DV::DiLepDVCuts/DiLepDVCuts"),
     m_or("DV::OverlapRemoval/OverlapRemoval"),
     m_phmatch("DV::PhotonMatch/PhotonMatch"),
@@ -171,10 +171,13 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
 
     for(xAOD::Vertex* dv: *dvc_copy.first)
     {
-        m_vx_hist->Fill("Reco DV", 1.);
+        // perform lepton matching
+        m_dilepdvc->ApplyLeptonMatching(*dv, *elc_copy.first, *muc_copy.first);
 
-        // FIXME: better blinding :)
-        if(!ei->eventType(xAOD::EventInfo::IS_SIMULATION)) continue;
+        // perform blinding
+        if(m_dilepdvc->IsBlinded(*ei, *dv, *pvc)) continue;
+
+        m_vx_hist->Fill("Reco DV", 1.);
 
         if(!m_dvc->PassFiducialCuts(*dv)) continue;
         m_vx_hist->Fill("Fiducial acceptance", 1.);
@@ -191,8 +194,6 @@ bool DV::DiLepCutFlow::execute(xAOD::TEvent* evt)
         if(!m_dilepdvc->PassCentralEtaVeto(*dv)) continue;
         m_vx_hist->Fill("Central track veto", 1.);
 
-        // perform lepton matching
-        m_dilepdvc->ApplyLeptonMatching(*dv, *elc_copy.first, *muc_copy.first);
         if(!m_dilepdvc->PassNLeptons(*dv)) continue;
         m_vx_hist->Fill("Lepton matching", 1.);
 
@@ -248,7 +249,7 @@ void DV::DiLepCutFlow::assignCutsAndTools()
     m_toolnames.push_back("DV::DiLepCosmics/DiLepCosmics");
     m_toolnames.push_back("DV::DiLepDESD/DiLepDESD");
     m_toolnames.push_back("DV::DiLepDVCuts/DiLepDVCuts");
-    m_toolnames.push_back("DV::DVCuts/DVCuts");
+    m_toolnames.push_back("DV::DVCuts/DiLepBaseCuts");
     m_toolnames.push_back("DV::ElecCuts/DiLepElecCuts");
     m_toolnames.push_back("DV::EventCuts/EventCuts");
     m_toolnames.push_back("DV::MuonCuts/DiLepMuonCuts");

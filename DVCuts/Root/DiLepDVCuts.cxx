@@ -6,6 +6,7 @@
 
 DV::DiLepDVCuts::DiLepDVCuts(const std::string & name) :
     asg::AsgTool(name),
+    m_dvc("DV::DVCuts/DiLepBaseCuts"),
     m_desd("DV::DiLepDESD/DiLepDESD"),
     m_ec("DV::ElecCuts/DiLepElecCuts"),
     m_mc("DV::MuonCuts/DiLepMuonCuts"),
@@ -28,6 +29,11 @@ StatusCode DV::DiLepDVCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... ");
 
+    if(m_dvc.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Failed to retrieve DVCuts!");
+        return StatusCode::FAILURE;
+    }
     if(m_desd.retrieve().isFailure())
     {
         ATH_MSG_ERROR("Failed to retrieve DiLepDESD!");
@@ -148,6 +154,26 @@ void DV::DiLepDVCuts::ApplyTightness(const xAOD::Vertex& dv) const
         if(!m_mc->PassID(**mu)) muc->erase(mu);
         else mu++;
     }
+}
+
+bool DV::DiLepDVCuts::IsBlinded(const xAOD::EventInfo& ei,
+                                const xAOD::Vertex& dv,
+                                const xAOD::VertexContainer& pvc) const
+{
+    if(ei.eventType(xAOD::EventInfo::IS_SIMULATION)) return false;
+
+    // retrieve particles from vertex
+    auto elc = m_accEl(dv);
+    auto muc = m_accMu(dv);
+
+    if(elc && muc)
+    {
+        if((elc->size() + muc->size()) < 2) return false;
+        if(!m_dvc->PassMassCut(dv)) return false;
+        if(!m_dvc->PassDistCut(dv, pvc)) return false;
+    }
+
+    return true;
 }
 
 void DV::DiLepDVCuts::DoTriggerMatching(xAOD::Vertex& dv) const

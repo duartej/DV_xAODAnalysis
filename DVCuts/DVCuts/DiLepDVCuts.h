@@ -10,13 +10,15 @@
 #include "AsgTools/ToolHandle.h"
 
 // xAOD
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 // DV
 #include "DVCuts/IDiLepDESD.h"
 #include "DVCuts/IDiLepDVCuts.h"
+#include "DVCuts/IDVCuts.h"
 #include "DVCuts/IElecCuts.h"
 #include "DVCuts/IMuonCuts.h"
 #include "DVTools/IOverlapRemoval.h"
@@ -49,6 +51,10 @@ namespace DV
             void ApplyKinematics(const xAOD::Vertex& dv) const override;
             void ApplyTightness(const xAOD::Vertex& dv) const override;
 
+            bool IsBlinded(const xAOD::EventInfo& ei,
+                           const xAOD::Vertex& dv,
+                           const xAOD::VertexContainer& pvc) const override;
+
             void DoTriggerMatching(xAOD::Vertex& dv) const override;
 
             const std::shared_ptr<xAOD::ElectronContainer> GetEl(const xAOD::Vertex& dv) const override;
@@ -65,6 +71,7 @@ namespace DV
             bool PassDESDMatching(const xAOD::Vertex& dv) const override;
 
         private:
+            ToolHandle<DV::IDVCuts> m_dvc;
             ToolHandle<DV::IDiLepDESD> m_desd;
             ToolHandle<DV::IElecCuts> m_ec;
             ToolHandle<DV::IMuonCuts> m_mc;

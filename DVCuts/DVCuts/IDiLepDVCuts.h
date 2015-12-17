@@ -3,14 +3,16 @@
 
 // STL
 #include <memory>
+#include <string>
 
 // Framework includes
 #include "AsgTools/IAsgTool.h"
 
 // xAOD
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace DV
 {
@@ -27,6 +29,10 @@ namespace DV
             virtual void ApplyOverlapRemoval(const xAOD::Vertex& dv) const = 0;
             virtual void ApplyKinematics(const xAOD::Vertex& dv) const = 0;
             virtual void ApplyTightness(const xAOD::Vertex& dv) const = 0;
+
+            virtual bool IsBlinded(const xAOD::EventInfo& ei,
+                                   const xAOD::Vertex& dv,
+                                   const xAOD::VertexContainer& pvc) const = 0;
 
             virtual void DoTriggerMatching(xAOD::Vertex& dv) const = 0;
 
