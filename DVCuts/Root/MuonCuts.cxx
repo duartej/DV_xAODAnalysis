@@ -44,7 +44,7 @@ StatusCode DV::MuonCuts::initialize()
 
 #ifdef ASGTOOL_STANDALONE
     // configure muon identification
-    ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::VeryLoose)));
+    ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose)));
     // turn off cuts on si hits
     ATH_CHECK(mst->setProperty("PixCutOff", true));
     ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
