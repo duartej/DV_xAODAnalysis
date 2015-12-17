@@ -1,4 +1,4 @@
-## DV_xADOAnalysis: Analysis framework for Run 2 DV analysis 
+## DV_xAODAnalysis: Analysis framework for Run 2 DV analysis 
 
 Dual-use framework intended for the multi-track and dilepton 
 displaced-vertices analyses in ATLAS. The framework is able 
