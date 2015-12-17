@@ -34,5 +34,8 @@ apply_pattern dual_use_library files="*.cxx ../Root/AlgBase.cxx components/*.cxx
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
+# executable
+apply_pattern declare_scripts files="../utils/dvAnaSkeleton ../utils/dvToolSkeleton"
+
 
 
