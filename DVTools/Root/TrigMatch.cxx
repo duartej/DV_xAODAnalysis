@@ -41,7 +41,11 @@ bool DV::TrigMatch::Match(const xAOD::Egamma& eg, const std::string& trigger) co
     // adapted from: TrigEgammaMatchingTool::matchHLT
 
     Trig::FeatureContainer fc = m_tdt->features(trigger);
+#ifdef ASGTOOL_ATHENA
     const auto vec = fc.get<xAOD::PhotonContainer>("egamma_Photons");
+#elif defined(ASGTOOL_STANDALONE)
+    const auto vec = fc.containerFeature<xAOD::PhotonContainer>("egamma_Photons");
+#endif
 
     for(const auto& feat: vec)
     {
