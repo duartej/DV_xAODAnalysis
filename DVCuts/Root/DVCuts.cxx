@@ -23,6 +23,11 @@ DV::DVCuts::DVCuts(const std::string & name) :
     declareProperty("MaterialMapFile", m_mapFile = "", "Path to material map file");
 }
 
+DV::DVCuts::~DVCuts()
+{
+    delete m_materialMap;
+}
+
 StatusCode DV::DVCuts::initialize()
 {
     // Greet the user:
@@ -46,6 +51,7 @@ StatusCode DV::DVCuts::initialize()
             if(m_materialMap) m_materialMap->SetDirectory(0);
         }
         mapFH->Close();
+        delete mapFH;
 
         if(m_materialMap == nullptr)
         {
