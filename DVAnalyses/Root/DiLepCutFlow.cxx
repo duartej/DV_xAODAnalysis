@@ -14,7 +14,7 @@
 #include "DVTools/PlotsManagerTool.h"
 
 DV::DiLepCutFlow::DiLepCutFlow() :
-    m_evtc("DV::EventCuts/EventCuts"),
+    m_evtc("DV::EventCuts/DiLepEventCuts"),
     m_cos("DV::DiLepCosmics/DiLepCosmics"),
     m_dvc("DV::DVCuts/DiLepBaseCuts"),
     m_dilepdvc("DV::DiLepDVCuts/DiLepDVCuts"),
@@ -245,14 +245,16 @@ bool DV::DiLepCutFlow::finalize()
 
 void DV::DiLepCutFlow::assignCutsAndTools()
 {
-    // add DV tools
+    // add analysis specific DV tools
     m_toolnames.push_back("DV::DiLepCosmics/DiLepCosmics");
     m_toolnames.push_back("DV::DiLepDESD/DiLepDESD");
     m_toolnames.push_back("DV::DiLepDVCuts/DiLepDVCuts");
     m_toolnames.push_back("DV::DVCuts/DiLepBaseCuts");
     m_toolnames.push_back("DV::ElecCuts/DiLepElecCuts");
-    m_toolnames.push_back("DV::EventCuts/EventCuts");
+    m_toolnames.push_back("DV::EventCuts/DiLepEventCuts");
     m_toolnames.push_back("DV::MuonCuts/DiLepMuonCuts");
+
+    // add generic DV tools which can be shared between analyses
     m_toolnames.push_back("DV::OverlapRemoval/OverlapRemoval");
     m_toolnames.push_back("DV::PhotonMatch/PhotonMatch");
     m_toolnames.push_back("DV::TrigMatch/TrigMatch");
