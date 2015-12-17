@@ -10,3 +10,6 @@ cleanup.*
 Makefile
 genConf
 xAODTracking
+*.in
+*.stamp
+*.make*
