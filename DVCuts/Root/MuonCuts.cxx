@@ -120,6 +120,12 @@ bool DV::MuonCuts::PassID(const xAOD::Muon& mu) const
 
 bool DV::MuonCuts::IsPreRetracking(const xAOD::Muon& mu) const
 {
-    // FIXME: find some clever way to do it
-    return false;
+    /*const xAOD::TrackParticle* mu_tr = GetTrack(mu);
+    if(mu_tr)
+    {
+        auto tr_pattern = mu_tr->patternRecoInfo();
+        if(tr_pattern.test(xAOD::SiSpacePointsSeedMaker_LargeD0)) return false;
+    }*/
+
+    return true;
 }

@@ -113,6 +113,12 @@ bool DV::ElecCuts::PassID(const xAOD::Electron& el) const
 
 bool DV::ElecCuts::IsPreRetracking(const xAOD::Electron& el) const
 {
-    // FIXME: find some clever way to do it
-    return false;
+    /*const xAOD::TrackParticle* el_tr = GetTrack(el);
+    if(el_tr)
+    {
+        auto tr_pattern = el_tr->patternRecoInfo();
+        if(tr_pattern.test(xAOD::SiSpacePointsSeedMaker_LargeD0)) return false;
+    }*/
+
+    return true;
 }
