@@ -1,0 +1,476 @@
+#!/usr/bin/env python
+"""
+.. script: dvAnaSkeleton -- Analysis skeleton creator, in standalone and athena modes
+=====================================================================================
+   :platform: Unix
+      :synopsis: Creates analysis skeletons in compliance with the DV_xAODAnalysis
+                 package. Header and implementation files are created and the 
+                 obvious modifications needed to compile the new script are done.
+    .. scriptauthor:: Jordi Duarte-Campderros <jorge.duarte.campderros@cern.ch>
+"""
+
+### HELPER classes 
+from abc import ABCMeta
+from abc import abstractmethod
+
+class dvclass(object):
+    """Abstract class intented to define a given C++ object class inside
+    a DV_xAODAnalysis package. The concrete classes are defined depending
+    the subpackage they belong. 
+    
+    Note that the class do not perform any check regarding the validity of
+    creating or not this new C++ object, this should be done by the user and
+    report it in the instantiation of the class (`is_new` argument).
+    However, if an existing C++ object already exists, the class is not 
+    going to remove it, eventually an error will appear.
+
+    Pure abstract methods 
+    ---------------------
+     * create_header
+     * create_impl
+        
+    Attributes
+    ----------
+    class_name: str
+        the name of the C++ class object
+    sub_pkg: str
+        the name of the DV_xAODAnalysis sub-package
+    based_on: str
+        the framework: standalone, athena or dual-use
+    src_dvpkg_path: str
+        the top folder of the DV_xAODAnalysis package
+    header_file: str
+        the absolute path of the header file
+    src_file: str
+        the absolute path of the implementation file
+    is_brand_new: bool
+        whether or not the class should be created or is already present
+        in the framework
+    tool_deps: list(tool)
+        the list of tools (DVTools) the C++ object uses
+    cut_deps: list(cut)
+        the list of cuts (DVCuts) the C++ object uses
+    header: str
+        the header code. Note that the attribute is pre-formatted and in 
+        order to be filled must be used with the str method/ There is 
+        one allowed argument for format and should be filled with the body
+        of the file
+    impl: str
+        the implementation code. This attribute is pre-formatted (see
+        header attribute description)
+    """
+
+    __metaclass__ = ABCMeta
+    def __init__(self,class_name,based_on,dvpkgpath,is_new=True):
+        """DV_xAODAnalysis C++ class with header and implementation files
+        skeletons.
+
+        Parameters
+        ----------
+        class_name: str
+            the name of the newly created C++ class object
+        based_on: str
+            the framework: standalone, athena or dual-use
+        
+        """
+        import os
+
+        # --- aux function: name of the class, sub-package
+        message = lambda datamember,name: "\033[1;31mdvclass ERROR\033[1;m: "\
+                "Invalid {0}: '{1}'".format(datamember,name)
+        # instantiations
+        # ---- identification data-members
+        self.class_name = class_name
+                
+        if based_on not in ['standalone', 'athena', 'dual-use']:
+            message = "\033[1;31mdvclass ERROR\033[1;m: Invalid "\
+                    "{0}: '{1}'".format(datamember,name)
+            raise RuntimeError(message('based-on',based_on))
+        self.based_on   = based_on 
+        # --- setting the paths for the files
+        self.dvpkg_path = dvpkgpath
+        self.header_file = os.path.join(self.dvpkg_path,
+                '{0}/{0}/{1}.h'.format(self.sub_pkg,self.class_name))
+        # --- the source directory 
+        if self.based_on in ['standalone', 'dual-use']:
+            src_file_rel = 'Root/{0}.cxx'.format(self.class_name)
+        else:
+            src_file_rel = 'src/{0}.cxx'.format(self.class_name)
+        self.src_file= os.path.join(self.dvpkg_path,src_file_rel)
+
+        self.is_brand_new = is_new
+
+        # --- some data-members defined depending the object mode
+        if self.is_brand_new:
+            # --- the skeletons,
+            header_doc = self.__header_common()
+
+            self.header = header_doc+"#ifdef DV_"+self.class_name.upper()+\
+                    "_H\n{0}\n\n#endif "
+            self.header+= "   // DV_"+self.class_name.upper()+"_H\n"
+            # header format 0: sub-package, 1: class_name, 2: source folder, 
+            #               3: author,  4: creation data, 5: email, 6: body
+
+            self.impl = "// File automaticaly created by dvAnSkeleton utility\n"
+            self.impl+= "// "+self.class_name+".cxx\n\n{0}"
+        
+        self.tool_deps = []
+        self.cuts_deps = []
+        if not self.is_brand_new and self.based_on != 'athena':
+            # -- dependencies in the file
+            self.tool_deps = self.get_dependencies('DVTools')
+            self.cut_deps  = self.get_dependencies('DVCuts')
+
+    def __header_common(self):
+        """Helper method creating a common header and pre-format the header file
+        """
+        from time import gmtime,strftime
+        import os 
+        import pwd
+
+        pre_header_doc = "// -*- C++ -*-"
+        pre_header_doc +="\n// File automaticaly created by dvAnSkeleton utility"
+        pre_header_doc +="\n//"
+        pre_header_doc +="\n// Package:    DV_xAODAnalysis/{0}"
+        pre_header_doc +="\n// Class:      {1}"
+        pre_header_doc +="\n//"
+        pre_header_doc +="\n/**\class {1} {1}.h DV_xAODAnalysis/{0}/{2}/{1}.cxx"
+        pre_header_doc +="\n Description: // --> Add brief description of the class"
+        pre_header_doc +="\n      Implementation: // --> Add brief implementation details"
+        pre_header_doc +="\n*/"
+        pre_header_doc +="\n//"
+        pre_header_doc +="\n// Original Author: {3}"
+        pre_header_doc +="\n//         created: {4}"
+        pre_header_doc +="\n//"
+        pre_header_doc +="\n// {5}"
+
+        user_name = pwd.getpwuid(os.getuid())[4].strip(',')
+        header_doc = pre_header_doc.format(self.sub_pkg,self.class_name, 
+                self.src_file.split('/')[-2],
+                user_name,
+                strftime("%a %b %d  %H:%M:%S %Z %Y",gmtime()),
+                user_name.lower().replace(' ','.')+"@cern.ch" # just guessing FIXME with phonebook
+                )
+        # prepare the body 
+        header_doc +="\n//"
+        header_doc +="\n//"
+        header_doc +="\n\n"
+
+        return header_doc
+
+    @abstractmethod
+    def create_header(self,tools,cuts):
+        raise NotImplementedError("Class '{0}' doesn't implement "\
+                "created_header()".format(self.__class__.__name__))
+
+    @abstractmethod
+    def create_impl(self,tools,cuts):
+        raise NotImplementedError("Class '{0}' doesn't implement "\
+                "created_impl()".format(self.__class__.__name__))
+    
+    def get_dependencies(self,sub_pkg):
+        """Find all the classes belonging to the DV_xAODAnalysis package
+        which are instantiated in this class.
+
+        sub_pkg: str, the name of the DV_xAODAnalysis sub-package where to
+            look for dependencies
+        """
+        # --- open the header to check the includes: assuming the includes have
+        # --- the standard notation #include"sub_pkg/whatever_class.h"
+        with open(self.header_file) as f:
+            lines = f.readlines()
+        f.close()
+
+        dependencies = map(lambda x: x.split("/")[-1].split('.')[0],
+                filter(lambda x: x.find('#include') != -1 and x.find(sub_pkg) != -1,lines))
+
+        return dependencies
+        
+
+# ------------ Concrete dvclass
+class analysis(dvclass):
+    """
+    """
+    def __init__(self,class_name,based_on,dvpkg_path,is_new):
+        """
+        """
+        # determine the sub-package before intialize the abstract
+        self.sub_pkg = 'DVAnalyses'
+        super(analysis,self).__init__(class_name,based_on,dvpkg_path,is_new)
+    
+    def create_header(self,tools,cuts):
+        """
+        """
+        includes = '\n\n#include "DVAnalyses/AlgBase.h"\n'
+        # tools/cuts 
+        if len(tools) > 0:
+            includes += '\n// TOOLS used\n'
+        for _t in tools:
+            includes += '#include "DVTools/{0}.h"\n'.format(_t)
+        if len(cuts) > 0:
+            includes += '\n// CUTS used\n'
+        for _c in cuts:
+            includes += '#include "DVCuts/{0}.h"\n'.format(_c)
+
+        includes+= '\nnamespace DV\n'
+        includes+= '{\n'+' '*4+'class {0} : public AlgBase\n'.format(self.class_name)
+        includes+= ''
+
+        final_header = self.header.format(includes)
+
+        print final_header
+
+    def create_impl(self,tools,cuts):
+        print self.impl
+
+class tool(dvclass):
+    """
+    """
+    def __init__(self,class_name,dvpkg_path,is_new):
+        """
+        """
+        # determine the sub-package before intialize the abstract
+        self.sub_pkg = 'DVTools'
+        super(tool,self).__init__(class_name,'dual-use',dvpkg_path,is_new)
+    
+    def create_header(self):
+        """
+        """
+        import sys
+        if self.is_brand_new:
+            print "\033[1;33m]mdvAnaSkeleton WARNING\033[1;m: "\
+                "Functionality not implemented yet. Exiting..."
+            sys.exit(0)
+        else: 
+            # --- NOT NEEDED
+            return 
+
+    def create_impl(self):
+        """
+        """
+        import sys
+        if self.is_brand_new:
+            print "\033[1;33m]mdvAnaSkeleton WARNING\033[1;m: "\
+                "Functionality not implemented yet. Exiting..."
+            sys.exit(0)
+        else: 
+            # --- NOT NEEDED
+            return 
+
+class cut(dvclass):
+    """
+    """
+    def __init__(self,class_name,dvpkg_path,is_new):
+        """
+        """
+        # determine the sub-package before intialize the abstract
+        self.sub_pkg = 'DVCuts'
+        super(cut,self).__init__(class_name,'dual-use',dvpkg_path,is_new)
+    
+    def create_header(self):
+        import sys
+        if self.is_brand_new:
+            print "\033[1;33m]mdvAnaSkeleton WARNING\033[1;m: "\
+                "Functionality not implemented yet. Exiting..."
+            sys.exit(0)
+        else: 
+            # --- NOT NEEDED
+            return 
+
+    def create_impl(self):
+        import sys
+        if self.is_brand_new:
+            print "\033[1;33m]mdvAnaSkeleton WARNING\033[1;m: "\
+                "Functionality not implemented yet. Exiting..."
+            sys.exit(0)
+        else: 
+            # --- NOT NEEDED
+            return 
+
+def get_dvpkg_folder():
+    """Get the absolute path of DV_xAODAnalysis package in this system
+
+    Return
+    ------
+    the absolute path where the folder is on top
+    """
+    import os
+    
+    PKG = 'DV_xAODAnalysis'
+    # -- use the real-path (resolved links), to find the path 
+    #    of the DV_xAODAnalysis package
+    script_location = os.path.realpath(__file__)
+    try:
+        pkg_top_folder = script_location.split(PKG)[0]+PKG
+    except IndexError:
+        raise RuntimeError("\033[1;31m]mdvAnaSkeleton ERROR\033[1;: "\
+                "Unexpected Error! This script seems to not belong to the "\
+                "DV_xAODAnalysis package. Contact developers")
+
+    return pkg_top_folder
+
+
+def available_classes(folder,abspath=None):
+    """Obtain the name of the c++ classes defined inside a sub-package
+
+    Parameters
+    ----------
+    folder: str
+        the name of the package
+    abspath: str, optional
+        the absolute path where find the top directory of the package
+
+    Return
+    ------
+    athenaclasses,rootcoreclasses: list(str),list(str)
+        class names of the athena-based and RootCore
+    """
+    import os
+    import glob
+    
+    pkg_top_folder = get_dvpkg_folder()
+    # No need to check the folder (checked in the try-except)
+    # -- Get the subpackage folder and get all the available classes
+    subpkg_folder = os.path.join(pkg_top_folder,folder)
+    if not os.path.exists(subpkg_folder):
+        raise RuntimeError("\033[1;31mdvAnaSkeleton ERROR\033[1;m: "\
+                " There is no sub-package '{0}' in DV_xAODAnalysis".format(folder))
+    # assuming same interface folder name than the sub-package (warning, no checks)
+    interface_folder = os.path.join(subpkg_folder,folder)
+    classlist = [ os.path.basename(s).replace('.h','') for s in glob.glob(interface_folder+'/*.h') ]
+    # remove classes which have the abstract interface?
+
+    #athena only
+    src_folder = os.path.join(subpkg_folder,'src')
+    cls_in_src =  map(lambda x: os.path.basename(x).split('.c')[0],
+            glob.glob(src_folder+'/*.c*'))
+    # allowing the interfaces (IClassName), not present in the sources
+    athenaclasses = filter(lambda x: (x in cls_in_src) or x[1:] in cls_in_src, 
+            classlist)
+    
+    # standanlone and dual-use
+    root_folder = os.path.join(subpkg_folder,'Root')
+    cls_in_root =  map(lambda x: os.path.basename(x).split('.c')[0],
+            glob.glob(root_folder+'/*.c*'))
+    # allowing the interfaces (IClassName), not present in the sources
+    rootcoreclasses = filter(lambda x: x in cls_in_root or x[1:] in cls_in_root,
+            classlist)
+    
+    return athenaclasses,rootcoreclasses
+
+
+def main(name,mode,tools,cuts):
+    """Steering function to create the skeleton of an analysis
+
+    """
+    # aux function: name of the class, sub-package
+    message = lambda classname,existence,pkg: "\033[1;31mdvAnaSkeleton ERROR\033[1;m: "\
+            "the '{0}' {1} {2} in the framework!".format(classname,pkg,existence)
+
+    # Analysis classes (athena,rootcore)
+    analyses_ath,analyses_rc = available_classes('DVAnalyses')
+    if name in analyses_ath+analyses_rc:
+        raise RuntimeError(message(name,'already exists','analysis'))
+    # Top package folder
+    dvpkg_folder = get_dvpkg_folder()
+    # create analysis instance
+    new_analysis = analysis(name,mode,dvpkg_folder,True)
+
+    # get the needed tools and instantiate them (remember, dual-use)
+    _dummy,extratoolnames = available_classes("DVTools")
+    toolinstances = []
+    for _tool in tools:
+        if _tool not in extratoolnames:
+            raise RuntimeError(message(_tool,'does not exist','tool'))
+        # Create the classes
+        toolinstances.append(tool(_tool,dvpkg_folder,False))
+    
+    # get the needed cuts and instantiate them
+    _dummy,extracutnames = available_classes("DVCuts")
+    cutinstances = []
+    for _cut in cuts:
+        if _cut not in extracutnames:
+            raise RuntimeError(message(_cut,'does not exist','cut'))
+        # Create the classes
+        cutinstances.append(cut(_cut,dvpkg_folder,False))
+
+    # All checks succeed, create the files
+    new_analysis.create_header(tools,cuts)
+    new_analysis.create_impl(tools,cuts)
+
+    # Send some info to the user:
+
+
+
+if __name__ == '__main__':
+    from argparse import ArgumentParser
+    import os
+    
+    usage  ="Creates analysis skeletons in standalone or athena-base mode. "
+    usage +="The obvious modifications allowing to compile the Analysis "
+    usage +="subpackage with the newly created analysis are included as well. "
+
+    parser = ArgumentParser(prog='dvAnaSkeleton',description=usage)
+    #parser.set_defaults(do_prefit=False,suffix='png')
+    parser.add_argument( "-t","--tools",action='store',dest='tools',\
+            help="Comma separated list of class names of the tools (directly) "\
+            "used (from Tools subpackage)",metavar="TOOLNAME1[,TN2,...]")
+    parser.add_argument( "-c","--cuts",action='store',dest='cuts',\
+            help="Comma separated list of class names of the cuts (directly) "\
+            "used (from Cuts subpackage)",metavar="CUTNAME1[,CN2,...]")
+    
+    # Sub-command parsers
+    subparsers = parser.add_subparsers(title='subcommands',
+            description='valid subcommands', 
+            help='"dvAnaSkeleton subcommand -h" for additional help')
+
+    # standalone-based
+    parser_sa = subparsers.add_parser("standalone",help="Standalone "\
+            "mode, using RootCore setup")
+    parser_sa.set_defaults(which='standalone')
+    parser_sa.add_argument( "-t","--tools",action='store',dest='tools',\
+            help="Comma separated list of class names of the tools (directly) "\
+            "used (from Tools subpackage)",metavar="TOOLNAME1[,TN2,...]")
+    parser_sa.add_argument( "-c","--cuts",action='store',dest='cuts',\
+            help="Comma separated list of class names of the cuts (directly) "\
+            "used (from Cuts subpackage)",metavar="CUTNAME1[,CN2,...]")
+    parser_sa.add_argument('name',type=str,action='store',\
+            metavar='AnalysisClassName',
+            help="Name of the analysis class")
+    #parser_sa.add_argument( "-m","--models",action='store',dest='models',\
+    #        metavar="COMPONENT1:MODEL1[,COMPONENT2:MODEL2,...]",
+    #        help="Name of the model(s) to be used (must exist at dVAnUtils.pdfmodels)"\
+    #                " [bkg:negative_binomial_pdf_conditional,"\
+    #                "sig:negative_binomial_sum_pdf_conditional]")
+    
+    # athena-base
+    parser_ath = subparsers.add_parser("athena",help="Athena-base mode, "\
+            "using AthAnalysisBase setup")
+    parser_ath.set_defaults(which='athena')
+    parser_ath.add_argument( "-t","--tools",action='store',dest='tools',\
+            help="Comma separated list of class names of the tools (directly) "\
+            "used (from Tools subpackage)",metavar="TOOLNAME1[,TN2,...]")
+    parser_ath.add_argument( "-c","--cuts",action='store',dest='cuts',\
+            help="Comma separated list of class names of the cuts (directly) "\
+            "used (from Cuts subpackage)",metavar="CUTNAME1[,CN2,...]")
+    parser_ath.add_argument('name',type=str,action='store',\
+            metavar='AnalysisClassName',
+            help="Name of the analysis class")
+    #parser_ath.set_defaults(which='finder',model='negative_binomial_pdf',dataname='dvsig_ntracks')
+    args = parser.parse_args()
+    
+    # Parse the main options
+    tools = []
+    if args.tools:
+        for t in args.tools.split(','):
+            tools.append(t)
+    cuts = []
+    if args.cuts:
+        for c in args.cuts.split(','):
+            cuts.append(c)
+    
+    # trigger the steering function
+    main(args.name,args.which,tools,cuts)
+
+
+
