@@ -50,6 +50,11 @@ class dvclass(object):
     is_brand_new: bool
         whether or not the class should be created or is already present
         in the framework
+    is_interface: bool
+        whether of not is an interface (with no src file)
+    lowest_class_name: str
+        the name of the concrete class if is_interface is True.
+        Eventually it means to get rid of the initial I
     tool_deps: list(tool)
         the list of tools (DVTools) the C++ object uses
     cut_deps: list(cut)
@@ -101,8 +106,18 @@ class dvclass(object):
         else:
             src_file_rel = 'src/{0}.cxx'.format(self.class_name)
         self.src_file= os.path.join(self.dvpkg_path,src_file_rel)
-
+        
         self.is_brand_new = is_new
+        # when is an existing class, if there is no src file means
+        # the class is an interface
+        self.is_interface = False
+        if not self.is_brand_new:
+            if not os.path.exists(self.src_file):
+                self.src_file = None
+                self.is_interface = True
+                # Get the name of the concrete class, 
+                # IClassName -> ClassName
+                self.lowest_class_name = self.class_name[1:]
 
         # --- some data-members defined depending the object mode
         if self.is_brand_new:
@@ -168,7 +183,7 @@ class dvclass(object):
                 "created_header()".format(self.__class__.__name__))
 
     @abstractmethod
-    def create_impl(self,tools,cuts):
+    def create_impl(self,tools):
         raise NotImplementedError("Class '{0}' doesn't implement "\
                 "created_impl()".format(self.__class__.__name__))
     
@@ -202,7 +217,7 @@ class analysis(dvclass):
         self.sub_pkg = 'DVAnalyses'
         super(analysis,self).__init__(class_name,based_on,dvpkg_path,is_new)
     
-    def create_header(self,tools,cuts):
+    def create_header(self,tools):
         """
         """
         # include header files
@@ -211,13 +226,10 @@ class analysis(dvclass):
         if len(tools+cuts) > 0:
             header += '\n#include "AsgTools/ToolHandle.h"\n'
         if len(tools) > 0:
-            header += '\n// TOOLS used\n'
+            header += '\n// TOOLS and CUTS used\n'
         for _t in tools:
-            header += '#include "DVTools/{0}.h"\n'.format(_t)
-        if len(cuts) > 0:
-            header += '\n// CUTS used\n'
-        for _c in cuts:
-            header += '#include "DVCuts/{0}.h"\n'.format(_c)
+            print type(_t)
+            header += '#include "{0}/{1}.h"\n'.format(_t.sub_pkg,_t.class_name)
 
         header+= '\nnamespace DV\n'
         header+= '{0}\n{1}class {2} : public AlgBase\n'.format('{',INDENT,self.class_name)
@@ -245,18 +257,18 @@ class analysis(dvclass):
         if self.based_on == 'standalone':
             header += '{0}{0}{0}void assignCutsAndTools() override;\n'.format(INDENT)
 
-        if len(tools+cuts) > 0:
+        if len(tools) > 0:
             header += '\n'
-            for _obj in tools+cuts:
+            for _obj in tools:
                 header += '{0}{0}{0}ToolHandle<{1}> m_{2};\n'.format(INDENT,
-                        _obj,_obj.lower())
+                        _obj.class_name,_obj.class_name.lower())
         # closing...
         header += '{0}{1};\n{1}\n'.format(INDENT,'}')
 
         return self.header.format(header)
 
     
-    def create_impl(self,tools,cuts):
+    def create_impl(self,tools):
         """
         """
         # -- the header
@@ -269,13 +281,13 @@ class analysis(dvclass):
             pre_source += constructor.format(self.class_name,
                     'const std::string & name, ISvcLocator * pSvcLocator')
             pre_source += ':\n{0}DV::AlgBase(name,pSvcLocator),\n'.format(INDENT)
-        if len(tools+cuts) > 0 and self.based_on == 'standalone':
+        if len(tools) > 0 and self.based_on == 'standalone':
                 pre_source += ':\n'
         # -- initializations of tools
-        for _t in tools+cuts:
+        for _t in tools:
             pre_source += '{0}m_{1}("DV::{2}/{3}"),\n'.format(INDENT,self.class_name.lower(),
-                    _t,_t.replace('I','',1))
-        if len(tools+cuts) > 0 or self.based_on == 'athena':
+                    _t.class_name,_t.lowest_class_name)
+        if len(tools) > 0 or self.based_on == 'athena':
             source = pre_source[:-2]+'\n{'
         else:
             source = pre_source+'\n{'
@@ -297,16 +309,15 @@ class analysis(dvclass):
 
             assigncuts = '\nvoid DV::{0}::assignCutsAndTools()\n'.format(self.class_name)
             assigncuts +='{\n'
-            for _t in tools+cuts:
+            for _t in tools:
                 assigncuts += '{0}m_toolnames.push_back("DV::{1}/{2}");\n'.\
-                        format(INDENT,_t,_t.replace('I','',1))
+                        format(INDENT,_t.class_name,_t.lowest_class_name)
             assigncuts += '}\n'
 
             
             source += bookhists+assigncuts
 
-
-        print self.impl.format(source)
+        return self.impl.format(source)
 
 class tool(dvclass):
     """
@@ -492,8 +503,11 @@ def main(name,mode,tools,cuts):
         cutinstances.append(cut(_cut,dvpkg_folder,False))
 
     # All checks succeed, create the files
-    header = new_analysis.create_header(tools,cuts)
-    source = new_analysis.create_impl(tools,cuts)
+    header = new_analysis.create_header(toolinstances+cutinstances)
+    source = new_analysis.create_impl(toolinstances+cutinstances)
+
+    print header
+    print source
 
     # Send some info to the user:
 
