@@ -12,6 +12,10 @@
 ### HELPER classes 
 from abc import ABCMeta
 from abc import abstractmethod
+        
+# global: indentation unit
+INDENT = ' '*4
+
 
 class dvclass(object):
     """Abstract class intented to define a given C++ object class inside
@@ -201,27 +205,70 @@ class analysis(dvclass):
     def create_header(self,tools,cuts):
         """
         """
-        includes = '\n\n#include "DVAnalyses/AlgBase.h"\n'
+        # include header files
+        header = '\n#include "DVAnalyses/AlgBase.h"\n'
         # tools/cuts 
+        if len(tools+cuts) > 0:
+            header += '\n#include "AsgTools/ToolHandle.h"\n'
         if len(tools) > 0:
-            includes += '\n// TOOLS used\n'
+            header += '\n// TOOLS used\n'
         for _t in tools:
-            includes += '#include "DVTools/{0}.h"\n'.format(_t)
+            header += '#include "DVTools/{0}.h"\n'.format(_t)
         if len(cuts) > 0:
-            includes += '\n// CUTS used\n'
+            header += '\n// CUTS used\n'
         for _c in cuts:
-            includes += '#include "DVCuts/{0}.h"\n'.format(_c)
+            header += '#include "DVCuts/{0}.h"\n'.format(_c)
 
-        includes+= '\nnamespace DV\n'
-        includes+= '{\n'+' '*4+'class {0} : public AlgBase\n'.format(self.class_name)
-        includes+= ''
+        header+= '\nnamespace DV\n'
+        header+= '{0}\n{1}class {2} : public AlgBase\n'.format('{',INDENT,self.class_name)
+        header+= '\n{0}{1}\n{0}{0}public:\n'.format(INDENT,'{')
+        constructor = '{0}{0}{0}{1}({2});\n'
+        if self.based_on == 'standalone':
+            header += constructor.format(INDENT,self.class_name,'')
+        else:
+            header += constructor.format(INDENT,self.class_name,
+                    'const std::string & name, ISvcLocator * pSvcLocator')
+        header+= '{0}{0}{0}~{1}() = default;\n'.format(INDENT,self.class_name)
 
-        final_header = self.header.format(includes)
+        # pure virtual methods overriden
+        virtual_funcs = ''
+        for f in ['initialize()', 'execute({2})','finalize()']:
+            virtual_funcs += '{0}{0}{0}{1} '+f+' override;\n'
+        if self.based_on == 'standalone':
+            header += '\n{0}{0}{0}void bookHists(PlotsManagerTool * pm) override;\n'.format(INDENT)
+            header += virtual_funcs.format(INDENT,'bool','xAOD::TEvent*')
+        else:
+            header += '\n'+virtual_funcs.format(INDENT,'StatusCode','')
 
-        print final_header
+        # private: tools and cuts
+        header += '\n{0}{0}private:\n'.format(INDENT)
+        if self.based_on == 'standalone':
+            header += '{0}{0}{0}void assignCutsAndTools() override;\n'.format(INDENT)
 
+        if len(tools+cuts) > 0:
+            header += '\n'
+            for _obj in tools+cuts:
+                header += '{0}{0}{0}ToolHandle<{1}> m_{2};\n'.format(INDENT,
+                        _obj,_obj.lower())
+        # closing...
+        header += '{0}{1};\n{1}\n'.format(INDENT,'}')
+
+        return self.header.format(header)
+
+    
     def create_impl(self,tools,cuts):
-        print self.impl
+        """
+        """
+        # the header
+        source = '#include "{0}/{1}.h"\n'.format(self.sub_pkg,self.class_name)
+        # the constructor
+        constructor = '\nDV::{0}::{0}({1}) :\n'
+        if self.based_on == 'standalone':
+            source += constructor.format(self.class_name,'')
+        else:
+            source += constructor.format(self.class_name,
+                    'const std::string & name, ISvcLocator * pSvcLocator')
+        print self.impl.format(source)
 
 class tool(dvclass):
     """
@@ -407,8 +454,8 @@ def main(name,mode,tools,cuts):
         cutinstances.append(cut(_cut,dvpkg_folder,False))
 
     # All checks succeed, create the files
-    new_analysis.create_header(tools,cuts)
-    new_analysis.create_impl(tools,cuts)
+    header = new_analysis.create_header(tools,cuts)
+    source = new_analysis.create_impl(tools,cuts)
 
     # Send some info to the user:
 
