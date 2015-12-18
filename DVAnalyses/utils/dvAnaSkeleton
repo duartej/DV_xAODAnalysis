@@ -136,7 +136,7 @@ class dvclass(object):
         pre_header_doc +="\n// File automaticaly created by dvAnSkeleton utility"
         pre_header_doc +="\n//"
         pre_header_doc +="\n// Package:    DV_xAODAnalysis/{0}"
-        pre_header_doc +="\n// Class:      {1}"
+        pre_header_doc +="\n// Class:      {1} ({6} class)"
         pre_header_doc +="\n//"
         pre_header_doc +="\n/**\class {1} {1}.h DV_xAODAnalysis/{0}/{2}/{1}.cxx"
         pre_header_doc +="\n Description: // --> Add brief description of the class"
@@ -153,8 +153,8 @@ class dvclass(object):
                 self.src_file.split('/')[-2],
                 user_name,
                 strftime("%a %b %d  %H:%M:%S %Z %Y",gmtime()),
-                user_name.lower().replace(' ','.')+"@cern.ch" # just guessing FIXME with phonebook
-                )
+                user_name.lower().replace(' ','.')+"@cern.ch", # just guessing FIXME with phonebook
+                self.based_on)
         # prepare the body 
         header_doc +="\n//"
         header_doc +="\n//"
@@ -259,15 +259,53 @@ class analysis(dvclass):
     def create_impl(self,tools,cuts):
         """
         """
-        # the header
-        source = '#include "{0}/{1}.h"\n'.format(self.sub_pkg,self.class_name)
-        # the constructor
-        constructor = '\nDV::{0}::{0}({1}) :\n'
+        # -- the header
+        pre_source = '#include "{0}/{1}.h"\n'.format(self.sub_pkg,self.class_name)
+        # ----- the constructor
+        constructor = '\nDV::{0}::{0}({1}) '
         if self.based_on == 'standalone':
-            source += constructor.format(self.class_name,'')
+            pre_source += constructor.format(self.class_name,'')
         else:
-            source += constructor.format(self.class_name,
+            pre_source += constructor.format(self.class_name,
                     'const std::string & name, ISvcLocator * pSvcLocator')
+            pre_source += ':\n{0}DV::AlgBase(name,pSvcLocator),\n'.format(INDENT)
+        if len(tools+cuts) > 0 and self.based_on == 'standalone':
+                pre_source += ':\n'
+        # -- initializations of tools
+        for _t in tools+cuts:
+            pre_source += '{0}m_{1}("DV::{2}/{3}"),\n'.format(INDENT,self.class_name.lower(),
+                    _t,_t.replace('I','',1))
+        if len(tools+cuts) > 0 or self.based_on == 'athena':
+            source = pre_source[:-2]+'\n{'
+        else:
+            source = pre_source+'\n{'
+        if self.based_on == 'standalone':
+            source += '\n{0}// booking of needed tools and cuts'\
+                    '\n{0}assignCutsAndTools();'.format(INDENT)
+        source += '\n\n}\n'
+        # ----- finish constructor
+        # ----- standalone: bookHists and assignCutsAndTools
+        if self.based_on == 'standalone':
+            bookhists = '\nvoid DV::{0}::bookHists('\
+                    'DV::PlotsManagerTool * plotmanager)\n'.format(self.class_name)
+            bookhists +='{\n'
+            bookhists +='{0}plotmanager->setCurrentModule("{1}");\n'\
+                    .format(INDENT,self.class_name)
+            bookhists += '{0}// [dvAnaSkeleton MESSAGE]: Fill here your '\
+                    'histograms if any\n\n'.format(INDENT)
+            bookhists += '}\n'
+
+            assigncuts = '\nvoid DV::{0}::assignCutsAndTools()\n'.format(self.class_name)
+            assigncuts +='{\n'
+            for _t in tools+cuts:
+                assigncuts += '{0}m_toolnames.push_back("DV::{1}/{2}");\n'.\
+                        format(INDENT,_t,_t.replace('I','',1))
+            assigncuts += '}\n'
+
+            
+            source += bookhists+assigncuts
+
+
         print self.impl.format(source)
 
 class tool(dvclass):
