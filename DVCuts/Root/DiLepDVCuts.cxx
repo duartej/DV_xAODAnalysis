@@ -105,54 +105,63 @@ void DV::DiLepDVCuts::ApplyLeptonMatching(xAOD::Vertex& dv,
 void DV::DiLepDVCuts::ApplyOverlapRemoval(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
-    for(auto el = elc->begin(); el != elc->end();)
+    if(elc && muc)
     {
-        if(m_over->IsOverlap(**el)) elc->erase(el);
-        else el++;
-    }
-    for(auto mu = muc->begin(); mu != muc->end();)
-    {
-        if(m_over->IsOverlap(**mu)) muc->erase(mu);
-        else mu++;
+        for(auto el = elc->begin(); el != elc->end();)
+        {
+            if(m_over->IsOverlap(**el)) elc->erase(el);
+            else el++;
+        }
+        for(auto mu = muc->begin(); mu != muc->end();)
+        {
+            if(m_over->IsOverlap(**mu)) muc->erase(mu);
+            else mu++;
+        }
     }
 }
 
 void DV::DiLepDVCuts::ApplyKinematics(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
-    for(auto el = elc->begin(); el != elc->end();)
+    if(elc && muc)
     {
-        if(!m_ec->PassKinematics(**el)) elc->erase(el);
-        else el++;
-    }
-    for(auto mu = muc->begin(); mu != muc->end();)
-    {
-        if(!m_mc->PassKinematics(**mu)) muc->erase(mu);
-        else mu++;
+        for(auto el = elc->begin(); el != elc->end();)
+        {
+            if(!m_ec->PassKinematics(**el)) elc->erase(el);
+            else el++;
+        }
+        for(auto mu = muc->begin(); mu != muc->end();)
+        {
+            if(!m_mc->PassKinematics(**mu)) muc->erase(mu);
+            else mu++;
+        }
     }
 }
 
 void DV::DiLepDVCuts::ApplyTightness(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
-    for(auto el = elc->begin(); el != elc->end();)
+    if(elc && muc)
     {
-        if(!m_ec->PassID(**el)) elc->erase(el);
-        else el++;
-    }
-    for(auto mu = muc->begin(); mu != muc->end();)
-    {
-        if(!m_mc->PassID(**mu)) muc->erase(mu);
-        else mu++;
+        for(auto el = elc->begin(); el != elc->end();)
+        {
+            if(!m_ec->PassID(**el)) elc->erase(el);
+            else el++;
+        }
+        for(auto mu = muc->begin(); mu != muc->end();)
+        {
+            if(!m_mc->PassID(**mu)) muc->erase(mu);
+            else mu++;
+        }
     }
 }
 
@@ -163,8 +172,8 @@ bool DV::DiLepDVCuts::IsBlinded(const xAOD::EventInfo& ei,
     if(ei.eventType(xAOD::EventInfo::IS_SIMULATION)) return false;
 
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
     if(elc && muc)
     {
@@ -179,64 +188,55 @@ bool DV::DiLepDVCuts::IsBlinded(const xAOD::EventInfo& ei,
 void DV::DiLepDVCuts::DoTriggerMatching(xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
-    // trigger matching
     m_accTrigSiPh(dv) = 0;
     m_accTrigDiPh(dv) = 0;
     m_accTrigSiMu(dv) = 0;
 
-    bool siph_matched = false;
-    unsigned int count_di = 0;
-    for(xAOD::Electron* el: *elc)
+    if(elc && muc)
     {
-        if(!siph_matched && m_trig->Match(*el, m_trig_siph))
+        // trigger matching
+        bool siph_matched = false;
+        unsigned int count_di = 0;
+        for(xAOD::Electron* el: *elc)
         {
-            siph_matched = true;
-            m_accTrigSiPh(dv) = 1;
+            if(!siph_matched && m_trig->Match(*el, m_trig_siph))
+            {
+                siph_matched = true;
+                m_accTrigSiPh(dv) = 1;
+            }
+            if(count_di < 2 && m_trig->Match(*el, m_trig_diph)) count_di++;
         }
-        if(count_di < 2 && m_trig->Match(*el, m_trig_diph)) count_di++;
-    }
-    if(count_di == 2) m_accTrigDiPh(dv) = 1;
+        if(count_di == 2) m_accTrigDiPh(dv) = 1;
 
-    for(xAOD::Muon* mu: *muc)
-    {
-        if(m_trig->Match(*mu, m_trig_simu))
+        for(xAOD::Muon* mu: *muc)
         {
-            m_accTrigSiMu(dv) = 1;
-            break;
+            if(m_trig->Match(*mu, m_trig_simu))
+            {
+                m_accTrigSiMu(dv) = 1;
+                break;
+            }
         }
     }
 }
 
 const std::shared_ptr<xAOD::ElectronContainer> DV::DiLepDVCuts::GetEl(const xAOD::Vertex& dv) const
 {
-    if(!m_accEl.isAvailable(dv))
-    {
-        ATH_MSG_WARNING("Failed to retrieve electrons from DV!");
-        return nullptr;
-    }
-
-    return m_accEl(dv);
+    return DVEl(dv);
 }
 
 const std::shared_ptr<xAOD::MuonContainer> DV::DiLepDVCuts::GetMu(const xAOD::Vertex& dv) const
 {
-    if(!m_accMu.isAvailable(dv))
-    {
-        ATH_MSG_WARNING("Failed to retrieve muons from DV!");
-        return nullptr;
-    }
-
-    return m_accMu(dv);
+    return DVMu(dv);
 }
 
 DV::DiLepTypes DV::DiLepDVCuts::GetType(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
     if(elc && muc)
     {
@@ -287,8 +287,8 @@ bool DV::DiLepDVCuts::PassChargeRequirement(const xAOD::Vertex& dv) const
 bool DV::DiLepDVCuts::PassNLeptons(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
     if(elc && muc)
     {
@@ -310,8 +310,8 @@ bool DV::DiLepDVCuts::PassTriggerMatching(const xAOD::Vertex& dv) const
 bool DV::DiLepDVCuts::PassDESDMatching(const xAOD::Vertex& dv) const
 {
     // retrieve particles from vertex
-    auto elc = m_accEl(dv);
-    auto muc = m_accMu(dv);
+    auto elc = DVEl(dv);
+    auto muc = DVMu(dv);
 
     if(elc && muc)
     {
@@ -323,4 +323,26 @@ bool DV::DiLepDVCuts::PassDESDMatching(const xAOD::Vertex& dv) const
     }
 
     return false;
+}
+
+std::shared_ptr<xAOD::ElectronContainer> DV::DiLepDVCuts::DVEl(const xAOD::Vertex& dv) const
+{
+    if(!m_accEl.isAvailable(dv))
+    {
+        ATH_MSG_ERROR("Failed to retrieve electrons from DV!");
+        return nullptr;
+    }
+
+    return m_accEl(dv);
+}
+
+std::shared_ptr<xAOD::MuonContainer> DV::DiLepDVCuts::DVMu(const xAOD::Vertex& dv) const
+{
+    if(!m_accMu.isAvailable(dv))
+    {
+        ATH_MSG_ERROR("Failed to retrieve muons from DV!");
+        return nullptr;
+    }
+
+    return m_accMu(dv);
 }

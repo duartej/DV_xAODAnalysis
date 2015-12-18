@@ -94,6 +94,9 @@ namespace DV
             SG::AuxElement::Accessor<char> m_accTrigSiPh;
             SG::AuxElement::Accessor<char> m_accTrigDiPh;
             SG::AuxElement::Accessor<char> m_accTrigSiMu;
+
+            inline std::shared_ptr<xAOD::ElectronContainer> DVEl(const xAOD::Vertex& dv) const;
+            inline std::shared_ptr<xAOD::MuonContainer> DVMu(const xAOD::Vertex& dv) const;
     };
 }
 
