@@ -102,9 +102,9 @@ class dvclass(object):
                 '{0}/{0}/{1}.h'.format(self.sub_pkg,self.class_name))
         # --- the source directory 
         if self.based_on in ['standalone', 'dual-use']:
-            src_file_rel = 'Root/{0}.cxx'.format(self.class_name)
+            src_file_rel = '{0}/Root/{1}.cxx'.format(self.sub_pkg,self.class_name)
         else:
-            src_file_rel = 'src/{0}.cxx'.format(self.class_name)
+            src_file_rel = '{0}/src/{1}.cxx'.format(self.sub_pkg,self.class_name)
         self.src_file= os.path.join(self.dvpkg_path,src_file_rel)
         
         self.is_brand_new = is_new
@@ -193,6 +193,15 @@ class dvclass(object):
 
         sub_pkg: str, the name of the DV_xAODAnalysis sub-package where to
             look for dependencies
+
+        Parameters
+        ----------
+        sub_pkg: str
+            the sub-pakage where to look for
+
+        Return
+        ------
+        a list of dvclass (tools or cuts) instances
         """
         # --- open the header to check the includes: assuming the includes have
         # --- the standard notation #include"sub_pkg/whatever_class.h"
@@ -202,8 +211,15 @@ class dvclass(object):
 
         dependencies = map(lambda x: x.split("/")[-1].split('.')[0],
                 filter(lambda x: x.find('#include') != -1 and x.find(sub_pkg) != -1,lines))
-
-        return dependencies
+        
+        # instances
+        if sub_pkg == 'DVTools':
+            dv_class = tool
+        elif sub_pkg == 'DVCuts':
+            dv_class = cut
+        dv_instances = map(lambda x: dv_class(x,get_dvpkg_folder(),False),
+                dependencies)
+        return dv_instances
         
 
 # ------------ Concrete dvclass
@@ -228,12 +244,11 @@ class analysis(dvclass):
         if len(tools) > 0:
             header += '\n// TOOLS and CUTS used\n'
         for _t in tools:
-            print type(_t)
             header += '#include "{0}/{1}.h"\n'.format(_t.sub_pkg,_t.class_name)
 
         header+= '\nnamespace DV\n'
         header+= '{0}\n{1}class {2} : public AlgBase\n'.format('{',INDENT,self.class_name)
-        header+= '\n{0}{1}\n{0}{0}public:\n'.format(INDENT,'{')
+        header+= '{0}{1}\n{0}{0}public:\n'.format(INDENT,'{')
         constructor = '{0}{0}{0}{1}({2});\n'
         if self.based_on == 'standalone':
             header += constructor.format(INDENT,self.class_name,'')
@@ -312,13 +327,32 @@ class analysis(dvclass):
             for _t in tools:
                 assigncuts += '{0}m_toolnames.push_back("DV::{1}/{2}");\n'.\
                         format(INDENT,_t.class_name,_t.lowest_class_name)
+                # and its dependencies
+                for _dep in _t.tool_deps+_t.cut_deps:
+                    assigncuts += '{0}m_toolnames.push_back("DV::{1}/{2}");\n'.\
+                            format(INDENT,_dep.class_name,_dep.lowest_class_name)
             assigncuts += '}\n'
-
             
             source += bookhists+assigncuts
-
+        virtual_funcs = ''
+        for f in ['initialize()\n{5}\n{3}{4}\n{6}\n', 
+                'execute({2})\n{5}\n\n{6}\n',
+                'finalize()\n{5}\n\n{6}\n']:
+            virtual_funcs += '\n{0} DV::{1}::'+f
+        if self.based_on == 'standalone':
+            source += virtual_funcs.format('bool',self.class_name,'xAOD::TEvent*',
+                    INDENT,
+                    '// [dvAnaSkeleton MESSAGE]: initialize here tools/cuts if needed',
+                    '{','}')
+        else:
+            source += virtual_funcs.format('StatusCode',self.class_name,'',
+                    INDENT,
+                    '// [dvAnaSkeleton MESSAGE]: initialize here tools/cuts if needed',
+                    '{','}')
+   
         return self.impl.format(source)
 
+# ---- TO BE IMPLEMENTED
 class tool(dvclass):
     """
     """
@@ -454,6 +488,19 @@ def available_classes(folder,abspath=None):
     
     return athenaclasses,rootcoreclasses
 
+def create_file(filepath,content):
+    """
+    """
+    import os
+
+    # if already exists raise exception
+    if os.path.exists(filepath):
+        raise IOError("\033[1;31mcreate_file ERROR\033[1;m: Attempting to"\
+                " create an existing file:\n * '{0}'".format(filepath))
+    with open(filepath,"w") as f:
+        f.write(content)
+    f.close()
+
 
 def main(name,mode,tools,cuts):
     """Steering function to create the skeleton of an analysis
@@ -502,15 +549,38 @@ def main(name,mode,tools,cuts):
         # Create the classes
         cutinstances.append(cut(_cut,dvpkg_folder,False))
 
-    # All checks succeed, create the files
+    # All checks succeed, create the content of the files
     header = new_analysis.create_header(toolinstances+cutinstances)
     source = new_analysis.create_impl(toolinstances+cutinstances)
 
-    print header
-    print source
+    print "\033[1;34mdvAnSkeleton INFO\033[1;m Creating the source files "
+    #create_file(new_analysis.header_file,header)
+    #create_file(new_analysis.src_file,source)
+    print "\033[1;34mdvAnSkeleton INFO\033[1;m DONE!"
+    print
+    
+    # create the files
+    print "\033[1;34mdvAnSkeleton INFO\033[1;m SUMMARY "
+    print "="*25
+    print " - Class name: {0}".format(new_analysis.class_name)
+    print " - Mode: {0}".format(new_analysis.based_on)
+    print " - Source files:"
+    print "   * header: {0}".format(new_analysis.header_file)
+    print "   * source: {0}".format(new_analysis.src_file)
 
     # Send some info to the user:
-
+    print 
+    print "\033[1;34mdvAnSkeleton INFO\033[1;m REMEMBER"
+    print "="*26
+    if new_analysis.based_on == 'standalone':
+        print " 1. Update properly the cmt/Makefile.RootCore: include any new dependency in PACKAGE_DEP"
+    elif new_analysis.based_on == 'athena':
+        print " 1. Update properly the cmt/requirements file if needed"
+        print " 2. Declare the new class in the 'src/components/DVAnalyses_entries.cxx'"
+        print '    #include "DVAnalysis/{0}.h\n'\
+                '    DECLARE_NAMESPACE_ALGORITHM_FACTORY(DV, {0})\n'\
+                '    DECLARE_NAMESPACE_ALGORITHM(DV, {0})'.format(new_analysis.class_name)
+    print
 
 
 if __name__ == '__main__':
