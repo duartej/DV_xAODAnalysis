@@ -362,6 +362,18 @@ def available_classes(folder,abspath=None):
 def main(name,mode,tools,cuts):
     """Steering function to create the skeleton of an analysis
 
+    Parameters
+    -----------
+    name: str
+        name of the new analysis C++ class
+    mode: str
+        athena or standalone based
+    tools: list(str)
+        list of the tools (in DVTools) which are going to be used
+        in the analysis
+    cuts: list(str)
+        list of the cuts (in DVCuts) which are going to be used
+        in the analysis
     """
     # aux function: name of the class, sub-package
     message = lambda classname,existence,pkg: "\033[1;31mdvAnaSkeleton ERROR\033[1;m: "\
@@ -411,7 +423,6 @@ if __name__ == '__main__':
     usage +="subpackage with the newly created analysis are included as well. "
 
     parser = ArgumentParser(prog='dvAnaSkeleton',description=usage)
-    #parser.set_defaults(do_prefit=False,suffix='png')
     parser.add_argument( "-t","--tools",action='store',dest='tools',\
             help="Comma separated list of class names of the tools (directly) "\
             "used (from Tools subpackage)",metavar="TOOLNAME1[,TN2,...]")
@@ -437,11 +448,6 @@ if __name__ == '__main__':
     parser_sa.add_argument('name',type=str,action='store',\
             metavar='AnalysisClassName',
             help="Name of the analysis class")
-    #parser_sa.add_argument( "-m","--models",action='store',dest='models',\
-    #        metavar="COMPONENT1:MODEL1[,COMPONENT2:MODEL2,...]",
-    #        help="Name of the model(s) to be used (must exist at dVAnUtils.pdfmodels)"\
-    #                " [bkg:negative_binomial_pdf_conditional,"\
-    #                "sig:negative_binomial_sum_pdf_conditional]")
     
     # athena-base
     parser_ath = subparsers.add_parser("athena",help="Athena-base mode, "\
@@ -456,7 +462,6 @@ if __name__ == '__main__':
     parser_ath.add_argument('name',type=str,action='store',\
             metavar='AnalysisClassName',
             help="Name of the analysis class")
-    #parser_ath.set_defaults(which='finder',model='negative_binomial_pdf',dataname='dvsig_ntracks')
     args = parser.parse_args()
     
     # Parse the main options
