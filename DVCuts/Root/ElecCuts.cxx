@@ -1,9 +1,5 @@
 #include "DVCuts/ElecCuts.h"
 
-#ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/IJobOptionsSvc.h"
-#endif
-
 #include <cmath>
 
 DV::ElecCuts::ElecCuts(const std::string& name) :
@@ -20,35 +16,29 @@ StatusCode DV::ElecCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
-    // working point of electron ID
-    std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
-
-#ifdef ASGTOOL_ATHENA
-    ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
-
-    ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVElectronLikelihoodTool",
-                                            StringProperty("ConfigFile", config_file)));
-#endif
-
-    // retrieve AsgElectronLikelihoodTool
-    if(m_elt.retrieve().isFailure())
+    // check for AsgElectronLikelihoodTool
+    if(!asg::ToolStore::contains<AsgElectronLikelihoodTool>(m_elt.name()))
     {
-      ATH_MSG_ERROR("Could not retrieve AsgElectronLikelihoodTool!");
+      ATH_MSG_ERROR("Could not find: " + m_elt.name());
       return StatusCode::FAILURE;
     }
 
-    auto elt = dynamic_cast<AsgElectronLikelihoodTool*>(&*m_elt);
+    // get pointer to tool
+    auto elt = asg::ToolStore::get<AsgElectronLikelihoodTool>(m_elt.name());
 
-#ifdef ASGTOOL_STANDALONE
+    // set working point of electron ID
+    std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
     ATH_CHECK(elt->setProperty("ConfigFile", config_file));
 
+    // initialize tool
     ATH_CHECK(elt->initialize());
-#endif
 
     // turn off cuts on si hits for electron ID (has to be done after initialization)
     ATH_CHECK(elt->setProperty("CutBL", std::vector<int>()));
     ATH_CHECK(elt->setProperty("CutPi", std::vector<int>()));
     ATH_CHECK(elt->setProperty("CutSi", std::vector<int>()));
+
+    m_elt = elt;
 
     // Return gracefully:
     return StatusCode::SUCCESS;

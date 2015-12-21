@@ -1,9 +1,5 @@
 #include "DVCuts/MuonCuts.h"
 
-#ifdef ASGTOOL_ATHENA
-#include "GaudiKernel/IJobOptionsSvc.h"
-#endif
-
 #include <cmath>
 
 DV::MuonCuts::MuonCuts(const std::string& name) :
@@ -20,40 +16,29 @@ StatusCode DV::MuonCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
-#ifdef ASGTOOL_ATHENA
-    ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
-
-    // configure muon identification
-    ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
-                                            IntegerProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose))));
-    // turn off cuts on si hits
-    ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
-                                            BooleanProperty("PixCutOff", true)));
-    ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
-                                            BooleanProperty("SiHolesCutOff", true)));
-#endif
-
-    // retrieve MuonSelectionTool
-    if(m_mst.retrieve().isFailure())
+    // check for MuonSelectionTool
+    if(!asg::ToolStore::contains<CP::MuonSelectionTool>(m_mst.name()))
     {
-      ATH_MSG_ERROR("Could not retrieve MuonSelectionTool!");
+      ATH_MSG_ERROR("Could not find: " + m_mst.name());
       return StatusCode::FAILURE;
     }
 
-    auto mst = dynamic_cast<asg::AsgTool*>(&*m_mst);
+    // get pointer to tool
+    auto mst = asg::ToolStore::get<CP::MuonSelectionTool>(m_mst.name());
 
-#ifdef ASGTOOL_STANDALONE
-    // configure muon identification
+    // set working point of muon ID
     ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose)));
     // turn off cuts on si hits
     ATH_CHECK(mst->setProperty("PixCutOff", true));
     ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
 
-    ATH_CHECK(m_mst->initialize());
-#endif
+    // initialize tool
+    ATH_CHECK(mst->initialize());
 
     // silence MuonSelectionTool
     mst->msg().setLevel(MSG::ERROR);
+
+    m_mst = mst;
 
     // Return gracefully:
     return StatusCode::SUCCESS;
