@@ -11,7 +11,7 @@ DV::ElecCuts::ElecCuts(const std::string& name) :
     m_elt("AsgElectronLikelihoodTool/DVElectronLikelihoodTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for electron track pt [MeV]");
-    declareProperty("etaMax", m_etaMax = 2.5, "Cut for electron track |eta|");
+    declareProperty("etaMax", m_etaMax = 2.47, "Cut for electron track |eta|");
     declareProperty("d0Min", m_d0Min = 2.0, "Cut for electron track |d0|");
 }
 
