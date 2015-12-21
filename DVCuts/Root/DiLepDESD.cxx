@@ -2,6 +2,8 @@
 
 DV::DiLepDESD::DiLepDESD(const std::string& name) :
     AsgTool(name),
+    m_ec("DV::ElecCuts/DiLepElecCuts"),
+    m_mc("DV::MuonCuts/DiLepMuonCuts"),
     m_phMatch("DV::PhotonMatch/PhotonMatch"),
     m_pass_siphtrig(false),
     m_pass_diphtrig(false),
@@ -12,8 +14,8 @@ DV::DiLepDESD::DiLepDESD(const std::string& name) :
     declareProperty("MuEtaMax", m_mu_eta = 2.5, "Cut for muon |eta|");
     declareProperty("MuBaEtaMax", m_mu_beta = 1.07, "Cut for muon |eta| in the barrel region");
 
-    declareProperty("ElD0Min", m_el_d0 = 2.0, "Cut for electron track |d0|");
-    declareProperty("MuD0Min", m_mu_d0 = 1.5, "Cut for muon track |d0|");
+    declareProperty("ElD0Min", m_el_d0 = 2.0, "Cut for electron track |d0| [mm]");
+    declareProperty("MuD0Min", m_mu_d0 = 1.5, "Cut for muon track |d0| [mm]");
 
     declareProperty("SiElPtMin", m_siel_pt = 140000.0, "Pt cut for single electron filter [MeV]");
     declareProperty("SiPhPtMin", m_siph_pt = 150000.0, "Pt cut for single photon filter [MeV]");
@@ -30,6 +32,16 @@ StatusCode DV::DiLepDESD::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... ");
 
+    if(m_ec.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Failed to retrieve ElecCuts!");
+        return StatusCode::FAILURE;
+    }
+    if(m_mc.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Failed to retrieve MuonCuts!");
+        return StatusCode::FAILURE;
+    }
     if(m_phMatch.retrieve().isFailure())
     {
         ATH_MSG_ERROR("Failed to retrieve PhotonMatch!");
@@ -51,12 +63,16 @@ bool DV::DiLepDESD::PassSiEl(const xAOD::Electron& el) const
 {
     if(!m_pass_siphtrig) return false;
 
+    if(!m_ec->IsPreRetracking(el)) return false;
+
     return PassCuts(el, m_siel_pt);
 }
 
 bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const
 {
     if(!m_pass_siphtrig) return false;
+
+    if(!m_ec->IsPreRetracking(el)) return false;
 
     if(SameCluster(ph, el)) return false;
 
@@ -82,6 +98,8 @@ bool DV::DiLepDESD::PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) cons
 {
     if(!m_pass_siphtrig) return false;
 
+    if(!m_mc->IsPreRetracking(mu)) return false;
+
     if(!PassCuts(ph, m_siph_pt)) return false;
     if(!PassCuts(mu, m_siph_xpt, m_mu_eta)) return false;
 
@@ -92,12 +110,17 @@ bool DV::DiLepDESD::PassSiMu(const xAOD::Muon& mu) const
 {
     if(!m_pass_simutrig) return false;
 
+    if(!m_mc->IsPreRetracking(mu)) return false;
+
     return PassCuts(mu, m_simu_pt, m_mu_beta);
 }
 
 bool DV::DiLepDESD::PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const
 {
     if(!m_pass_diphtrig) return false;
+
+    if(!m_ec->IsPreRetracking(el1)) return false;
+    if(!m_ec->IsPreRetracking(el2)) return false;
 
     if(SameCluster(el1, el2)) return false;
 
@@ -123,6 +146,8 @@ bool DV::DiLepDESD::PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph)
 {
     if(!m_pass_diphtrig) return false;
 
+    if(!m_ec->IsPreRetracking(el)) return false;
+
     if(SameCluster(el, ph)) return false;
 
     if(!PassCuts(el, m_dielph_pt)) return false;
@@ -134,6 +159,8 @@ bool DV::DiLepDESD::PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph)
 bool DV::DiLepDESD::PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const
 {
     if(!m_pass_diphtrig) return false;
+
+    if(!m_ec->IsPreRetracking(el)) return false;
 
     if(SameCluster(el, ph)) return false;
 

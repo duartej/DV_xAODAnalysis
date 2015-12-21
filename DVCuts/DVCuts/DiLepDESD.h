@@ -15,6 +15,8 @@
 
 // DV
 #include "DVCuts/IDiLepDESD.h"
+#include "DVCuts/IElecCuts.h"
+#include "DVCuts/IMuonCuts.h"
 #include "DVTools/IPhotonMatch.h"
 
 namespace DV
@@ -49,6 +51,8 @@ namespace DV
             bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const override;
 
         private:
+            ToolHandle<DV::IElecCuts> m_ec;
+            ToolHandle<DV::IMuonCuts> m_mc;
             ToolHandle<DV::IPhotonMatch> m_phMatch;
 
             // trigger flags
