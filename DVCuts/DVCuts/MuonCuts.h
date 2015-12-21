@@ -44,6 +44,7 @@ namespace DV
         private:
             // muon identification tool
             ToolHandle<CP::IMuonSelectionTool> m_mst;
+            static bool m_mst_init;
 
             double m_ptMin;
             double m_etaMax;

@@ -10,17 +10,19 @@
 
 #include<cmath>
 
+std::string DV::DVCuts::m_mapFile = "";
+TH3C* DV::DVCuts::m_materialMap = nullptr;
+
 DV::DVCuts::DVCuts(const std::string & name) :
     asg::AsgTool(name),
-    m_accMass("massPionHypo"),
-    m_materialMap(nullptr)
+    m_accMass("massPionHypo")
 {
     declareProperty("rDVMax", m_rDVMax = 300.0, "Fiducial cut for r_DV [mm]");
     declareProperty("zDVMax", m_zDVMax = 300.0, "Fiducial cut for |z_DV| [mm]");
     declareProperty("chisqPerDofMax", m_chisqDof = 5.0, "Cut for chi^2 per degrees of freedom of DV fit");
     declareProperty("distMin", m_distMin = 4.0, "Minimum distance of DV to all PVs in transverse plane [mm]");
     declareProperty("DVMassMin", m_DVMassMin = 10000.0, "Minimum mass of DV [MeV]");
-    declareProperty("MaterialMapFile", m_mapFile = "", "Path to material map file");
+    declareProperty("MaterialMapFile", m_mapFile, "Path to material map file");
 }
 
 DV::DVCuts::~DVCuts()
@@ -32,6 +34,9 @@ StatusCode DV::DVCuts::initialize()
 {
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
+
+    // material map already loaded by other instance
+    if(m_materialMap != nullptr) return StatusCode::SUCCESS;
 
     if(m_mapFile.empty())
     {

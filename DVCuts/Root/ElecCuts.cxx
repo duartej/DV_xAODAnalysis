@@ -2,13 +2,15 @@
 
 #include <cmath>
 
+bool DV::ElecCuts::m_elt_init = false;
+
 DV::ElecCuts::ElecCuts(const std::string& name) :
     asg::AsgTool(name),
     m_elt("AsgElectronLikelihoodTool/DVElectronLikelihoodTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for electron track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.47, "Cut for electron track |eta|");
-    declareProperty("d0Min", m_d0Min = 2.0, "Cut for electron track |d0|");
+    declareProperty("d0Min", m_d0Min = 2.0, "Cut for electron track |d0| [mm]");
 }
 
 StatusCode DV::ElecCuts::initialize()
@@ -23,20 +25,26 @@ StatusCode DV::ElecCuts::initialize()
       return StatusCode::FAILURE;
     }
 
-    // get pointer to tool
+    // get pointer to AsgElectronLikelihoodTool
     auto elt = asg::ToolStore::get<AsgElectronLikelihoodTool>(m_elt.name());
 
-    // set working point of electron ID
-    std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
-    ATH_CHECK(elt->setProperty("ConfigFile", config_file));
+    // do configuration only once
+    if(!m_elt_init)
+    {
+        // set working point of electron ID
+        std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
+        ATH_CHECK(elt->setProperty("ConfigFile", config_file));
 
-    // initialize tool
-    ATH_CHECK(elt->initialize());
+        // initialize tool
+        ATH_CHECK(elt->initialize());
 
-    // turn off cuts on si hits for electron ID (has to be done after initialization)
-    ATH_CHECK(elt->setProperty("CutBL", std::vector<int>()));
-    ATH_CHECK(elt->setProperty("CutPi", std::vector<int>()));
-    ATH_CHECK(elt->setProperty("CutSi", std::vector<int>()));
+        // turn off cuts on si hits for electron ID (has to be done after initialization)
+        ATH_CHECK(elt->setProperty("CutBL", std::vector<int>()));
+        ATH_CHECK(elt->setProperty("CutPi", std::vector<int>()));
+        ATH_CHECK(elt->setProperty("CutSi", std::vector<int>()));
+
+        m_elt_init = true;
+    }
 
     m_elt = elt;
 

@@ -44,6 +44,7 @@ namespace DV
         private:
             // electron identification tool
             ToolHandle<IAsgElectronLikelihoodTool> m_elt;
+            static bool m_elt_init;
 
             double m_ptMin;
             double m_etaMax;

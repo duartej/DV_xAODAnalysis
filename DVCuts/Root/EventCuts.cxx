@@ -6,13 +6,15 @@
 #include "TSystem.h"
 #endif
 
+Root::TGoodRunsList DV::EventCuts::m_grl;
+Root::TGoodRunsListReader* DV::EventCuts::m_grlR = nullptr;
+std::string DV::EventCuts::m_grlFile = "";
+
 DV::EventCuts::EventCuts(const std::string& name) :
     asg::AsgTool(name),
     m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
 #ifdef ASGTOOL_ATHENA
     m_grl("GoodRunsListSelectionTool/GoodRunsListSelectionTool"),
-#elif defined(ASGTOOL_STANDALONE)
-    m_grlR(nullptr),
 #endif // ASGTOOL_STANDALONE
     m_useGRL(true), m_checkTrig(true)
 {
@@ -47,21 +49,24 @@ StatusCode DV::EventCuts::initialize()
             return StatusCode::FAILURE;
         }
 #elif defined(ASGTOOL_STANDALONE)
-        if(m_grlFile.empty())
+        if(m_grlR == nullptr)
         {
-            ATH_MSG_ERROR("No GRL file defined!");
-            return StatusCode::FAILURE;
+            if(m_grlFile.empty())
+            {
+                ATH_MSG_ERROR("No GRL file defined!");
+                return StatusCode::FAILURE;
+            }
+
+            std::string grlPath = "$ROOTCOREBIN/../DV_xAODAnalysis/DVAnalyses/data/" + m_grlFile;
+            grlPath = gSystem->ExpandPathName(grlPath.c_str());
+
+            m_grlR = new Root::TGoodRunsListReader();
+            m_grlR->SetXMLFile(grlPath.c_str());
+            m_grlR->Interpret();
+
+            m_grl = m_grlR->GetMergedGoodRunsList();
+            m_grl.Summary(false);
         }
-
-        std::string grlPath = "$ROOTCOREBIN/../DV_xAODAnalysis/DVAnalyses/data/" + m_grlFile;
-        grlPath = gSystem->ExpandPathName(grlPath.c_str());
-
-        m_grlR = new Root::TGoodRunsListReader();
-        m_grlR->SetXMLFile(grlPath.c_str());
-        m_grlR->Interpret();
-
-        m_grl = m_grlR->GetMergedGoodRunsList();
-        m_grl.Summary(false);
 #endif // ASGTOOL_STANDALONE
     }
     else

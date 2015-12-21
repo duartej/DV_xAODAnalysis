@@ -57,10 +57,10 @@ namespace DV
 #ifdef ASGTOOL_ATHENA
             ToolHandle<IGoodRunsListSelectionTool> m_grl;
 #elif defined(ASGTOOL_STANDALONE)
-            Root::TGoodRunsList m_grl;
-            Root::TGoodRunsListReader* m_grlR;
+            static Root::TGoodRunsList m_grl;
+            static Root::TGoodRunsListReader* m_grlR;
 
-            std::string m_grlFile;
+            static std::string m_grlFile;
 #endif // ASGTOOL_STANDALONE
 
             bool m_useGRL;

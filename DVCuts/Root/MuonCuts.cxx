@@ -2,13 +2,15 @@
 
 #include <cmath>
 
+bool DV::MuonCuts::m_mst_init = false;
+
 DV::MuonCuts::MuonCuts(const std::string& name) :
     asg::AsgTool(name),
     m_mst("CP::IMuonSelectionTool/DVMuonSelectionTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for muon track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for muon track |eta|");
-    declareProperty("d0Min", m_d0Min = 2.0, "Cut for muon track |d0|");
+    declareProperty("d0Min", m_d0Min = 2.0, "Cut for muon track |d0| [mm]");
 }
 
 StatusCode DV::MuonCuts::initialize()
@@ -23,20 +25,26 @@ StatusCode DV::MuonCuts::initialize()
       return StatusCode::FAILURE;
     }
 
-    // get pointer to tool
+    // get pointer to MuonSelectionTool
     auto mst = asg::ToolStore::get<CP::MuonSelectionTool>(m_mst.name());
 
-    // set working point of muon ID
-    ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose)));
-    // turn off cuts on si hits
-    ATH_CHECK(mst->setProperty("PixCutOff", true));
-    ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
+    // do configuration only once
+    if(!m_mst_init)
+    {
+        // set working point of muon ID
+        ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose)));
+        // turn off cuts on si hits
+        ATH_CHECK(mst->setProperty("PixCutOff", true));
+        ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
 
-    // initialize tool
-    ATH_CHECK(mst->initialize());
+        // initialize tool
+        ATH_CHECK(mst->initialize());
 
-    // silence MuonSelectionTool
-    mst->msg().setLevel(MSG::ERROR);
+        // silence MuonSelectionTool
+        mst->msg().setLevel(MSG::ERROR);
+
+        m_mst_init = true;
+    }
 
     m_mst = mst;
 

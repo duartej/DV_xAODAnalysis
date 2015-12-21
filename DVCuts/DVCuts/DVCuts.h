@@ -72,8 +72,8 @@ namespace DV
           // accessor for vertex mass
           SG::AuxElement::ConstAccessor<double> m_accMass;
 
-          std::string m_mapFile;
-          TH3C* m_materialMap;
+          static std::string m_mapFile;
+          static TH3C* m_materialMap;
   };
 }
 
