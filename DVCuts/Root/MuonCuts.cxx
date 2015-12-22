@@ -1,5 +1,9 @@
 #include "DVCuts/MuonCuts.h"
 
+#ifdef ASGTOOL_ATHENA
+#include "GaudiKernel/IJobOptionsSvc.h"
+#endif
+
 #include <cmath>
 
 bool DV::MuonCuts::m_mst_init = false;
@@ -18,35 +22,48 @@ StatusCode DV::MuonCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
-    // check for MuonSelectionTool
-    if(!asg::ToolStore::contains<CP::MuonSelectionTool>(m_mst.name()))
+#ifdef ASGTOOL_ATHENA
+    if(m_mst_init == false)
     {
-      ATH_MSG_ERROR("Could not find: " + m_mst.name());
-      return StatusCode::FAILURE;
+        ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
+
+        // configure muon identification
+        ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
+                                            IntegerProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose))));
+        // turn off cuts on si hits
+        ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
+                                                BooleanProperty("PixCutOff", true)));
+        ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVMuonSelectionTool",
+                                                BooleanProperty("SiHolesCutOff", true)));
+    }
+#endif
+
+    // retrieve MuonSelectionTool
+    if(m_mst.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Could not retrieve MuonSelectionTool!");
+       return StatusCode::FAILURE;
     }
 
-    // get pointer to MuonSelectionTool
-    auto mst = asg::ToolStore::get<CP::MuonSelectionTool>(m_mst.name());
-
-    // do configuration only once
-    if(!m_mst_init)
+    if(m_mst_init == false)
     {
-        // set working point of muon ID
+        auto mst = dynamic_cast<asg::AsgTool*>(&*m_mst);
+
+#ifdef ASGTOOL_STANDALONE
+        // configure muon identification
         ATH_CHECK(mst->setProperty("MuQuality", static_cast<int>(xAOD::Muon::Loose)));
         // turn off cuts on si hits
         ATH_CHECK(mst->setProperty("PixCutOff", true));
         ATH_CHECK(mst->setProperty("SiHolesCutOff", true));
 
-        // initialize tool
-        ATH_CHECK(mst->initialize());
+        ATH_CHECK(m_mst->initialize());
+#endif
 
         // silence MuonSelectionTool
         mst->msg().setLevel(MSG::ERROR);
 
         m_mst_init = true;
     }
-
-    m_mst = mst;
 
     // Return gracefully:
     return StatusCode::SUCCESS;

@@ -6,9 +6,11 @@
 #include "TSystem.h"
 #endif
 
+#ifdef ASGTOOL_STANDALONE
 Root::TGoodRunsList DV::EventCuts::m_grl;
 Root::TGoodRunsListReader* DV::EventCuts::m_grlR = nullptr;
 std::string DV::EventCuts::m_grlFile = "";
+#endif
 
 DV::EventCuts::EventCuts(const std::string& name) :
     asg::AsgTool(name),

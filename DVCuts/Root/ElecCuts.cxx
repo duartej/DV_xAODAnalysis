@@ -1,5 +1,9 @@
 #include "DVCuts/ElecCuts.h"
 
+#ifdef ASGTOOL_ATHENA
+#include "GaudiKernel/IJobOptionsSvc.h"
+#endif
+
 #include <cmath>
 
 bool DV::ElecCuts::m_elt_init = false;
@@ -18,25 +22,35 @@ StatusCode DV::ElecCuts::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... " );
 
-    // check for AsgElectronLikelihoodTool
-    if(!asg::ToolStore::contains<AsgElectronLikelihoodTool>(m_elt.name()))
+    // working point of electron ID
+    const std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
+
+#ifdef ASGTOOL_ATHENA
+    if(m_elt_init == false)
     {
-      ATH_MSG_ERROR("Could not find: " + m_elt.name());
-      return StatusCode::FAILURE;
+        ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
+
+        ATH_CHECK(josvc->addPropertyToCatalogue("ToolSvc.DVElectronLikelihoodTool",
+                                                StringProperty("ConfigFile", config_file)));
+    }
+#endif
+
+    // retrieve AsgElectronLikelihoodTool
+    if(m_elt.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Could not retrieve AsgElectronLikelihoodTool!");
+        return StatusCode::FAILURE;
     }
 
-    // get pointer to AsgElectronLikelihoodTool
-    auto elt = asg::ToolStore::get<AsgElectronLikelihoodTool>(m_elt.name());
-
-    // do configuration only once
-    if(!m_elt_init)
+    if(m_elt_init == false)
     {
-        // set working point of electron ID
-        std::string config_file = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseNoD0OfflineConfig2015.conf";
+        auto elt = dynamic_cast<AsgElectronLikelihoodTool*>(&*m_elt);
+
+#ifdef ASGTOOL_STANDALONE
         ATH_CHECK(elt->setProperty("ConfigFile", config_file));
 
-        // initialize tool
         ATH_CHECK(elt->initialize());
+#endif
 
         // turn off cuts on si hits for electron ID (has to be done after initialization)
         ATH_CHECK(elt->setProperty("CutBL", std::vector<int>()));
@@ -45,8 +59,6 @@ StatusCode DV::ElecCuts::initialize()
 
         m_elt_init = true;
     }
-
-    m_elt = elt;
 
     // Return gracefully:
     return StatusCode::SUCCESS;
