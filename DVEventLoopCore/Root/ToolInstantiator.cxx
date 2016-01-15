@@ -181,6 +181,9 @@ StatusCode DV::ToolInstantiator::instantiateDVTool(const std::string & type_and_
     else if( toolType == "DV::DiLepDESD" or toolType == "DV::IDiLepDESD" )
     {
         p = new DV::DiLepDESD(toolName);
+
+        atlas_tools.push_back("TrigConf::xAODConfigTool/TrigConf::xAODConfigTool");
+        atlas_tools.push_back("Trig::TrigDecisionTool/TrigDecisionTool");
     }
     else if( toolType == "DV::DiLepDVCuts" or toolType == "DV::IDiLepDVCuts" )
     {

@@ -7,6 +7,7 @@
 // Tools
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"
@@ -32,7 +33,8 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
-            // CAUTION!: has to be called for every DV before the filters can be used!
+            // CAUTION!: one of them has to be called before the filters can be used!
+            void RetrieveTriggerFlags() override;
             void SetTriggerFlags(bool siph, bool diph, bool simu) override;
 
             // single filter implementations
@@ -51,9 +53,15 @@ namespace DV
             bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const override;
 
         private:
+            ToolHandle<Trig::TrigDecisionTool> m_tdt;
             ToolHandle<DV::IElecCuts> m_ec;
             ToolHandle<DV::IMuonCuts> m_mc;
             ToolHandle<DV::IPhotonMatch> m_phMatch;
+
+            // trigger names
+            std::string m_siphtrig;
+            std::string m_diphtrig;
+            std::string m_simutrig;
 
             // trigger flags
             bool m_pass_siphtrig;

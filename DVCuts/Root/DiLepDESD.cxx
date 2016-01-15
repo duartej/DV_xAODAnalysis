@@ -2,6 +2,7 @@
 
 DV::DiLepDESD::DiLepDESD(const std::string& name) :
     AsgTool(name),
+    m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_ec("DV::ElecCuts/DiLepElecCuts"),
     m_mc("DV::MuonCuts/DiLepMuonCuts"),
     m_phMatch("DV::PhotonMatch/PhotonMatch"),
@@ -9,6 +10,10 @@ DV::DiLepDESD::DiLepDESD(const std::string& name) :
     m_pass_diphtrig(false),
     m_pass_simutrig(false)
 {
+    declareProperty("SiPhTrigger", m_siphtrig = "HLT_g140_loose", "Name of single photon trigger");
+    declareProperty("DiPhTrigger", m_diphtrig = "HLT_2g50_loose", "Name of diphoton trigger");
+    declareProperty("SimuTrigger", m_simutrig = "HLT_mu60_0eta105_msonly", "Name of single muon trigger");
+
     declareProperty("ElEtaMax", m_el_eta = 2.5, "Cut for electron |eta|");
     declareProperty("PhEtaMax", m_ph_eta = 2.5, "Cut for photon |eta|");
     declareProperty("MuEtaMax", m_mu_eta = 2.5, "Cut for muon |eta|");
@@ -52,6 +57,13 @@ StatusCode DV::DiLepDESD::initialize()
 
     // Return gracefully:
     return StatusCode::SUCCESS;
+}
+
+void DV::DiLepDESD::RetrieveTriggerFlags()
+{
+    m_pass_siphtrig = m_tdt->isPassed(m_siphtrig);
+    m_pass_diphtrig = m_tdt->isPassed(m_diphtrig);
+    m_pass_simutrig = m_tdt->isPassed(m_simutrig);
 }
 
 void DV::DiLepDESD::SetTriggerFlags(bool siph, bool diph, bool simu)
@@ -223,16 +235,16 @@ bool DV::DiLepDESD::SameCluster(const xAOD::Egamma& eg1, const xAOD::Egamma& eg2
 
 bool DV::DiLepDESD::IsGood(const xAOD::Muon& mu) const
 {
-  if(mu.muonType() != xAOD::Muon::Combined) return false;
+    if(mu.muonType() != xAOD::Muon::Combined) return false;
 
-  float chi2 = 0.;
-  if(!mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
+    float chi2 = 0.;
+    if(!mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
 
-  int dof = 1;
-  if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
-  if(dof == 0) dof = 1;
+    int dof = 1;
+    if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
+    if(dof == 0) dof = 1;
 
-  return (chi2 / static_cast<float>(dof)) < m_mu_chi2;
+    return (chi2 / static_cast<float>(dof)) < m_mu_chi2;
 }
 
 bool DV::DiLepDESD::PassCuts(const xAOD::Electron& el, double pt_cut, bool loose) const

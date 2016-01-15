@@ -18,6 +18,7 @@
 // Insert here the include of any new developed analysis
 #include "DVAnalyses/BasicPlots.h"
 #include "DVAnalyses/DiLepCutFlow.h"
+#include "DVAnalyses/DiLepSignal.h"
 //#include "DVAnalyses/TrkBasicPlots.h"
 //#include "DVAnalyses/LowMassDVEff.h"
 //#include "DVAnalyses/DVPlusElectronBasic.h"
@@ -41,6 +42,10 @@ DV::AlgBase * DV::AlgBuilder::Build(const std::string & dv_analysis)
     else if( dv_analysis == "DiLepCutFlow" )
     {
         p = new DiLepCutFlow();
+    }
+    else if( dv_analysis == "DiLepSignal" )
+    {
+        p = new DiLepSignal();
     }
     /*else if( dv_analysis == "TrkBasicPlots" )
     {

@@ -16,6 +16,7 @@ namespace DV
         ASG_TOOL_INTERFACE(DV::IDiLepDESD)
 
         public:
+            virtual void RetrieveTriggerFlags() = 0;
             virtual void SetTriggerFlags(bool siph, bool diph, bool simu) = 0;
 
             virtual bool PassSiEl(const xAOD::Electron& el) const = 0;
