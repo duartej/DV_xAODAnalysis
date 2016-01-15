@@ -69,6 +69,8 @@ namespace DV
             double m_el_d0;
             double m_mu_d0;
 
+            double m_mu_chi2;
+
             double m_siel_pt;
             double m_siph_pt;
             double m_siph_xpt;
@@ -84,6 +86,7 @@ namespace DV
             inline bool Passd0(const xAOD::Muon& mu, double d0_cut) const;
             inline bool IsLoose(const xAOD::Egamma& eg) const;
             inline bool SameCluster(const xAOD::Egamma& eg1, const xAOD::Egamma& eg2) const;
+            inline bool IsGood(const xAOD::Muon& mu) const;
 
             inline bool PassCuts(const xAOD::Electron& el, double pt_cut, bool loose = false) const;
             inline bool PassCuts(const xAOD::Photon& ph, double pt_cut) const;

@@ -17,6 +17,8 @@ DV::DiLepDESD::DiLepDESD(const std::string& name) :
     declareProperty("ElD0Min", m_el_d0 = 2.0, "Cut for electron track |d0| [mm]");
     declareProperty("MuD0Min", m_mu_d0 = 1.5, "Cut for muon track |d0| [mm]");
 
+    declareProperty("MuChi2DoF", m_mu_chi2 = 50.0, "Cut for chi2/DoF of muon track match");
+
     declareProperty("SiElPtMin", m_siel_pt = 140000.0, "Pt cut for single electron filter [MeV]");
     declareProperty("SiPhPtMin", m_siph_pt = 150000.0, "Pt cut for single photon filter [MeV]");
     declareProperty("SiPhXPtMin", m_siph_xpt = 10000.0, "Pt cut for X of single photon+X filter [MeV]");
@@ -219,6 +221,20 @@ bool DV::DiLepDESD::SameCluster(const xAOD::Egamma& eg1, const xAOD::Egamma& eg2
     return calo1->p4().DeltaR(calo2->p4()) < 0.01;
 }
 
+bool DV::DiLepDESD::IsGood(const xAOD::Muon& mu) const
+{
+  if(mu.muonType() != xAOD::Muon::Combined) return false;
+
+  float chi2 = 0.;
+  if(!mu.parameter(chi2, xAOD::Muon::msInnerMatchChi2)) return false;
+
+  int dof = 1;
+  if(!mu.parameter(dof, xAOD::Muon::msInnerMatchDOF)) return false;
+  if(dof == 0) dof = 1;
+
+  return (chi2 / static_cast<float>(dof)) < m_mu_chi2;
+}
+
 bool DV::DiLepDESD::PassCuts(const xAOD::Electron& el, double pt_cut, bool loose) const
 {
     if(el.pt() < pt_cut) return false;
@@ -247,17 +263,24 @@ bool DV::DiLepDESD::PassCuts(const xAOD::Photon& ph, double pt_cut) const
 
 bool DV::DiLepDESD::PassCuts(const xAOD::Muon& mu, double pt_cut, double eta_cut) const
 {
-    if(mu.pt() < pt_cut) return false;
-    if(!PassEta(mu, eta_cut)) return false;
+    const xAOD::IParticle* mu_ip = nullptr;
 
-    if(mu.muonType() == xAOD::Muon::Combined)
+    if(IsGood(mu))
     {
         if(!Passd0(mu, m_mu_d0)) return false;
+
+        mu_ip = &mu;
     }
     else
     {
-        if(mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle) == nullptr) return false;
+        const xAOD::TrackParticle* mu_mstr = mu.trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+        if(mu_mstr == nullptr) return false;
+
+        mu_ip = mu_mstr;
     }
+
+    if(mu_ip->pt() < pt_cut) return false;
+    if(!PassEta(*mu_ip, eta_cut)) return false;
 
     return true;
 }
