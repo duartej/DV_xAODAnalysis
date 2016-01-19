@@ -2,6 +2,7 @@
 #define DV_LSP_H
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 #include "TVector2.h"
@@ -18,15 +19,24 @@ namespace DV
     class LSP
     {
         public:
-            static std::vector<DV::LSP*> GetLSPs(const xAOD::TruthParticleContainer& tpc);
+            // constructor
+            LSP(const xAOD::TruthParticle* t);
+            // destructor
+            ~LSP() = default;
 
-            // min values for dR match (from max)
-            static constexpr double DRMIN_PH = 0.2;
+            // builds LSP objects using truth particle container
+            static std::vector<std::shared_ptr<DV::LSP>> GetLSPs(const xAOD::TruthParticleContainer& tpc);
+
+            // computes refined dR between calo cluster and truth particle
+            static double RefinedDR(const xAOD::CaloCluster& reco, const xAOD::TruthParticle& tru);
+
+            // min values for dR match
+            static constexpr double DRMIN_PH = 0.1;
             static constexpr double DRMIN_EL = 0.1;
             static constexpr double DRMIN_MU = 0.1;
 
             // matches reconstructed particles to childs (using deltaR match)
-            bool MatchReco(const xAOD::ElectronContainer& elc,
+            void MatchReco(const xAOD::ElectronContainer& elc,
                            const xAOD::PhotonContainer& phc,
                            const xAOD::MuonContainer& muc);
 
@@ -41,12 +51,6 @@ namespace DV
             const std::vector<const xAOD::Photon*>& GetPh() const;
 
         private:
-            // constructor
-            LSP(const xAOD::TruthParticle* t);
-
-            // computes refined dR between reco particle and truth particle
-            static double RefinedDR(const xAOD::IParticle& reco, const xAOD::TruthParticle& tru);
-
             // decorators
             SG::AuxElement::Decorator<const xAOD::Electron*> m_decElMatch;
             SG::AuxElement::Decorator<const xAOD::Photon*> m_decPhMatch;
@@ -60,11 +64,11 @@ namespace DV
             // truth childs
             std::vector<const xAOD::TruthParticle*> m_childs;
 
-            // number of electron and muon childs
+            // number of electron and muon truth childs
             std::size_t m_nEl;
             std::size_t m_nMu;
 
-            // matched reco childs
+            // matched reco particles
             std::vector<const xAOD::Electron*> m_el;
             std::vector<const xAOD::Muon*> m_mu;
             std::vector<const xAOD::Photon*> m_ph;

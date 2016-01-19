@@ -4,24 +4,6 @@ constexpr double DV::LSP::DRMIN_PH;
 constexpr double DV::LSP::DRMIN_EL;
 constexpr double DV::LSP::DRMIN_MU;
 
-std::vector<DV::LSP*> DV::LSP::GetLSPs(const xAOD::TruthParticleContainer& tpc)
-{
-    std::vector<DV::LSP*> LSP_store;
-
-    // works only for trilinear couplings
-    for(const xAOD::TruthParticle* tp: tpc)
-    {
-        if(tp->absPdgId() != 1000022) continue;
-        if(!tp->hasDecayVtx()) continue;
-        if(tp->nChildren() != 3) continue;
-
-        auto LSP = new DV::LSP(tp);
-        LSP_store.push_back(LSP);
-    }
-
-    return LSP_store;
-}
-
 DV::LSP::LSP(const xAOD::TruthParticle* t)
   : m_decElMatch("DV_MatchedEl"),
     m_decPhMatch("DV_MatchedPh"),
@@ -64,9 +46,27 @@ DV::LSP::LSP(const xAOD::TruthParticle* t)
     }
 }
 
-double DV::LSP::RefinedDR(const xAOD::IParticle& reco, const xAOD::TruthParticle& tru)
+std::vector<std::shared_ptr<DV::LSP>> DV::LSP::GetLSPs(const xAOD::TruthParticleContainer& tpc)
 {
-    // compute "endcap" radius, compare to "barrel" radius (mike's version)
+    std::vector<std::shared_ptr<DV::LSP>> LSP_store;
+
+    // works only for trilinear couplings
+    for(const xAOD::TruthParticle* tp: tpc)
+    {
+        if(tp->absPdgId() != 1000022) continue;
+        if(!tp->hasDecayVtx()) continue;
+        if(tp->nChildren() != 3) continue;
+
+        auto LSP = std::make_shared<DV::LSP>(tp);
+        LSP_store.push_back(LSP);
+    }
+
+    return LSP_store;
+}
+
+double DV::LSP::RefinedDR(const xAOD::CaloCluster& reco, const xAOD::TruthParticle& tru)
+{
+    // compute "endcap" radius, compare to "barrel" radius
     double radius = 3900.0 / std::fabs(std::sinh(reco.eta()));
     if(radius > 1950.0) radius = 1950.0;
 
@@ -86,72 +86,80 @@ double DV::LSP::RefinedDR(const xAOD::IParticle& reco, const xAOD::TruthParticle
     return std::sqrt(deta*deta + dphi*dphi);
 }
 
-bool DV::LSP::MatchReco(const xAOD::ElectronContainer& elc,
+void DV::LSP::MatchReco(const xAOD::ElectronContainer& elc,
                         const xAOD::PhotonContainer& phc,
                         const xAOD::MuonContainer& muc)
 {
     std::size_t nLep = m_nEl + m_nMu;
-    if(nLep == 0) return true;
+    if(nLep == 0) return;
 
-    // should be 3
-    std::size_t nChilds = m_childs.size();
+    std::vector<const xAOD::TruthParticle*> el_childs;
+    std::vector<const xAOD::TruthParticle*> mu_childs;
+    for(const xAOD::TruthParticle* child: m_childs)
+    {
+        if(child->isElectron())
+        {
+            el_childs.push_back(child);
+        }
+        else if(child->isMuon())
+        {
+            mu_childs.push_back(child);
+        }
+    }
 
-    std::vector<const xAOD::Electron*> matched_el(nChilds, nullptr);
-    std::vector<const xAOD::Photon*> matched_ph(nChilds, nullptr);
-    std::vector<const xAOD::Muon*> matched_mu(nChilds, nullptr);
+    std::vector<const xAOD::Electron*> matched_el(m_nEl, nullptr);
+    std::vector<const xAOD::Photon*> matched_ph(m_nEl, nullptr);
+    std::vector<const xAOD::Muon*> matched_mu(m_nMu, nullptr);
 
-    std::vector<double> matched_el_dr(nChilds, DRMIN_EL);
-    std::vector<double> matched_ph_dr(nChilds, DRMIN_PH);
-    std::vector<double> matched_mu_dr(nChilds, DRMIN_MU);
+    std::vector<double> matched_el_dr(m_nEl, DRMIN_EL);
+    std::vector<double> matched_ph_dr(m_nEl, DRMIN_PH);
+    std::vector<double> matched_mu_dr(m_nMu, DRMIN_MU);
 
     // dR truth matching
-    for(std::size_t i = 0; i < nChilds; i++)
+    for(std::size_t i = 0; i < m_nEl; i++)
     {
-        if(m_childs.at(i)->isElectron())
+        for(const xAOD::Electron* el: elc)
         {
-            for(const xAOD::Electron* el: elc)
+            double dr = RefinedDR(*(el->caloCluster()), *(el_childs.at(i)));
+            if(dr < matched_el_dr.at(i))
             {
-                double dr = RefinedDR(*(el->caloCluster()), *(m_childs.at(i)));
-                if(dr < matched_el_dr.at(i))
-                {
-                    matched_el_dr.at(i) = dr;
-                    matched_el.at(i) = el;
-                }
-            }
-
-            for(const xAOD::Photon* ph: phc)
-            {
-                double dr = RefinedDR(*ph, *(m_childs.at(i)));
-                if(dr < matched_ph_dr.at(i))
-                {
-                    matched_ph_dr.at(i) = dr;
-                    matched_ph.at(i) = ph;
-                }
+                matched_el_dr.at(i) = dr;
+                matched_el.at(i) = el;
             }
         }
-        else if(m_childs.at(i)->isMuon())
+
+        for(const xAOD::Photon* ph: phc)
         {
-            for(const xAOD::Muon* mu: muc)
+            double dr = RefinedDR(*(ph->caloCluster()), *(el_childs.at(i)));
+            if(dr < matched_ph_dr.at(i))
             {
-                const xAOD::IParticle* mu_ip = nullptr;
+                matched_ph_dr.at(i) = dr;
+                matched_ph.at(i) = ph;
+            }
+        }
+    }
+    for(std::size_t i = 0; i < m_nMu; i++)
+    {
+        for(const xAOD::Muon* mu: muc)
+        {
+            const xAOD::IParticle* mu_ip = nullptr;
 
-                // use MS track which is not affected by badly matched ID tracks
-                auto mstrk = mu->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
-                if(mstrk == nullptr)
-                {
-                    mu_ip = mu;
-                }
-                else
-                {
-                    mu_ip = mstrk;
-                }
+            // use MS track which is not affected by badly matched ID tracks
+            auto mstrk = mu->trackParticle(xAOD::Muon::MuonSpectrometerTrackParticle);
+            if(mstrk == nullptr)
+            {
+                mu_ip = mu;
+            }
+            else
+            {
+                mu_ip = mstrk;
+            }
 
-                double dr = m_childs.at(i)->p4().DeltaR(mu_ip->p4());
-                if(dr < matched_mu_dr.at(i))
-                {
-                    matched_mu_dr.at(i) = dr;
-                    matched_mu.at(i) = mu;
-                }
+            double dr = mu_childs.at(i)->p4().DeltaR(mu_ip->p4());
+            if(dr < matched_mu_dr.at(i))
+            {
+                matched_mu_dr.at(i) = dr;
+                matched_mu.at(i) = mu;
             }
         }
     }
@@ -161,9 +169,9 @@ bool DV::LSP::MatchReco(const xAOD::ElectronContainer& elc,
     // in most cases this should do nothing
     if(m_nEl > 1)
     {
-        for(std::size_t i = 0; i < nChilds; i++)
+        for(std::size_t i = 0; i < m_nEl; i++)
         {
-            for(std::size_t j = i+1; j < nChilds; j++)
+            for(std::size_t j = i+1; j < m_nEl; j++)
             {
                 if(matched_el.at(i) != nullptr && matched_el.at(i) == matched_el.at(j))
                 {
@@ -192,9 +200,9 @@ bool DV::LSP::MatchReco(const xAOD::ElectronContainer& elc,
     }
     if(m_nMu > 1)
     {
-        for(std::size_t i = 0; i < nChilds; i++)
+        for(std::size_t i = 0; i < m_nMu; i++)
         {
-            for(std::size_t j = i+1; j < nChilds; j++)
+            for(std::size_t j = i+1; j < m_nMu; j++)
             {
                 if(matched_mu.at(i) != nullptr && matched_mu.at(i) == matched_mu.at(j))
                 {
@@ -212,38 +220,39 @@ bool DV::LSP::MatchReco(const xAOD::ElectronContainer& elc,
     }
 
     // store matched reco particles
-    for(size_t i = 0; i < nChilds; i++)
+    for(size_t i = 0; i < m_nEl; i++)
     {
         if(matched_el.at(i) != nullptr)
         {
-            m_decElMatch(*m_childs.at(i)) = matched_el.at(i);
+            m_decElMatch(*el_childs.at(i)) = matched_el.at(i);
 
-            m_decTruMatch(*matched_el.at(i)) = m_childs.at(i);
+            m_decTruMatch(*matched_el.at(i)) = el_childs.at(i);
             m_decDR(*matched_el.at(i)) = matched_el_dr.at(i);
 
             m_el.push_back(matched_el.at(i));
         }
         if(matched_ph.at(i) != nullptr)
         {
-            m_decPhMatch(*m_childs.at(i)) = matched_ph.at(i);
+            m_decPhMatch(*el_childs.at(i)) = matched_ph.at(i);
 
-            m_decTruMatch(*matched_ph.at(i)) = m_childs.at(i);
+            m_decTruMatch(*matched_ph.at(i)) = el_childs.at(i);
             m_decDR(*matched_ph.at(i)) = matched_ph_dr.at(i);
 
             m_ph.push_back(matched_ph.at(i));
-        }
+       }
+    }
+    for(size_t i = 0; i < m_nMu; i++)
+    {
         if(matched_mu.at(i) != nullptr)
         {
-            m_decMuMatch(*m_childs.at(i)) = matched_mu.at(i);
+            m_decMuMatch(*mu_childs.at(i)) = matched_mu.at(i);
 
-            m_decTruMatch(*matched_mu.at(i)) = m_childs.at(i);
+            m_decTruMatch(*matched_mu.at(i)) = mu_childs.at(i);
             m_decDR(*matched_mu.at(i)) = matched_mu_dr.at(i);
 
             m_mu.push_back(matched_mu.at(i));
         }
     }
-
-    return true;
 }
 
 const xAOD::TruthVertex* DV::LSP::GetVtx() const

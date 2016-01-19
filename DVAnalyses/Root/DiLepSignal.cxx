@@ -128,14 +128,14 @@ bool DV::DiLepSignal::execute(xAOD::TEvent* evt)
     }
 
     // retrieve LSPs
-    std::vector<DV::LSP*> LSP_store = DV::LSP::GetLSPs(*truc);
+    auto LSP_store = DV::LSP::GetLSPs(*truc);
     if(LSP_store.size() != 2)
     {
         Warning("DiLepSignal::execute()", "Event does not contain two LSPs!");
         return true;
     }
 
-    for(DV::LSP* LSP: LSP_store)
+    for(auto LSP: LSP_store)
     {
         // retrieve decay position of LSP
         const xAOD::TruthVertex* LSP_vtx = LSP->GetVtx();
@@ -263,9 +263,9 @@ bool DV::DiLepSignal::execute(xAOD::TEvent* evt)
             }
         }
 
-        // calculate total filter efficiency
         if(vx_type == "ee" || vx_type == "em")
         {
+            // calculate total filter efficiency
             for(const std::string& fn: m_filt_names)
             {
                 if(fn == "All") continue;
@@ -276,28 +276,25 @@ bool DV::DiLepSignal::execute(xAOD::TEvent* evt)
                     break;
                 }
             }
-        }
 
-        // calculate overlap between filters
-        // loops assume that last filter is "All"
-        for(std::size_t i = 0; i < m_filt_names.size()-1; i++)
-        {
-            std::string fn1 = m_filt_names.at(i);
-            if(!filt_passed.at(fn1)) continue;
-
-            for(std::size_t j = 0; j < m_filt_names.size()-1; j++)
+            // calculate overlap between filters
+            // loops assume that last filter is "All"
+            for(std::size_t i = 0; i < m_filt_names.size()-1; i++)
             {
-                if(i == j) continue;
+                std::string fn1 = m_filt_names.at(i);
+                if(!filt_passed.at(fn1)) continue;
 
-                std::string fn2 = m_filt_names.at(j);
-                if(!filt_passed.at(fn2)) continue;
+                for(std::size_t j = 0; j < m_filt_names.size()-1; j++)
+                {
+                    if(i == j) continue;
 
-                m_hists2D.at("ov_" + vx_type)->Fill(static_cast<double>(i), static_cast<double>(j));
+                    std::string fn2 = m_filt_names.at(j);
+                    if(!filt_passed.at(fn2)) continue;
+
+                    m_hists2D.at("ov_" + vx_type)->Fill(static_cast<double>(i), static_cast<double>(j));
+                }
             }
         }
-
-        // delete LSP object
-        delete LSP;
     }
 
     return true;
