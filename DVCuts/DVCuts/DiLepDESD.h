@@ -4,6 +4,9 @@
 // STL
 #include <string>
 
+// ROOT
+#include "TLorentzVector.h"
+
 // Tools
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
@@ -76,6 +79,9 @@ namespace DV
             bool PassDiElPhCuts(const xAOD::Photon& ph) const override;
             bool PassDiLoElPhCuts(const xAOD::Electron& el) const override;
             bool PassDiLoElPhCuts(const xAOD::Photon& ph) const override;
+
+            // helper function
+            bool SameCluster(const TLorentzVector& t1, const TLorentzVector& t2) const override;
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_tdt;

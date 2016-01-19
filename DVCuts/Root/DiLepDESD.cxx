@@ -235,7 +235,7 @@ bool DV::DiLepDESD::SameCluster(const xAOD::Egamma& eg1, const xAOD::Egamma& eg2
         return false;
     }
 
-    return calo1->p4().DeltaR(calo2->p4()) < 0.01;
+    return SameCluster(calo1->p4(), calo2->p4());
 }
 
 bool DV::DiLepDESD::IsGood(const xAOD::Muon& mu) const
@@ -404,3 +404,7 @@ bool DV::DiLepDESD::PassDiLoElPhCuts(const xAOD::Photon& ph) const
   return PassCuts(ph, m_diloelph_pt);
 }
 
+bool DV::DiLepDESD::SameCluster(const TLorentzVector& t1, const TLorentzVector& t2) const
+{
+    return t1.DeltaR(t2) < 0.01;
+}

@@ -1,7 +1,10 @@
 #ifndef DV_IDILEPDESD_H
 #define DV_IDILEPDESD_H
 
-// Framework includes
+// ROOT
+#include "TLorentzVector.h"
+
+// Tools
 #include "AsgTools/IAsgTool.h"
 
 // xAOD
@@ -45,6 +48,8 @@ namespace DV
             virtual bool PassDiElPhCuts(const xAOD::Photon& ph) const = 0;
             virtual bool PassDiLoElPhCuts(const xAOD::Electron& el) const = 0;
             virtual bool PassDiLoElPhCuts(const xAOD::Photon& ph) const = 0;
+
+            virtual bool SameCluster(const TLorentzVector& t1, const TLorentzVector& t2) const = 0;
     };
 }
 
