@@ -31,6 +31,20 @@ namespace DV
             virtual bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
 
             virtual bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const = 0;
+
+            virtual bool PassSiElCuts(const xAOD::Electron& el) const = 0;
+            virtual bool PassSiPhCuts(const xAOD::Photon& ph) const = 0;
+            virtual bool PassSiPhXCuts(const xAOD::Electron& el) const = 0;
+            virtual bool PassSiPhXCuts(const xAOD::Photon& ph) const = 0;
+            virtual bool PassSiPhXCuts(const xAOD::Muon& mu) const = 0;
+            virtual bool PassSiMuCuts(const xAOD::Muon& mu) const = 0;
+
+            virtual bool PassDiElCuts(const xAOD::Electron& el) const = 0;
+            virtual bool PassDiPhCuts(const xAOD::Photon& ph) const = 0;
+            virtual bool PassDiElPhCuts(const xAOD::Electron& el) const = 0;
+            virtual bool PassDiElPhCuts(const xAOD::Photon& ph) const = 0;
+            virtual bool PassDiLoElPhCuts(const xAOD::Electron& el) const = 0;
+            virtual bool PassDiLoElPhCuts(const xAOD::Photon& ph) const = 0;
     };
 }
 

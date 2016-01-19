@@ -39,6 +39,11 @@ StatusCode DV::DiLepDESD::initialize()
     // Greet the user:
     ATH_MSG_DEBUG("Initialising... ");
 
+    if(m_tdt.retrieve().isFailure())
+    {
+        ATH_MSG_ERROR("Failed to retrieve TrigDecisionTool!");
+        return StatusCode::FAILURE;
+    }
     if(m_ec.retrieve().isFailure())
     {
         ATH_MSG_ERROR("Failed to retrieve ElecCuts!");
@@ -338,3 +343,64 @@ bool DV::DiLepDESD::PassAny(const xAOD::ElectronContainer& elc, const xAOD::Muon
 
     return false;
 }
+
+bool DV::DiLepDESD::PassSiElCuts(const xAOD::Electron& el) const
+{
+  return PassCuts(el, m_siel_pt);
+}
+
+bool DV::DiLepDESD::PassSiPhCuts(const xAOD::Photon& ph) const
+{
+  return PassCuts(ph, m_siph_pt);
+}
+
+bool DV::DiLepDESD::PassSiPhXCuts(const xAOD::Electron& el) const
+{
+  return PassCuts(el, m_siph_xpt);
+}
+
+bool DV::DiLepDESD::PassSiPhXCuts(const xAOD::Photon& ph) const
+{
+  return PassCuts(ph, m_siph_xpt);
+}
+
+bool DV::DiLepDESD::PassSiPhXCuts(const xAOD::Muon& mu) const
+{
+  return PassCuts(mu, m_siph_xpt, m_mu_eta);
+}
+
+bool DV::DiLepDESD::PassSiMuCuts(const xAOD::Muon& mu) const
+{
+  return PassCuts(mu, m_simu_pt, m_mu_beta);
+}
+
+bool DV::DiLepDESD::PassDiElCuts(const xAOD::Electron& el) const
+{
+  return PassCuts(el, m_diel_pt);
+}
+
+bool DV::DiLepDESD::PassDiPhCuts(const xAOD::Photon& ph) const
+{
+  return PassCuts(ph, m_diph_pt);
+}
+
+bool DV::DiLepDESD::PassDiElPhCuts(const xAOD::Electron& el) const
+{
+  return PassCuts(el, m_dielph_pt);
+}
+
+bool DV::DiLepDESD::PassDiElPhCuts(const xAOD::Photon& ph) const
+{
+  return PassCuts(ph, m_dielph_pt);
+}
+
+bool DV::DiLepDESD::PassDiLoElPhCuts(const xAOD::Electron& el) const
+{
+  return PassCuts(el, m_diloelph_pt, true);
+}
+
+bool DV::DiLepDESD::PassDiLoElPhCuts(const xAOD::Photon& ph) const
+{
+  return PassCuts(ph, m_diloelph_pt);
+}
+

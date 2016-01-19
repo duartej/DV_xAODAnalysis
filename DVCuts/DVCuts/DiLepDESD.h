@@ -33,8 +33,12 @@ namespace DV
             // retrieves Tools
             StatusCode initialize() override;
 
-            // CAUTION!: one of them has to be called before the filters can be used!
+            /*
+             * CAUTION!: One of the two methods has to be called before the filters can be used!
+             */
+            // retrieves trigger decisions of current event
             void RetrieveTriggerFlags() override;
+            // sets each trigger decision manually
             void SetTriggerFlags(bool siph, bool diph, bool simu) override;
 
             // single filter implementations
@@ -51,6 +55,27 @@ namespace DV
             bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const override;
 
             bool PassAny(const xAOD::ElectronContainer& elc, const xAOD::MuonContainer& muc) const override;
+
+            /*
+             * Subfilter cuts
+             * Only required for combinatorial background!
+             */
+
+            // single filter cuts
+            bool PassSiElCuts(const xAOD::Electron& el) const override;
+            bool PassSiPhCuts(const xAOD::Photon& ph) const override;
+            bool PassSiPhXCuts(const xAOD::Electron& el) const override;
+            bool PassSiPhXCuts(const xAOD::Photon& ph) const override;
+            bool PassSiPhXCuts(const xAOD::Muon& mu) const override;
+            bool PassSiMuCuts(const xAOD::Muon& mu) const override;
+
+            // di filter cuts
+            bool PassDiElCuts(const xAOD::Electron& el) const override;
+            bool PassDiPhCuts(const xAOD::Photon& ph) const override;
+            bool PassDiElPhCuts(const xAOD::Electron& el) const override;
+            bool PassDiElPhCuts(const xAOD::Photon& ph) const override;
+            bool PassDiLoElPhCuts(const xAOD::Electron& el) const override;
+            bool PassDiLoElPhCuts(const xAOD::Photon& ph) const override;
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_tdt;
