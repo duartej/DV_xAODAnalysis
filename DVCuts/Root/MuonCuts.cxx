@@ -10,7 +10,7 @@ bool DV::MuonCuts::m_mst_init = false;
 
 DV::MuonCuts::MuonCuts(const std::string& name) :
     asg::AsgTool(name),
-    m_mst("CP::IMuonSelectionTool/DVMuonSelectionTool")
+    m_mst("CP::MuonSelectionTool/DVMuonSelectionTool")
 {
     declareProperty("ptMin", m_ptMin = 10000., "Cut for muon track pt [MeV]");
     declareProperty("etaMax", m_etaMax = 2.5, "Cut for muon track |eta|");
