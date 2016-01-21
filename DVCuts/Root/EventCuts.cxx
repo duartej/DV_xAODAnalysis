@@ -145,8 +145,8 @@ bool DV::EventCuts::PassTrigger() const
     }
     if(m_trigNames.empty())
     {
-        ATH_MSG_ERROR("No trigger names were defined!");
-        return false;
+        ATH_MSG_WARNING("No trigger names were defined!");
+        return true;
     }
 
     for(const std::string& tn: m_trigNames)
